@@ -534,22 +534,29 @@ function setLogoutButton(
    FIND EMPLOYEE
    ========================================== */
 
-async function findEmployee(
-    employeeCode
-) {
+async function findEmployee(employeeCode) {
 
-    return await supabaseRequest(
-        "/rest/v1/employees" +
-        "?employee_code=eq." +
-        encodeURIComponent(
-            employeeCode
-        ) +
-        "&active=eq.true" +
-        "&select=id,employee_code,employee_name,department,designation" +
-        "&limit=1"
-    );
+    const cleanCode =
+        String(employeeCode || "")
+            .trim()
+            .toUpperCase();
+
+    const result =
+        await supabaseRequest(
+            "/rest/v1/employees" +
+            "?active=eq.true" +
+            "&select=id,employee_code,employee_name,department,designation"
+        );
+
+    const employee =
+        result.find(item =>
+            String(item.employee_code || "")
+                .trim()
+                .toUpperCase() === cleanCode
+        );
+
+    return employee ? [employee] : [];
 }
-
 
 /* ==========================================
    LOAD TODAY'S ATTENDANCE
