@@ -1,0 +1,419 @@
+Need clean employee name wise format
+yeah our format is perfect but not working as expected howering some 0 values over the sheet
+after entering button response and not data showing
+Pasted text(20260825-141145).txt
+Document
+see what is the problem
+i have to remove that 
+
+still having problem in it no button are getting clicked and not data is displaying after selection of date
+when downloading csv 
+how to fix this
+remove from index
+Pasted text(20260825-144437).txt
+Document
+refactor index give total code
+why its showing this is this because of attenance marked already ?
+
+Next, let's add the Branch field to your employee database first. This is required before the branch-wise monthly page can filter employees correctly.
+
+Step 1 — Supabase → SQL Editor
+
+Run:
+
+ALTER TABLE public.employees
+ADD COLUMN IF NOT EXISTS branch text;
+
+Then run:
+
+SELECT
+    id,
+    employee_code,
+    employee_name,
+    branch
+FROM public.employees
+ORDER BY employee_name;
+
+You should then see:
+
+Employee	Branch
+Sagar Waghmare	—
+Rahul Sharma	—
+Priya Patil	—
+Step 2 — Add branch names
+
+For example:
+
+UPDATE public.employees
+SET branch = 'Mumbai'
+WHERE employee_code = 'EMP001';
+
+You can repeat this for your other employees.
+
+Step 3
+
+Once the employees have their branch assigned, we'll create:
+
+branch-monthly.html
+
+with:
+
+Branch dropdown
+Month dropdown
+Employee-wise daily attendance
+Present count
+Leave count
+Total Hours
+Total employees in selected branch
+Total branch hours
+CSV download
+
+Run Step 1 first and tell me DONE. Then we'll build the complete branch-monthly page.
+
+done but also also need to give all branches option
+
+Yes. We'll include All Branches as the default option.
+
+The Branch filter will be:
+
+Branch: [ All Branches ▼ ]
+
+and below it:
+
+All Branches
+Mumbai
+Pune
+Nashik
+...
+Behavior
+
+All Branches → shows every active employee.
+
+Mumbai → shows only employees where:
+
+branch = Mumbai
+
+Pune → shows only Pune employees.
+
+The selected month will work independently:
+
+Branch: [ All Branches ▼ ]    Month: [ August 2026 ▼ ]
+
+I'll make the branch-wise page so that All Branches is always available, even when new branches are added later.
+
+yes
+Analyzed
+
+Done. I created the complete Branch Monthly Attendance page with All Branches included.
+
+Download branch-monthly.html
+
+It includes
+All Branches option
+Automatically loads all active branches from the employees.branch field
+Individual branch filtering
+Month selection
+Employee-wise daily attendance
+🟢 Present + hours
+🔴 Leave
+🟠 Weekly Off
+Present count
+Leave count
+Total Hours per employee
+Total team hours
+CSV download
+Mobile-friendly layout
+Example
+Branch: [ All Branches ▼ ]
+Month:  [ August 2026 ]
+
+Employee        01 Aug   02 Aug   03 Aug   ... Present Leave Total Hours
+Sagar Waghmare   🟢 8h    🔴 Leave  🟢 8h   ...   20     5    161h 45m
+Rahul Sharma     🟢 9h    🟢 8h     🔴 Leave ...   19     6    152h 20m
+
+When you select Mumbai, only employees whose branch is Mumbai will appear.
+
+Next: create a new GitHub file named branch-monthly.html and replace its contents with this downloaded code. Your existing index.html and monthly.html remain untouched. 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Branch Monthly Attendance</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;color:#222}
+.container{max-width:1600px;margin:auto;padding:12px}
+header{background:#1f4e78;color:#fff;padding:24px;border-radius:12px;margin-bottom:20px}
+header h1{margin:0 0 6px} header p{margin:0}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+.controls{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.control{min-width:200px}
+label{display:block;font-weight:bold;margin-bottom:7px}
+select,input,button{padding:11px 14px;border-radius:7px;border:1px solid #ccc;font-size:15px}
+select,input{width:100%}
+button{border:0;cursor:pointer;font-weight:bold}
+.back{background:#6c757d;color:#fff}.download{background:#198754;color:#fff}
+.summary-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.summary-box{background:#eef5fb;border-left:5px solid #1f4e78;padding:15px;border-radius:8px}
+.summary-box h3{margin:0 0 7px;font-size:14px;color:#555}
+.summary-box p{margin:0;font-size:23px;font-weight:bold;color:#1f4e78}
+.table-wrapper{width:100%;overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
+th,td{border-right:1px solid #ddd;border-bottom:1px solid #ddd;padding:9px 10px;text-align:center;white-space:nowrap;min-width:82px}
+th{background:#1f4e78;color:#fff;position:sticky;top:0;z-index:5}
+.employee-column{position:sticky;left:0;z-index:6;min-width:180px;text-align:left;background:#fff;box-shadow:2px 0 4px rgba(0,0,0,.08)}
+th.employee-column{background:#1f4e78;color:#fff;z-index:8}
+.summary-column{font-weight:bold;background:#fff;min-width:80px}
+.present{color:#198754;font-weight:bold}.leave{color:#dc3545;font-weight:bold}.weekoff{color:#e67e22;font-weight:bold}
+.loading,.empty{text-align:center;padding:30px;color:#777}
+.error{background:#f8d7da;color:#842029;padding:12px;border-radius:7px;margin-top:15px;display:none}
+@media(max-width:800px){.summary-boxes{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.container{padding:8px}.card{padding:14px}.employee-column{min-width:150px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Branch Monthly Attendance</h1>
+<p>View employee attendance branch-wise and month-wise</p>
+</header>
+
+<div class="card">
+<div class="controls">
+<div class="control">
+<label for="branchFilter">Branch</label>
+<select id="branchFilter"><option value="ALL">All Branches</option></select>
+</div>
+<div class="control">
+<label for="monthFilter">Select Month</label>
+<input type="month" id="monthFilter">
+</div>
+<button class="back" type="button" onclick="goBack()">← Attendance</button>
+<button class="download" type="button" onclick="downloadCSV()">Download Report</button>
+</div>
+<div id="errorMessage" class="error"></div>
+</div>
+
+<div class="card">
+<div class="summary-boxes">
+<div class="summary-box"><h3>Total Employees</h3><p id="totalEmployees">0</p></div>
+<div class="summary-box"><h3>Total Present</h3><p id="totalPresent">0</p></div>
+<div class="summary-box"><h3>Total Leave</h3><p id="totalLeave">0</p></div>
+<div class="summary-box"><h3>Total Team Hours</h3><p id="totalHours">0h 00m</p></div>
+</div>
+</div>
+
+<div class="card">
+<div id="loadingMessage" class="loading">Loading attendance...</div>
+<div id="emptyMessage" class="empty" style="display:none">No employees found for the selected branch.</div>
+<div id="tableWrapper" class="table-wrapper" style="display:none">
+<table id="attendanceTable"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
+</div>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL="https://ifvhwjufwnonfmkeapls.supabase.co";
+const SUPABASE_KEY="sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
+let employees=[],attendanceData=[];
+
+async function supabaseRequest(endpoint,options={}){
+    const response=await fetch(SUPABASE_URL+endpoint,{
+        ...options,
+        headers:{
+            "apikey":SUPABASE_KEY,
+            "Authorization":"Bearer "+SUPABASE_KEY,
+            "Content-Type":"application/json",
+            "Prefer":"return=representation",
+            ...(options.headers||{})
+        }
+    });
+    if(!response.ok)throw new Error(await response.text());
+    if(response.status===204)return [];
+    return response.json();
+}
+
+async function loadEmployees(){
+    employees=await supabaseRequest(
+        "/rest/v1/employees?active=eq.true&select=id,employee_code,employee_name,department,designation,branch&order=employee_name"
+    );
+    employees=Array.isArray(employees)?employees:[];
+    buildBranchFilter();
+}
+
+function buildBranchFilter(){
+    const select=document.getElementById("branchFilter");
+    const branches=[...new Set(
+        employees.map(e=>String(e.branch||"").trim()).filter(Boolean)
+    )].sort((a,b)=>a.localeCompare(b));
+    select.innerHTML='<option value="ALL">All Branches</option>';
+    branches.forEach(branch=>{
+        const option=document.createElement("option");
+        option.value=branch;
+        option.textContent=branch;
+        select.appendChild(option);
+    });
+}
+
+async function loadAttendance(){
+    attendanceData=await supabaseRequest("/rest/v1/attendance?select=*");
+    attendanceData=Array.isArray(attendanceData)?attendanceData:[];
+}
+
+function formatHours(value){
+    const total=Math.round(Number(value||0)*60);
+    return Math.floor(total/60)+"h "+String(total%60).padStart(2,"0")+"m";
+}
+
+function getDaysToDisplay(year,month){
+    const today=new Date();
+    const last=new Date(year,month,0).getDate();
+    if(year===today.getFullYear()&&month===today.getMonth()+1)return today.getDate();
+    return last;
+}
+
+function findAttendance(employee,date){
+    return attendanceData.find(r=>{
+        if(String(r.attendance_date)!==date)return false;
+        if(r.employee_id!=null&&String(r.employee_id)===String(employee.id))return true;
+        return String(r.employee_name||"").trim()===String(employee.employee_name||"").trim();
+    });
+}
+
+function filteredEmployees(){
+    const branch=document.getElementById("branchFilter").value;
+    if(branch==="ALL")return employees;
+    return employees.filter(e=>String(e.branch||"").trim()===branch);
+}
+
+function escapeHTML(value){
+    return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+
+function renderTable(){
+    const selected=document.getElementById("monthFilter").value;
+    if(!selected)return;
+    const [year,month]=selected.split("-").map(Number);
+    const days=getDaysToDisplay(year,month);
+    const list=filteredEmployees();
+
+    document.getElementById("totalEmployees").textContent=list.length;
+
+    if(!list.length){
+        document.getElementById("tableWrapper").style.display="none";
+        document.getElementById("emptyMessage").style.display="block";
+        document.getElementById("totalPresent").textContent="0";
+        document.getElementById("totalLeave").textContent="0";
+        document.getElementById("totalHours").textContent="0h 00m";
+        return;
+    }
+
+    document.getElementById("emptyMessage").style.display="none";
+    document.getElementById("tableWrapper").style.display="block";
+
+    let head='<tr><th class="employee-column">Employee</th>';
+    for(let day=1;day<=days;day++){
+        const d=new Date(year,month-1,day);
+        head+=`<th>${String(day).padStart(2,"0")} ${d.toLocaleDateString("en-IN",{month:"short"})}<br><small>${d.toLocaleDateString("en-IN",{weekday:"short"})}</small></th>`;
+    }
+    head+='<th class="summary-column">Present</th><th class="summary-column">Leave</th><th class="summary-column">Total Hours</th></tr>';
+    document.getElementById("tableHead").innerHTML=head;
+
+    let body="",teamPresent=0,teamLeave=0,teamHours=0;
+
+    list.forEach(employee=>{
+        let present=0,leave=0,totalHours=0;
+        body+=`<tr><td class="employee-column"><strong>${escapeHTML(employee.employee_name)}</strong></td>`;
+
+        for(let day=1;day<=days;day++){
+            const date=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+            const record=findAttendance(employee,date);
+            const status=String(record?.attendance_status||"").toLowerCase();
+
+            if(status==="weekly off"){
+                body+='<td class="weekoff">🟠 Off</td>';
+            }else if(status==="leave"){
+                leave++;teamLeave++;
+                body+='<td class="leave">🔴 Leave</td>';
+            }else if(record){
+                const hours=Number(record.hours_completed)||0;
+                present++;teamPresent++;totalHours+=hours;teamHours+=hours;
+                body+=`<td class="present">🟢 ${formatHours(hours)}</td>`;
+            }else{
+                leave++;teamLeave++;
+                body+='<td class="leave">🔴 Leave</td>';
+            }
+        }
+
+        body+=`<td class="summary-column"><strong>${present}</strong></td>
+<td class="summary-column"><strong>${leave}</strong></td>
+<td class="summary-column"><strong>${formatHours(totalHours)}</strong></td></tr>`;
+    });
+
+    document.getElementById("tableBody").innerHTML=body;
+    document.getElementById("totalPresent").textContent=teamPresent;
+    document.getElementById("totalLeave").textContent=teamLeave;
+    document.getElementById("totalHours").textContent=formatHours(teamHours);
+}
+
+function csvValue(value){return '"'+String(value??"").replace(/"/g,'""')+'"';}
+
+function downloadCSV(){
+    const rows=document.querySelectorAll("#attendanceTable tr");
+    let csv="";
+    rows.forEach(row=>{
+        const data=[];
+        row.querySelectorAll("th,td").forEach(cell=>{
+            let value=cell.innerText.trim();
+            if(cell.classList.contains("present"))value="Present - "+value.replace("🟢","").trim();
+            if(cell.classList.contains("leave"))value="Leave";
+            if(cell.classList.contains("weekoff"))value="Weekly Off";
+            data.push(csvValue(value));
+        });
+        csv+=data.join(",")+"
+";
+    });
+
+    const branch=document.getElementById("branchFilter").value;
+    const month=document.getElementById("monthFilter").value;
+    const safeBranch=(branch==="ALL"?"All-Branches":branch.replace(/[^a-z0-9]/gi,"-"));
+    const blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+    link.href=url;
+    link.download=`Attendance-${safeBranch}-${month}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+function goBack(){window.location.href="index.html";}
+
+document.getElementById("branchFilter").addEventListener("change",renderTable);
+document.getElementById("monthFilter").addEventListener("change",renderTable);
+
+async function initialize(){
+    const today=new Date();
+    document.getElementById("monthFilter").value=
+        today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0");
+    try{
+        await Promise.all([loadEmployees(),loadAttendance()]);
+        renderTable();
+        document.getElementById("loadingMessage").style.display="none";
+    }catch(error){
+        document.getElementById("loadingMessage").style.display="none";
+        const box=document.getElementById("errorMessage");
+        box.textContent="Unable to load attendance: "+error.message;
+        box.style.display="block";
+    }
+}
+
+initialize();
+</script>
+</body>
+</html>
+branch-monthly.html
+HTML
