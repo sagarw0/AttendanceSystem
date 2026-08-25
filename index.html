@@ -1,10 +1,8 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Team Attendance System</title>
 
     <style>
@@ -39,7 +37,6 @@
 
         header p {
             margin: 0;
-            opacity: 0.9;
         }
 
         .card {
@@ -47,11 +44,10 @@
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
         }
 
-        .card h2 {
-            margin-top: 0;
+        h2 {
             color: #1f4e78;
         }
 
@@ -83,28 +79,19 @@
             font-weight: bold;
         }
 
-        .btn-primary {
+        .primary {
             background: #1f4e78;
             color: white;
         }
 
-        .btn-primary:hover {
-            background: #163a5c;
-        }
-
-        .btn-success {
-            background: #198754;
-            color: white;
-        }
-
-        .btn-danger {
+        .danger {
             background: #dc3545;
             color: white;
-            padding: 7px 10px;
             width: auto;
+            padding: 7px 12px;
         }
 
-        .btn-export {
+        .export {
             background: #6f42c1;
             color: white;
             width: auto;
@@ -165,10 +152,6 @@
             color: white;
         }
 
-        tr:hover {
-            background: #f7f7f7;
-        }
-
         .present {
             color: #198754;
             font-weight: bold;
@@ -179,23 +162,21 @@
             font-weight: bold;
         }
 
-        .filter-area {
-            display: flex;
-            gap: 10px;
-            align-items: end;
-            margin-bottom: 15px;
-        }
-
-        .filter-area > div {
-            flex: 1;
-        }
-
-        .month-info {
-            background: #fff3cd;
-            border: 1px solid #ffe69c;
+        .message {
             padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            border-radius: 7px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .success {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #842029;
         }
 
         @media (max-width: 900px) {
@@ -211,11 +192,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .filter-area {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
             .button-area {
                 flex-direction: column;
             }
@@ -229,11 +205,12 @@
 
     <header>
         <h1>Team Attendance System</h1>
-        <p>Record attendance and automatically calculate monthly working hours.</p>
+        <p>Attendance and monthly working-hours dashboard</p>
     </header>
 
 
     <!-- Attendance Entry -->
+
     <div class="card">
 
         <h2>Mark Attendance</h2>
@@ -255,89 +232,49 @@
                     </select>
                 </div>
 
-
                 <div>
                     <label>Date</label>
-
-                    <input
-                        type="date"
-                        id="attendanceDate"
-                        required
-                    >
+                    <input type="date" id="attendanceDate" required>
                 </div>
-
 
                 <div>
                     <label>In Time</label>
-
-                    <input
-                        type="time"
-                        id="inTime"
-                        required
-                    >
+                    <input type="time" id="inTime" required>
                 </div>
-
 
                 <div>
                     <label>Out Time</label>
-
-                    <input
-                        type="time"
-                        id="outTime"
-                        required
-                    >
+                    <input type="time" id="outTime" required>
                 </div>
 
             </div>
 
-
             <div class="button-area">
 
-                <button
-                    type="submit"
-                    class="btn-primary"
-                >
+                <button class="primary" type="submit">
                     Submit Attendance
-                </button>
-
-                <button
-                    type="button"
-                    class="btn-success"
-                    onclick="fillCurrentTime()"
-                >
-                    Use Current Time
                 </button>
 
             </div>
 
         </form>
 
+        <div id="message" class="message"></div>
+
     </div>
 
 
     <!-- Monthly Summary -->
+
     <div class="card">
 
-        <h2>Team Monthly Summary</h2>
+        <h2>Monthly Team Summary</h2>
 
-        <div class="filter-area">
+        <label>Select Month</label>
 
-            <div>
-                <label>Select Month</label>
+        <input type="month" id="monthFilter">
 
-                <input
-                    type="month"
-                    id="monthFilter"
-                >
-            </div>
-
-        </div>
-
-
-        <div class="month-info">
-            Showing attendance and working hours for the selected month.
-        </div>
-
+        <br><br>
 
         <div class="summary-grid">
 
@@ -367,6 +304,7 @@
 
 
     <!-- Employee Summary -->
+
     <div class="card">
 
         <h2>Employee Monthly Summary</h2>
@@ -376,16 +314,14 @@
             <table>
 
                 <thead>
-
                     <tr>
                         <th>Employee</th>
-                        <th>Attendance Days</th>
+                        <th>Days</th>
                         <th>Total Hours</th>
-                        <th>Average Hours</th>
-                        <th>Expected Hours*</th>
+                        <th>Average</th>
+                        <th>Expected</th>
                         <th>Difference</th>
                     </tr>
-
                 </thead>
 
                 <tbody id="employeeSummaryBody"></tbody>
@@ -394,24 +330,16 @@
 
         </div>
 
-        <p>
-            <small>
-                * Expected hours are calculated using 8 hours per attendance day.
-            </small>
-        </p>
-
     </div>
 
 
-    <!-- Attendance Records -->
+    <!-- Attendance -->
+
     <div class="card">
 
-        <h2>Complete Team Attendance</h2>
+        <h2>Team Attendance</h2>
 
-        <button
-            class="btn-export"
-            onclick="exportCSV()"
-        >
+        <button class="export" onclick="exportCSV()">
             Export CSV
         </button>
 
@@ -428,7 +356,7 @@
                         <th>Employee</th>
                         <th>In Time</th>
                         <th>Out Time</th>
-                        <th>Hours Completed</th>
+                        <th>Hours</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -449,13 +377,24 @@
 <script>
 
     /*
-       ==========================================
-       ATTENDANCE SYSTEM
-       ==========================================
+    ==========================================
+    SUPABASE CONFIGURATION
+    ==========================================
     */
 
+    const SUPABASE_URL =
+        "https://ifvhwjufwnonfmkeapls.supabase.co";
 
-    // Employee list
+    const SUPABASE_KEY =
+        "YOUR_PUBLISHABLE_KEY";
+
+
+    /*
+    ==========================================
+    EMPLOYEES
+    ==========================================
+    */
+
     const employees = [
         "Rahul Sharma",
         "Sagar Waghmare",
@@ -465,19 +404,20 @@
     ];
 
 
-    // Get attendance data from browser
-    let attendanceData =
-        JSON.parse(localStorage.getItem("attendanceData")) || [];
+    let attendanceData = [];
 
 
-    // Today's date
+    /*
+    ==========================================
+    INITIAL DATE
+    ==========================================
+    */
+
     const today = new Date();
 
     document.getElementById("attendanceDate").value =
         formatDate(today);
 
-
-    // Current month
     document.getElementById("monthFilter").value =
         today.getFullYear() +
         "-" +
@@ -485,7 +425,9 @@
 
 
     /*
-       Format Date
+    ==========================================
+    DATE FORMAT
+    ==========================================
     */
 
     function formatDate(date) {
@@ -500,37 +442,43 @@
 
 
     /*
-       Calculate Hours
+    ==========================================
+    CALCULATE HOURS
+    ==========================================
     */
 
     function calculateHours(inTime, outTime) {
 
-        const start = new Date("2000-01-01 " + inTime);
-        let end = new Date("2000-01-01 " + outTime);
+        const start =
+            new Date("2000-01-01T" + inTime);
 
-        // Handles night shifts
+        let end =
+            new Date("2000-01-01T" + outTime);
+
         if (end < start) {
             end.setDate(end.getDate() + 1);
         }
 
-        const difference =
-            (end - start) / (1000 * 60 * 60);
-
-        return difference;
+        return (end - start) / 3600000;
 
     }
 
 
     /*
-       Convert decimal hours to HH:MM
+    ==========================================
+    FORMAT HOURS
+    ==========================================
     */
 
     function formatHours(decimalHours) {
 
-        const hours = Math.floor(decimalHours);
+        const hours =
+            Math.floor(decimalHours);
 
         const minutes =
-            Math.round((decimalHours - hours) * 60);
+            Math.round(
+                (decimalHours - hours) * 60
+            );
 
         return hours + "h " +
             String(minutes).padStart(2, "0") +
@@ -540,140 +488,292 @@
 
 
     /*
-       Submit Attendance
+    ==========================================
+    SUPABASE REQUEST
+    ==========================================
     */
 
-    document
-        .getElementById("attendanceForm")
-        .addEventListener("submit", function(event) {
+    async function supabaseRequest(
+        endpoint,
+        options = {}
+    ) {
 
-            event.preventDefault();
+        const response =
+            await fetch(
+                SUPABASE_URL + endpoint,
+                {
+                    ...options,
 
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization":
+                            "Bearer " + SUPABASE_KEY,
+                        "Content-Type":
+                            "application/json",
+                        "Prefer":
+                            "return=representation",
 
-            const employee =
-                document.getElementById("employee").value;
-
-            const date =
-                document.getElementById("attendanceDate").value;
-
-            const inTime =
-                document.getElementById("inTime").value;
-
-            const outTime =
-                document.getElementById("outTime").value;
-
-
-            if (!employee || !date || !inTime || !outTime) {
-
-                alert("Please fill all fields.");
-
-                return;
-            }
-
-
-            const hours =
-                calculateHours(inTime, outTime);
-
-
-            if (hours <= 0) {
-
-                alert("Invalid attendance time.");
-
-                return;
-            }
-
-
-            /*
-               Prevent duplicate attendance
-               for same employee and date
-            */
-
-            const duplicate =
-                attendanceData.find(
-                    record =>
-                        record.employee === employee &&
-                        record.date === date
-                );
-
-
-            if (duplicate) {
-
-                const confirmUpdate =
-                    confirm(
-                        "Attendance already exists for this employee on this date. Update it?"
-                    );
-
-                if (!confirmUpdate) {
-                    return;
+                        ...(options.headers || {})
+                    }
                 }
+            );
 
 
-                attendanceData =
-                    attendanceData.filter(
-                        record =>
-                            !(
-                                record.employee === employee &&
-                                record.date === date
-                            )
-                    );
+        if (!response.ok) {
 
-            }
+            const error =
+                await response.text();
+
+            throw new Error(error);
+
+        }
 
 
-            const attendance = {
-
-                id: Date.now(),
-
-                employee: employee,
-
-                date: date,
-
-                inTime: inTime,
-
-                outTime: outTime,
-
-                hours: hours
-
-            };
+        if (response.status === 204) {
+            return [];
+        }
 
 
-            attendanceData.push(attendance);
+        return response.json();
+
+    }
 
 
-            saveData();
+    /*
+    ==========================================
+    LOAD ATTENDANCE
+    ==========================================
+    */
 
+    async function loadAttendance() {
 
-            document.getElementById("attendanceForm").reset();
+        try {
 
-
-            document.getElementById("attendanceDate").value =
-                formatDate(new Date());
+            attendanceData =
+                await supabaseRequest(
+                    "/rest/v1/attendance?select=*"
+                );
 
 
             renderAll();
 
+        }
+        catch (error) {
 
-            alert("Attendance submitted successfully.");
+            showMessage(
+                "Unable to load attendance: " +
+                error.message,
+                true
+            );
 
-        });
+        }
+
+    }
 
 
     /*
-       Save Data
+    ==========================================
+    SUBMIT ATTENDANCE
+    ==========================================
     */
 
-    function saveData() {
+    document
+        .getElementById("attendanceForm")
+        .addEventListener(
+            "submit",
+            async function(event) {
 
-        localStorage.setItem(
-            "attendanceData",
-            JSON.stringify(attendanceData)
+                event.preventDefault();
+
+
+                const employee =
+                    document.getElementById(
+                        "employee"
+                    ).value;
+
+
+                const date =
+                    document.getElementById(
+                        "attendanceDate"
+                    ).value;
+
+
+                const inTime =
+                    document.getElementById(
+                        "inTime"
+                    ).value;
+
+
+                const outTime =
+                    document.getElementById(
+                        "outTime"
+                    ).value;
+
+
+                const hours =
+                    calculateHours(
+                        inTime,
+                        outTime
+                    );
+
+
+                if (hours <= 0) {
+
+                    showMessage(
+                        "Invalid time entered.",
+                        true
+                    );
+
+                    return;
+
+                }
+
+
+                try {
+
+                    /*
+                    Check duplicate
+                    */
+
+                    const existing =
+                        await supabaseRequest(
+                            "/rest/v1/attendance" +
+                            "?employee_name=eq." +
+                            encodeURIComponent(employee) +
+                            "&attendance_date=eq." +
+                            date +
+                            "&select=id"
+                        );
+
+
+                    /*
+                    If duplicate exists,
+                    update it.
+                    */
+
+                    if (existing.length > 0) {
+
+                        const id =
+                            existing[0].id;
+
+
+                        await supabaseRequest(
+                            "/rest/v1/attendance?id=eq." +
+                            id,
+                            {
+                                method: "PATCH",
+
+                                body: JSON.stringify({
+
+                                    in_time: inTime,
+
+                                    out_time: outTime,
+
+                                    hours_completed:
+                                        hours.toFixed(2)
+
+                                })
+                            }
+                        );
+
+                    }
+
+                    else {
+
+                        await supabaseRequest(
+                            "/rest/v1/attendance",
+                            {
+                                method: "POST",
+
+                                body: JSON.stringify({
+
+                                    employee_name:
+                                        employee,
+
+                                    attendance_date:
+                                        date,
+
+                                    in_time:
+                                        inTime,
+
+                                    out_time:
+                                        outTime,
+
+                                    hours_completed:
+                                        hours.toFixed(2)
+
+                                })
+                            }
+                        );
+
+                    }
+
+
+                    showMessage(
+                        "Attendance saved successfully.",
+                        false
+                    );
+
+
+                    document
+                        .getElementById(
+                            "attendanceForm"
+                        )
+                        .reset();
+
+
+                    document
+                        .getElementById(
+                            "attendanceDate"
+                        )
+                        .value =
+                        formatDate(new Date());
+
+
+                    await loadAttendance();
+
+                }
+                catch (error) {
+
+                    showMessage(
+                        "Error saving attendance: " +
+                        error.message,
+                        true
+                    );
+
+                }
+
+            }
+        );
+
+
+    /*
+    ==========================================
+    MONTHLY RECORDS
+    ==========================================
+    */
+
+    function getMonthlyRecords() {
+
+        const month =
+            document.getElementById(
+                "monthFilter"
+            ).value;
+
+
+        return attendanceData.filter(
+            record =>
+                record.attendance_date
+                    .startsWith(month)
         );
 
     }
 
 
     /*
-       Render Everything
+    ==========================================
+    RENDER ALL
+    ==========================================
     */
 
     function renderAll() {
@@ -688,41 +788,18 @@
 
 
     /*
-       Get selected month
-    */
-
-    function getSelectedMonth() {
-
-        return document.getElementById("monthFilter").value;
-
-    }
-
-
-    /*
-       Filter records by selected month
-    */
-
-    function getMonthlyRecords() {
-
-        const month =
-            getSelectedMonth();
-
-        return attendanceData.filter(
-            record =>
-                record.date.startsWith(month)
-        );
-
-    }
-
-
-    /*
-       Attendance Table
+    ==========================================
+    ATTENDANCE TABLE
+    ==========================================
     */
 
     function renderAttendanceTable() {
 
         const tbody =
-            document.getElementById("attendanceBody");
+            document.getElementById(
+                "attendanceBody"
+            );
+
 
         tbody.innerHTML = "";
 
@@ -731,8 +808,12 @@
             getMonthlyRecords()
                 .sort(
                     (a, b) =>
-                        new Date(b.date) -
-                        new Date(a.date)
+                        new Date(
+                            b.attendance_date
+                        ) -
+                        new Date(
+                            a.attendance_date
+                        )
                 );
 
 
@@ -742,47 +823,58 @@
                 document.createElement("tr");
 
 
-            const status =
-                record.hours >= 8
-                    ? "Full Day"
-                    : "Less than 8 hrs";
-
-
-            const statusClass =
-                record.hours >= 8
-                    ? "present"
-                    : "incomplete";
+            const hours =
+                Number(
+                    record.hours_completed
+                );
 
 
             row.innerHTML = `
 
-                <td>${record.date}</td>
-
-                <td>${record.employee}</td>
-
-                <td>${record.inTime}</td>
-
-                <td>${record.outTime}</td>
-
                 <td>
-                    ${formatHours(record.hours)}
+                    ${record.attendance_date}
                 </td>
 
-                <td class="${statusClass}">
-                    ${status}
+                <td>
+                    ${record.employee_name}
+                </td>
+
+                <td>
+                    ${record.in_time}
+                </td>
+
+                <td>
+                    ${record.out_time}
+                </td>
+
+                <td>
+                    ${formatHours(hours)}
+                </td>
+
+                <td class="${
+                    hours >= 8
+                        ? "present"
+                        : "incomplete"
+                }">
+
+                    ${
+                        hours >= 8
+                            ? "Full Day"
+                            : "Less than 8 hrs"
+                    }
+
                 </td>
 
                 <td>
 
                     <button
-                        class="btn-danger"
+                        class="danger"
                         onclick="deleteAttendance(${record.id})"
                     >
                         Delete
                     </button>
 
                 </td>
-
             `;
 
 
@@ -797,11 +889,11 @@
 
                 <tr>
 
-                    <td colspan="7"
-                        style="text-align:center">
-
-                        No attendance records found.
-
+                    <td
+                        colspan="7"
+                        style="text-align:center"
+                    >
+                        No attendance records.
                     </td>
 
                 </tr>
@@ -814,7 +906,9 @@
 
 
     /*
-       Employee Summary
+    ==========================================
+    EMPLOYEE SUMMARY
+    ==========================================
     */
 
     function renderEmployeeSummary() {
@@ -837,7 +931,8 @@
             const employeeRecords =
                 records.filter(
                     record =>
-                        record.employee === employee
+                        record.employee_name ===
+                        employee
                 );
 
 
@@ -848,7 +943,10 @@
             const totalHours =
                 employeeRecords.reduce(
                     (sum, record) =>
-                        sum + record.hours,
+                        sum +
+                        Number(
+                            record.hours_completed
+                        ),
                     0
                 );
 
@@ -874,12 +972,12 @@
             row.innerHTML = `
 
                 <td>
-                    <strong>${employee}</strong>
+                    <strong>
+                        ${employee}
+                    </strong>
                 </td>
 
-                <td>
-                    ${days}
-                </td>
+                <td>${days}</td>
 
                 <td>
                     ${formatHours(totalHours)}
@@ -894,8 +992,14 @@
                 </td>
 
                 <td>
-                    ${formatHours(Math.abs(difference))}
-                    ${difference >= 0 ? "Extra" : "Short"}
+                    ${formatHours(
+                        Math.abs(difference)
+                    )}
+                    ${
+                        difference >= 0
+                            ? " Extra"
+                            : " Short"
+                    }
                 </td>
 
             `;
@@ -909,7 +1013,9 @@
 
 
     /*
-       Team Summary
+    ==========================================
+    TEAM SUMMARY
+    ==========================================
     */
 
     function renderTeamSummary() {
@@ -921,7 +1027,10 @@
         const totalHours =
             records.reduce(
                 (sum, record) =>
-                    sum + record.hours,
+                    sum +
+                    Number(
+                        record.hours_completed
+                    ),
                 0
             );
 
@@ -930,9 +1039,10 @@
             records.length;
 
 
-        const averageHours =
+        const average =
             totalAttendance > 0
-                ? totalHours / totalAttendance
+                ? totalHours /
+                  totalAttendance
                 : 0;
 
 
@@ -957,74 +1067,48 @@
         document.getElementById(
             "averageHours"
         ).textContent =
-            formatHours(averageHours);
+            formatHours(average);
 
     }
 
 
     /*
-       Delete Attendance
+    ==========================================
+    DELETE
+    ==========================================
     */
 
-    function deleteAttendance(id) {
+    async function deleteAttendance(id) {
 
-        const confirmation =
-            confirm(
-                "Are you sure you want to delete this attendance?"
-            );
-
-
-        if (!confirmation) {
+        if (
+            !confirm(
+                "Delete this attendance record?"
+            )
+        ) {
             return;
         }
 
 
-        attendanceData =
-            attendanceData.filter(
-                record =>
-                    record.id !== id
+        try {
+
+            await supabaseRequest(
+                "/rest/v1/attendance?id=eq." + id,
+                {
+                    method: "DELETE"
+                }
             );
 
 
-        saveData();
+            await loadAttendance();
 
-        renderAll();
+        }
+        catch (error) {
 
-    }
-
-
-    /*
-       Current Time
-    */
-
-    function fillCurrentTime() {
-
-        const now =
-            new Date();
-
-
-        const time =
-            String(now.getHours())
-                .padStart(2, "0") +
-            ":" +
-            String(now.getMinutes())
-                .padStart(2, "0");
-
-
-        const inTime =
-            document.getElementById("inTime");
-
-        const outTime =
-            document.getElementById("outTime");
-
-
-        if (!inTime.value) {
-
-            inTime.value = time;
-
-        } else {
-
-            outTime.value = time;
+            showMessage(
+                "Delete failed: " +
+                error.message,
+                true
+            );
 
         }
 
@@ -1032,7 +1116,50 @@
 
 
     /*
-       Month filter
+    ==========================================
+    MESSAGE
+    ==========================================
+    */
+
+    function showMessage(
+        text,
+        error = false
+    ) {
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+
+        message.textContent = text;
+
+        message.className =
+            "message " +
+            (error
+                ? "error"
+                : "success");
+
+
+        message.style.display =
+            "block";
+
+
+        setTimeout(
+            () => {
+                message.style.display =
+                    "none";
+            },
+            4000
+        );
+
+    }
+
+
+    /*
+    ==========================================
+    MONTH FILTER
+    ==========================================
     */
 
     document
@@ -1044,7 +1171,9 @@
 
 
     /*
-       Export CSV
+    ==========================================
+    EXPORT CSV
+    ==========================================
     */
 
     function exportCSV() {
@@ -1053,33 +1182,29 @@
             getMonthlyRecords();
 
 
-        if (records.length === 0) {
+        if (!records.length) {
 
             alert(
-                "There is no attendance data to export."
+                "No records available."
             );
 
             return;
+
         }
 
 
         let csv =
-            "Date,Employee,In Time,Out Time,Hours,Minutes\n";
+            "Date,Employee,In Time,Out Time,Hours\n";
 
 
         records.forEach(record => {
 
-            const totalMinutes =
-                Math.round(record.hours * 60);
-
-
             csv +=
-                `${record.date},` +
-                `"${record.employee}",` +
-                `${record.inTime},` +
-                `${record.outTime},` +
-                `${record.hours.toFixed(2)},` +
-                `${totalMinutes}\n`;
+                `"${record.attendance_date}",` +
+                `"${record.employee_name}",` +
+                `"${record.in_time}",` +
+                `"${record.out_time}",` +
+                `${record.hours_completed}\n`;
 
         });
 
@@ -1101,10 +1226,11 @@
 
         link.href = url;
 
-
         link.download =
-            "team-attendance-" +
-            getSelectedMonth() +
+            "attendance-" +
+            document.getElementById(
+                "monthFilter"
+            ).value +
             ".csv";
 
 
@@ -1117,13 +1243,14 @@
 
 
     /*
-       Initial load
+    ==========================================
+    START
+    ==========================================
     */
 
-    renderAll();
+    loadAttendance();
 
 </script>
 
 </body>
 </html>
-```
