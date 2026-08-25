@@ -223,13 +223,9 @@
                     <label>Employee Name</label>
 
                     <select id="employee" required>
-                        <option value="">Select Employee</option>
-                        <option>Rahul Sharma</option>
-                        <option>Sagar Waghmare</option>
-                        <option>Priya Patil</option>
-                        <option>Amit Joshi</option>
-                        <option>Neha Kulkarni</option>
+                        <option value="">Loading employees...</option>
                     </select>
+                    
                 </div>
 
                 <div>
@@ -395,13 +391,7 @@
     ==========================================
     */
 
-    const employees = [
-        "Rahul Sharma",
-        "Sagar Waghmare",
-        "Priya Patil",
-        "Amit Joshi",
-        "Neha Kulkarni"
-    ];
+    let employees = [];
 
 
     let attendanceData = [];
@@ -493,51 +483,50 @@
     ==========================================
     */
 
-    async function supabaseRequest(
-        endpoint,
-        options = {}
-    ) {
+async function loadEmployees() {
 
-        const response =
-            await fetch(
-                SUPABASE_URL + endpoint,
-                {
-                    ...options,
+    try {
 
-                    headers: {
-                        "apikey": SUPABASE_KEY,
-                        "Authorization":
-                            "Bearer " + SUPABASE_KEY,
-                        "Content-Type":
-                            "application/json",
-                        "Prefer":
-                            "return=representation",
+        employees = await supabaseRequest(
+            "/rest/v1/employees?select=id,employee_code,employee_name,department,designation&active=eq.true&order=employee_name"
+        );
 
-                        ...(options.headers || {})
-                    }
-                }
-            );
+        const select =
+            document.getElementById("employee");
 
+        select.innerHTML =
+            '<option value="">Select Employee</option>';
 
-        if (!response.ok) {
+        employees.forEach(employee => {
 
-            const error =
-                await response.text();
+            const option =
+                document.createElement("option");
 
-            throw new Error(error);
+            option.value = employee.id;
 
-        }
+            option.textContent =
+                employee.employee_name;
 
+            select.appendChild(option);
 
-        if (response.status === 204) {
-            return [];
-        }
-
-
-        return response.json();
+        });
 
     }
+    catch (error) {
 
+        console.error(
+            "Employee loading error:",
+            error
+        );
+
+        const select =
+            document.getElementById("employee");
+
+        select.innerHTML =
+            '<option value="">Unable to load employees</option>';
+
+    }
+}
 
     /*
     ==========================================
@@ -1248,6 +1237,7 @@
     ==========================================
     */
 
+    loadEmployees();
     loadAttendance();
 
 </script>
