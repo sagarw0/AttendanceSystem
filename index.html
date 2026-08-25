@@ -483,6 +483,55 @@
     ==========================================
     */
 
+async function supabaseRequest(
+    endpoint,
+    options = {}
+) {
+
+    const response =
+        await fetch(
+            SUPABASE_URL + endpoint,
+            {
+                ...options,
+
+                headers: {
+                    "apikey": SUPABASE_KEY,
+
+                    "Authorization":
+                        "Bearer " + SUPABASE_KEY,
+
+                    "Content-Type":
+                        "application/json",
+
+                    "Prefer":
+                        "return=representation",
+
+                    ...(options.headers || {})
+                }
+            }
+        );
+
+
+    if (!response.ok) {
+
+        const error =
+            await response.text();
+
+        throw new Error(error);
+
+    }
+
+
+    if (response.status === 204) {
+
+        return [];
+
+    }
+
+
+    return response.json();
+
+}
 async function loadEmployees() {
 
     try {
@@ -527,6 +576,82 @@ async function loadEmployees() {
 
     }
 }
+    
+async function supabaseRequest(endpoint, options = {}) {
+
+    const response = await fetch(
+        SUPABASE_URL + endpoint,
+        {
+            ...options,
+
+            headers: {
+                "apikey": SUPABASE_KEY,
+                "Authorization": "Bearer " + SUPABASE_KEY,
+                "Content-Type": "application/json",
+                "Prefer": "return=representation",
+
+                ...(options.headers || {})
+            }
+        }
+    );
+
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error);
+    }
+
+    if (response.status === 204) {
+        return [];
+    }
+
+    return response.json();
+}
+
+async function loadEmployees() {
+
+    try {
+
+        employees = await supabaseRequest(
+            "/rest/v1/employees?select=id,employee_code,employee_name,department,designation&active=eq.true&order=employee_name"
+        );
+
+        const select =
+            document.getElementById("employee");
+
+        select.innerHTML =
+            '<option value="">Select Employee</option>';
+
+        employees.forEach(employee => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = employee.id;
+
+            option.textContent =
+                employee.employee_name;
+
+            select.appendChild(option);
+
+        });
+
+    }
+    catch (error) {
+
+        console.error(
+            "Employee loading error:",
+            error
+        );
+
+        const select =
+            document.getElementById("employee");
+
+        select.innerHTML =
+            '<option value="">Unable to load employees</option>';
+
+    }
+}
+
 
     /*
     ==========================================
