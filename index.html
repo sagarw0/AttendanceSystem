@@ -1,14 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>Team Attendance System</title>
 
+
     <style>
+
         * {
             box-sizing: border-box;
         }
+
 
         body {
             margin: 0;
@@ -17,11 +27,17 @@
             color: #222;
         }
 
+
         .container {
             max-width: 1200px;
             margin: auto;
             padding: 20px;
         }
+
+
+        /* ==============================
+           HEADER
+           ============================== */
 
         header {
             background: #1f4e78;
@@ -31,13 +47,20 @@
             margin-bottom: 20px;
         }
 
+
         header h1 {
             margin: 0 0 5px;
         }
 
+
         header p {
             margin: 0;
         }
+
+
+        /* ==============================
+           CARD
+           ============================== */
 
         .card {
             background: white;
@@ -47,21 +70,31 @@
             box-shadow: 0 3px 12px rgba(0,0,0,.08);
         }
 
+
         h2 {
             color: #1f4e78;
+            margin-top: 0;
         }
+
+
+        /* ==============================
+           FORM
+           ============================== */
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns:
+                repeat(4, 1fr);
             gap: 15px;
         }
+
 
         label {
             font-weight: bold;
             display: block;
             margin-bottom: 7px;
         }
+
 
         input,
         select,
@@ -73,30 +106,25 @@
             font-size: 15px;
         }
 
+
         button {
             cursor: pointer;
             border: none;
             font-weight: bold;
         }
 
+
         .primary {
             background: #1f4e78;
             color: white;
         }
 
-        .danger {
-            background: #dc3545;
+
+        .monthly-button {
+            background: #198754;
             color: white;
-            width: auto;
-            padding: 7px 12px;
         }
 
-        .export {
-            background: #6f42c1;
-            color: white;
-            width: auto;
-            padding: 10px 18px;
-        }
 
         .button-area {
             margin-top: 20px;
@@ -104,63 +132,10 @@
             gap: 10px;
         }
 
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-        }
 
-        .summary {
-            padding: 18px;
-            border-radius: 10px;
-            background: #eef5fb;
-            border-left: 5px solid #1f4e78;
-        }
-
-        .summary h3 {
-            margin: 0 0 8px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .summary p {
-            margin: 0;
-            font-size: 25px;
-            font-weight: bold;
-            color: #1f4e78;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 850px;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        th {
-            background: #1f4e78;
-            color: white;
-        }
-
-        .present {
-            color: #198754;
-            font-weight: bold;
-        }
-
-        .incomplete {
-            color: #dc3545;
-            font-weight: bold;
-        }
+        /* ==============================
+           MESSAGE
+           ============================== */
 
         .message {
             padding: 12px;
@@ -169,336 +144,322 @@
             display: none;
         }
 
+
         .success {
             background: #d1e7dd;
             color: #0f5132;
         }
+
 
         .error {
             background: #f8d7da;
             color: #842029;
         }
 
+
+        /* ==============================
+           MOBILE
+           ============================== */
+
         @media (max-width: 900px) {
-            .form-grid,
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
+
+            .form-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
             }
+
         }
 
+
         @media (max-width: 600px) {
-            .form-grid,
-            .summary-grid {
+
+            .container {
+                padding: 10px;
+            }
+
+
+            .form-grid {
                 grid-template-columns: 1fr;
             }
+
 
             .button-area {
                 flex-direction: column;
             }
+
+
+            header h1 {
+                font-size: 26px;
+            }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
+
+    <!-- ==================================
+         HEADER
+         ================================== -->
+
     <header>
-        <h1>Team Attendance System</h1>
-        <p>Attendance and monthly working-hours dashboard</p>
+
+        <h1>
+            Team Attendance System
+        </h1>
+
+        <p>
+            Attendance and monthly working-hours dashboard
+        </p>
+
     </header>
 
 
-    <!-- Attendance Entry -->
+    <!-- ==================================
+         ATTENDANCE ENTRY
+         ================================== -->
 
     <div class="card">
 
-        <h2>Mark Attendance</h2>
+        <h2>
+            Mark Attendance
+        </h2>
+
 
         <form id="attendanceForm">
 
+
             <div class="form-grid">
 
-                <div>
-                    <label>Employee Name</label>
 
-                    <select id="employee" required>
-                        <option value="">Loading employees...</option>
+                <!-- EMPLOYEE -->
+
+                <div>
+
+                    <label for="employee">
+                        Employee Name
+                    </label>
+
+                    <select
+                        id="employee"
+                        required
+                    >
+
+                        <option value="">
+                            Loading employees...
+                        </option>
+
                     </select>
-                    
+
                 </div>
 
-                <div>
-                    <label>Date</label>
-                    <input type="date" id="attendanceDate" required>
-                </div>
+
+                <!-- DATE -->
 
                 <div>
-                    <label>In Time</label>
-                    <input type="time" id="inTime" required>
+
+                    <label for="attendanceDate">
+                        Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="attendanceDate"
+                        required
+                    >
+
                 </div>
 
+
+                <!-- IN TIME -->
+
                 <div>
-                    <label>Out Time</label>
-                    <input type="time" id="outTime" required>
+
+                    <label for="inTime">
+                        In Time
+                    </label>
+
+                    <input
+                        type="time"
+                        id="inTime"
+                        required
+                    >
+
                 </div>
+
+
+                <!-- OUT TIME -->
+
+                <div>
+
+                    <label for="outTime">
+                        Out Time
+                    </label>
+
+                    <input
+                        type="time"
+                        id="outTime"
+                        required
+                    >
+
+                </div>
+
 
             </div>
 
-           <div class="button-area">
 
-    <button class="primary" type="submit">
-        Submit Attendance
-    </button>
+            <!-- BUTTONS -->
 
-    <button
-        type="button"
-        onclick="window.location.href='monthly.html'"
-        style="
-            background:#1f4e78;
-            color:white;
-            margin-left:10px;
-            padding:12px 20px;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-weight:bold;
-        "
-    >
-        📊 Monthly Attendance
-    </button>
+            <div class="button-area">
 
-</div>
+
+                <button
+                    class="primary"
+                    type="submit"
+                >
+                    Submit Attendance
+                </button>
+
+
+                <button
+                    class="monthly-button"
+                    type="button"
+                    onclick="openMonthlyAttendance()"
+                >
+                    📊 Monthly Attendance
+                </button>
+
+
+            </div>
+
 
         </form>
 
-        <div id="message" class="message"></div>
+
+        <!-- MESSAGE -->
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
 
     </div>
 
-
-    <!-- Monthly Summary -->
-
-    <div class="card">
-
-        <h2>Monthly Team Summary</h2>
-
-        <label>Select Month</label>
-
-        <input type="month" id="monthFilter">
-
-        <br><br>
-
-        <div class="summary-grid">
-
-            <div class="summary">
-                <h3>Total Employees</h3>
-                <p id="totalEmployees">0</p>
-            </div>
-
-            <div class="summary">
-                <h3>Total Attendance Days</h3>
-                <p id="totalAttendance">0</p>
-            </div>
-
-            <div class="summary">
-                <h3>Total Team Hours</h3>
-                <p id="totalHours">0h</p>
-            </div>
-
-            <div class="summary">
-                <h3>Average Hours / Day</h3>
-                <p id="averageHours">0h</p>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- Employee Summary -->
-
-    <div class="card">
-
-        <h2>Employee Monthly Summary</h2>
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Days</th>
-                        <th>Total Hours</th>
-                        <th>Average</th>
-                        <th>Expected</th>
-                        <th>Difference</th>
-                    </tr>
-                </thead>
-
-                <tbody id="employeeSummaryBody"></tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-
-    <!-- Attendance -->
-
-    <div class="card">
-
-        <h2>Team Attendance</h2>
-
-        <button class="export" onclick="exportCSV()">
-            Export CSV
-        </button>
-
-        <br><br>
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Date</th>
-                        <th>Employee</th>
-                        <th>In Time</th>
-                        <th>Out Time</th>
-                        <th>Hours</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-
-                </thead>
-
-                <tbody id="attendanceBody"></tbody>
-
-            </table>
-
-        </div>
-
-    </div>
 
 </div>
 
 
 <script>
 
-    /*
-    ==========================================
-    SUPABASE CONFIGURATION
-    ==========================================
-    */
 
-    const SUPABASE_URL =
-        "https://ifvhwjufwnonfmkeapls.supabase.co";
+/* ==========================================
+   SUPABASE CONFIGURATION
+   ========================================== */
 
-    const SUPABASE_KEY =
-        "sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
+const SUPABASE_URL =
+    "https://ifvhwjufwnonfmkeapls.supabase.co";
 
 
-    /*
-    ==========================================
-    EMPLOYEES
-    ==========================================
-    */
-
-    let employees = [];
+const SUPABASE_KEY =
+    "sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
 
 
-    let attendanceData = [];
+/* ==========================================
+   GLOBAL DATA
+   ========================================== */
+
+let employees = [];
 
 
-    /*
-    ==========================================
-    INITIAL DATE
-    ==========================================
-    */
+/* ==========================================
+   INITIAL DATE
+   ========================================== */
 
-    const today = new Date();
+const today =
+    new Date();
 
-    document.getElementById("attendanceDate").value =
-        formatDate(today);
 
-    document.getElementById("monthFilter").value =
-        today.getFullYear() +
+document.getElementById(
+    "attendanceDate"
+).value =
+    formatDate(today);
+
+
+/* ==========================================
+   DATE FORMAT
+   ========================================== */
+
+function formatDate(date) {
+
+    return (
+        date.getFullYear() +
         "-" +
-        String(today.getMonth() + 1).padStart(2, "0");
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            date.getDate()
+        ).padStart(2, "0")
+    );
+
+}
+
+
+/* ==========================================
+   CALCULATE HOURS
+   ========================================== */
+
+function calculateHours(
+    inTime,
+    outTime
+) {
+
+    const start =
+        new Date(
+            "2000-01-01T" +
+            inTime
+        );
+
+
+    let end =
+        new Date(
+            "2000-01-01T" +
+            outTime
+        );
 
 
     /*
-    ==========================================
-    DATE FORMAT
-    ==========================================
+    Supports overnight shifts.
     */
 
-    function formatDate(date) {
+    if (end < start) {
 
-        return date.getFullYear() +
-            "-" +
-            String(date.getMonth() + 1).padStart(2, "0") +
-            "-" +
-            String(date.getDate()).padStart(2, "0");
+        end.setDate(
+            end.getDate() + 1
+        );
 
     }
 
 
-    /*
-    ==========================================
-    CALCULATE HOURS
-    ==========================================
-    */
+    return (
+        end - start
+    ) / 3600000;
 
-    function calculateHours(inTime, outTime) {
-
-        const start =
-            new Date("2000-01-01T" + inTime);
-
-        let end =
-            new Date("2000-01-01T" + outTime);
-
-        if (end < start) {
-            end.setDate(end.getDate() + 1);
-        }
-
-        return (end - start) / 3600000;
-
-    }
+}
 
 
-    /*
-    ==========================================
-    FORMAT HOURS
-    ==========================================
-    */
-
-    function formatHours(decimalHours) {
-
-        const hours =
-            Math.floor(decimalHours);
-
-        const minutes =
-            Math.round(
-                (decimalHours - hours) * 60
-            );
-
-        return hours + "h " +
-            String(minutes).padStart(2, "0") +
-            "m";
-
-    }
-
-
-    /*
-    ==========================================
-    SUPABASE REQUEST
-    ==========================================
-    */
+/* ==========================================
+   SUPABASE REQUEST
+   ========================================== */
 
 async function supabaseRequest(
     endpoint,
@@ -512,10 +473,13 @@ async function supabaseRequest(
                 ...options,
 
                 headers: {
-                    "apikey": SUPABASE_KEY,
+
+                    "apikey":
+                        SUPABASE_KEY,
 
                     "Authorization":
-                        "Bearer " + SUPABASE_KEY,
+                        "Bearer " +
+                        SUPABASE_KEY,
 
                     "Content-Type":
                         "application/json",
@@ -524,7 +488,9 @@ async function supabaseRequest(
                         "return=representation",
 
                     ...(options.headers || {})
+
                 }
+
             }
         );
 
@@ -534,12 +500,16 @@ async function supabaseRequest(
         const error =
             await response.text();
 
-        throw new Error(error);
+        throw new Error(
+            error
+        );
 
     }
 
 
-    if (response.status === 204) {
+    if (
+        response.status === 204
+    ) {
 
         return [];
 
@@ -549,110 +519,71 @@ async function supabaseRequest(
     return response.json();
 
 }
+
+
+/* ==========================================
+   LOAD EMPLOYEES
+   ========================================== */
+
 async function loadEmployees() {
 
     try {
 
-        employees = await supabaseRequest(
-            "/rest/v1/employees?select=id,employee_code,employee_name,department,designation&active=eq.true&order=employee_name"
-        );
+        employees =
+            await supabaseRequest(
+                "/rest/v1/employees" +
+                "?select=id,employee_code,employee_name,department,designation" +
+                "&active=eq.true" +
+                "&order=employee_name"
+            );
+
 
         const select =
-            document.getElementById("employee");
+            document.getElementById(
+                "employee"
+            );
+
 
         select.innerHTML =
             '<option value="">Select Employee</option>';
 
-        employees.forEach(employee => {
 
-            const option =
-                document.createElement("option");
+        employees.forEach(
+            employee => {
 
-            option.value = employee.id;
+                const option =
+                    document.createElement(
+                        "option"
+                    );
 
-            option.textContent =
-                employee.employee_name;
 
-            select.appendChild(option);
+                /*
+                IMPORTANT:
+                value = employee ID
+                */
 
-        });
+                option.value =
+                    employee.id;
 
-    }
-    catch (error) {
 
-        console.error(
-            "Employee loading error:",
-            error
-        );
+                /*
+                Display actual name
+                */
 
-        const select =
-            document.getElementById("employee");
+                option.textContent =
+                    employee.employee_name;
 
-        select.innerHTML =
-            '<option value="">Unable to load employees</option>';
 
-    }
-}
-    
-async function supabaseRequest(endpoint, options = {}) {
+                select.appendChild(
+                    option
+                );
 
-    const response = await fetch(
-        SUPABASE_URL + endpoint,
-        {
-            ...options,
-
-            headers: {
-                "apikey": SUPABASE_KEY,
-                "Authorization": "Bearer " + SUPABASE_KEY,
-                "Content-Type": "application/json",
-                "Prefer": "return=representation",
-
-                ...(options.headers || {})
             }
-        }
-    );
-
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error);
-    }
-
-    if (response.status === 204) {
-        return [];
-    }
-
-    return response.json();
-}
-
-async function loadEmployees() {
-
-    try {
-
-        employees = await supabaseRequest(
-            "/rest/v1/employees?select=id,employee_code,employee_name,department,designation&active=eq.true&order=employee_name"
         );
 
-        const select =
-            document.getElementById("employee");
-
-        select.innerHTML =
-            '<option value="">Select Employee</option>';
-
-        employees.forEach(employee => {
-
-            const option =
-                document.createElement("option");
-
-            option.value = employee.id;
-
-            option.textContent =
-                employee.employee_name;
-
-            select.appendChild(option);
-
-        });
 
     }
+
     catch (error) {
 
         console.error(
@@ -660,166 +591,207 @@ async function loadEmployees() {
             error
         );
 
+
         const select =
-            document.getElementById("employee");
+            document.getElementById(
+                "employee"
+            );
+
 
         select.innerHTML =
             '<option value="">Unable to load employees</option>';
 
+
+        showMessage(
+            "Unable to load employees: " +
+            error.message,
+            true
+        );
+
     }
+
 }
 
 
-    /*
-    ==========================================
-    LOAD ATTENDANCE
-    ==========================================
-    */
+/* ==========================================
+   SUBMIT ATTENDANCE
+   ========================================== */
 
-    async function loadAttendance() {
+document
+    .getElementById(
+        "attendanceForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(event) {
 
-        try {
+            event.preventDefault();
 
-            attendanceData =
-                await supabaseRequest(
-                    "/rest/v1/attendance?select=*"
+
+            /* ==========================
+               GET SELECTED EMPLOYEE ID
+               ========================== */
+
+            const employeeId =
+                document.getElementById(
+                    "employee"
+                ).value;
+
+
+            /* ==========================
+               FIND EMPLOYEE
+               ========================== */
+
+            const selectedEmployee =
+                employees.find(
+                    employee =>
+                        String(
+                            employee.id
+                        ) ===
+                        String(
+                            employeeId
+                        )
                 );
 
 
-            renderAll();
+            if (!selectedEmployee) {
 
-        }
-        catch (error) {
+                showMessage(
+                    "Please select an employee.",
+                    true
+                );
 
-            showMessage(
-                "Unable to load attendance: " +
-                error.message,
-                true
-            );
+                return;
 
-        }
-
-    }
+            }
 
 
-    /*
-    ==========================================
-    SUBMIT ATTENDANCE
-    ==========================================
-    */
+            /*
+            THIS IS THE IMPORTANT FIX.
 
-    document
-        .getElementById("attendanceForm")
-        .addEventListener(
-            "submit",
-            async function(event) {
+            We now save the actual employee
+            name instead of saving the ID.
+            */
 
-                event.preventDefault();
+            const employeeName =
+                selectedEmployee.employee_name;
 
 
-                const employee =
-                    document.getElementById(
-                        "employee"
-                    ).value;
+            /* ==========================
+               OTHER VALUES
+               ========================== */
+
+            const date =
+                document.getElementById(
+                    "attendanceDate"
+                ).value;
 
 
-                const date =
-                    document.getElementById(
-                        "attendanceDate"
-                    ).value;
+            const inTime =
+                document.getElementById(
+                    "inTime"
+                ).value;
 
 
-                const inTime =
-                    document.getElementById(
-                        "inTime"
-                    ).value;
+            const outTime =
+                document.getElementById(
+                    "outTime"
+                ).value;
 
 
-                const outTime =
-                    document.getElementById(
-                        "outTime"
-                    ).value;
+            /* ==========================
+               VALIDATE
+               ========================== */
+
+            if (
+                !employeeId ||
+                !date ||
+                !inTime ||
+                !outTime
+            ) {
+
+                showMessage(
+                    "Please fill all fields.",
+                    true
+                );
+
+                return;
+
+            }
 
 
-                const hours =
-                    calculateHours(
-                        inTime,
-                        outTime
+            /* ==========================
+               CALCULATE HOURS
+               ========================== */
+
+            const hours =
+                calculateHours(
+                    inTime,
+                    outTime
+                );
+
+
+            if (hours <= 0) {
+
+                showMessage(
+                    "Invalid time entered.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+
+                /* ==========================
+                   CHECK DUPLICATE
+                   ========================== */
+
+                const existing =
+                    await supabaseRequest(
+                        "/rest/v1/attendance" +
+                        "?employee_id=eq." +
+                        encodeURIComponent(
+                            employeeId
+                        ) +
+                        "&attendance_date=eq." +
+                        encodeURIComponent(
+                            date
+                        ) +
+                        "&select=id"
                     );
 
 
-                if (hours <= 0) {
+                /* ==========================
+                   UPDATE EXISTING
+                   ========================== */
 
-                    showMessage(
-                        "Invalid time entered.",
-                        true
-                    );
+                if (
+                    existing.length > 0
+                ) {
 
-                    return;
-
-                }
-
-
-                try {
-
-                    /*
-                    Check duplicate
-                    */
-
-                    const existing =
-                        await supabaseRequest(
-                            "/rest/v1/attendance" +
-                            "?employee_name=eq." +
-                            encodeURIComponent(employee) +
-                            "&attendance_date=eq." +
-                            date +
-                            "&select=id"
-                        );
+                    const id =
+                        existing[0].id;
 
 
-                    /*
-                    If duplicate exists,
-                    update it.
-                    */
+                    await supabaseRequest(
+                        "/rest/v1/attendance?id=eq." +
+                        id,
+                        {
 
-                    if (existing.length > 0) {
+                            method: "PATCH",
 
-                        const id =
-                            existing[0].id;
+                            body:
+                                JSON.stringify({
 
-
-                        await supabaseRequest(
-                            "/rest/v1/attendance?id=eq." +
-                            id,
-                            {
-                                method: "PATCH",
-
-                                body: JSON.stringify({
-
-                                    in_time: inTime,
-
-                                    out_time: outTime,
-
-                                    hours_completed:
-                                        hours.toFixed(2)
-
-                                })
-                            }
-                        );
-
-                    }
-
-                    else {
-
-                        await supabaseRequest(
-                            "/rest/v1/attendance",
-                            {
-                                method: "POST",
-
-                                body: JSON.stringify({
+                                    employee_id:
+                                        employeeId,
 
                                     employee_name:
-                                        employee,
+                                        employeeName,
 
                                     attendance_date:
                                         date,
@@ -834,555 +806,177 @@ async function loadEmployees() {
                                         hours.toFixed(2)
 
                                 })
-                            }
-                        );
 
-                    }
-
-
-                    showMessage(
-                        "Attendance saved successfully.",
-                        false
-                    );
-
-
-                    document
-                        .getElementById(
-                            "attendanceForm"
-                        )
-                        .reset();
-
-
-                    document
-                        .getElementById(
-                            "attendanceDate"
-                        )
-                        .value =
-                        formatDate(new Date());
-
-
-                    await loadAttendance();
-
-                }
-                catch (error) {
-
-                    showMessage(
-                        "Error saving attendance: " +
-                        error.message,
-                        true
+                        }
                     );
 
                 }
+
+
+                /* ==========================
+                   INSERT NEW
+                   ========================== */
+
+                else {
+
+                    await supabaseRequest(
+                        "/rest/v1/attendance",
+                        {
+
+                            method: "POST",
+
+                            body:
+                                JSON.stringify({
+
+                                    employee_id:
+                                        employeeId,
+
+                                    employee_name:
+                                        employeeName,
+
+                                    attendance_date:
+                                        date,
+
+                                    in_time:
+                                        inTime,
+
+                                    out_time:
+                                        outTime,
+
+                                    hours_completed:
+                                        hours.toFixed(2)
+
+                                })
+
+                        }
+                    );
+
+                }
+
+
+                /* ==========================
+                   SUCCESS
+                   ========================== */
+
+                showMessage(
+                    "Attendance saved successfully.",
+                    false
+                );
+
+
+                /*
+                Reset form
+                */
+
+                document
+                    .getElementById(
+                        "attendanceForm"
+                    )
+                    .reset();
+
+
+                /*
+                Put today's date back
+                */
+
+                document.getElementById(
+                    "attendanceDate"
+                ).value =
+                    formatDate(
+                        new Date()
+                    );
+
 
             }
+
+
+            catch (error) {
+
+                console.error(
+                    "Attendance save error:",
+                    error
+                );
+
+
+                showMessage(
+                    "Error saving attendance: " +
+                    error.message,
+                    true
+                );
+
+            }
+
+        }
+    );
+
+
+/* ==========================================
+   MESSAGE
+   ========================================== */
+
+function showMessage(
+    text,
+    error = false
+) {
+
+    const message =
+        document.getElementById(
+            "message"
         );
 
 
-    /*
-    ==========================================
-    MONTHLY RECORDS
-    ==========================================
-    */
+    message.textContent =
+        text;
 
-    function getMonthlyRecords() {
 
-        const month =
-            document.getElementById(
-                "monthFilter"
-            ).value;
-
-
-        return attendanceData.filter(
-            record =>
-                record.attendance_date
-                    .startsWith(month)
-        );
-
-    }
-
-
-    /*
-    ==========================================
-    RENDER ALL
-    ==========================================
-    */
-
-    function renderAll() {
-
-        renderAttendanceTable();
-
-        renderEmployeeSummary();
-
-        renderTeamSummary();
-
-    }
-
-
-    /*
-    ==========================================
-    ATTENDANCE TABLE
-    ==========================================
-    */
-
-    function renderAttendanceTable() {
-
-        const tbody =
-            document.getElementById(
-                "attendanceBody"
-            );
-
-
-        tbody.innerHTML = "";
-
-
-        const records =
-            getMonthlyRecords()
-                .sort(
-                    (a, b) =>
-                        new Date(
-                            b.attendance_date
-                        ) -
-                        new Date(
-                            a.attendance_date
-                        )
-                );
-
-
-        records.forEach(record => {
-
-            const row =
-                document.createElement("tr");
-
-
-            const hours =
-                Number(
-                    record.hours_completed
-                );
-
-
-            row.innerHTML = `
-
-                <td>
-                    ${record.attendance_date}
-                </td>
-
-                <td>
-                    ${record.employee_name}
-                </td>
-
-                <td>
-                    ${record.in_time}
-                </td>
-
-                <td>
-                    ${record.out_time}
-                </td>
-
-                <td>
-                    ${formatHours(hours)}
-                </td>
-
-                <td class="${
-                    hours >= 8
-                        ? "present"
-                        : "incomplete"
-                }">
-
-                    ${
-                        hours >= 8
-                            ? "Full Day"
-                            : "Less than 8 hrs"
-                    }
-
-                </td>
-
-                <td>
-
-                    <button
-                        class="danger"
-                        onclick="deleteAttendance(${record.id})"
-                    >
-                        Delete
-                    </button>
-
-                </td>
-            `;
-
-
-            tbody.appendChild(row);
-
-        });
-
-
-        if (records.length === 0) {
-
-            tbody.innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="7"
-                        style="text-align:center"
-                    >
-                        No attendance records.
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-
-    }
-
-
-    /*
-    ==========================================
-    EMPLOYEE SUMMARY
-    ==========================================
-    */
-
-    function renderEmployeeSummary() {
-
-        const tbody =
-            document.getElementById(
-                "employeeSummaryBody"
-            );
-
-
-        tbody.innerHTML = "";
-
-
-        const records =
-            getMonthlyRecords();
-
-
-        employees.forEach(employee => {
-
-            const employeeRecords =
-                records.filter(
-                    record =>
-                        record.employee_name ===
-                        employee
-                );
-
-
-            const days =
-                employeeRecords.length;
-
-
-            const totalHours =
-                employeeRecords.reduce(
-                    (sum, record) =>
-                        sum +
-                        Number(
-                            record.hours_completed
-                        ),
-                    0
-                );
-
-
-            const average =
-                days > 0
-                    ? totalHours / days
-                    : 0;
-
-
-            const expected =
-                days * 8;
-
-
-            const difference =
-                totalHours - expected;
-
-
-            const row =
-                document.createElement("tr");
-
-
-            row.innerHTML = `
-
-                <td>
-                    <strong>
-                        ${employee}
-                    </strong>
-                </td>
-
-                <td>${days}</td>
-
-                <td>
-                    ${formatHours(totalHours)}
-                </td>
-
-                <td>
-                    ${formatHours(average)}
-                </td>
-
-                <td>
-                    ${formatHours(expected)}
-                </td>
-
-                <td>
-                    ${formatHours(
-                        Math.abs(difference)
-                    )}
-                    ${
-                        difference >= 0
-                            ? " Extra"
-                            : " Short"
-                    }
-                </td>
-
-            `;
-
-
-            tbody.appendChild(row);
-
-        });
-
-    }
-
-
-    /*
-    ==========================================
-    TEAM SUMMARY
-    ==========================================
-    */
-
-    function renderTeamSummary() {
-
-        const records =
-            getMonthlyRecords();
-
-
-        const totalHours =
-            records.reduce(
-                (sum, record) =>
-                    sum +
-                    Number(
-                        record.hours_completed
-                    ),
-                0
-            );
-
-
-        const totalAttendance =
-            records.length;
-
-
-        const average =
-            totalAttendance > 0
-                ? totalHours /
-                  totalAttendance
-                : 0;
-
-
-        document.getElementById(
-            "totalEmployees"
-        ).textContent =
-            employees.length;
-
-
-        document.getElementById(
-            "totalAttendance"
-        ).textContent =
-            totalAttendance;
-
-
-        document.getElementById(
-            "totalHours"
-        ).textContent =
-            formatHours(totalHours);
-
-
-        document.getElementById(
-            "averageHours"
-        ).textContent =
-            formatHours(average);
-
-    }
-
-
-    /*
-    ==========================================
-    DELETE
-    ==========================================
-    */
-
-    async function deleteAttendance(id) {
-
-        if (
-            !confirm(
-                "Delete this attendance record?"
-            )
-        ) {
-            return;
-        }
-
-
-        try {
-
-            await supabaseRequest(
-                "/rest/v1/attendance?id=eq." + id,
-                {
-                    method: "DELETE"
-                }
-            );
-
-
-            await loadAttendance();
-
-        }
-        catch (error) {
-
-            showMessage(
-                "Delete failed: " +
-                error.message,
-                true
-            );
-
-        }
-
-    }
-
-
-    /*
-    ==========================================
-    MESSAGE
-    ==========================================
-    */
-
-    function showMessage(
-        text,
-        error = false
-    ) {
-
-        const message =
-            document.getElementById(
-                "message"
-            );
-
-
-        message.textContent = text;
-
-        message.className =
-            "message " +
-            (error
+    message.className =
+        "message " +
+        (
+            error
                 ? "error"
-                : "success");
-
-
-        message.style.display =
-            "block";
-
-
-        setTimeout(
-            () => {
-                message.style.display =
-                    "none";
-            },
-            4000
-        );
-
-    }
-
-
-    /*
-    ==========================================
-    MONTH FILTER
-    ==========================================
-    */
-
-    document
-        .getElementById("monthFilter")
-        .addEventListener(
-            "change",
-            renderAll
+                : "success"
         );
 
 
-    /*
-    ==========================================
-    EXPORT CSV
-    ==========================================
-    */
-
-    function exportCSV() {
-
-        const records =
-            getMonthlyRecords();
+    message.style.display =
+        "block";
 
 
-        if (!records.length) {
+    setTimeout(
+        () => {
 
-            alert(
-                "No records available."
-            );
+            message.style.display =
+                "none";
 
-            return;
+        },
+        4000
+    );
 
-        }
-
-
-        let csv =
-            "Date,Employee,In Time,Out Time,Hours\n";
+}
 
 
-        records.forEach(record => {
+/* ==========================================
+   OPEN MONTHLY ATTENDANCE
+   ========================================== */
 
-            csv +=
-                `"${record.attendance_date}",` +
-                `"${record.employee_name}",` +
-                `"${record.in_time}",` +
-                `"${record.out_time}",` +
-                `${record.hours_completed}\n`;
+function openMonthlyAttendance() {
 
-        });
+    window.location.href =
+        "monthly.html";
 
-
-        const blob =
-            new Blob(
-                [csv],
-                { type: "text/csv" }
-            );
+}
 
 
-        const url =
-            URL.createObjectURL(blob);
+/* ==========================================
+   START
+   ========================================== */
 
+loadEmployees();
 
-        const link =
-            document.createElement("a");
-
-
-        link.href = url;
-
-        link.download =
-            "attendance-" +
-            document.getElementById(
-                "monthFilter"
-            ).value +
-            ".csv";
-
-
-        link.click();
-
-
-        URL.revokeObjectURL(url);
-
-    }
-
-
-    /*
-    ==========================================
-    START
-    ==========================================
-    */
-
-    loadEmployees();
-    loadAttendance();
 
 </script>
 
+
 </body>
+
 </html>
