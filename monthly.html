@@ -12,6 +12,10 @@
 
 <style>
 
+/* ==========================================
+   BASIC
+   ========================================== */
+
 * {
     box-sizing: border-box;
 }
@@ -26,24 +30,36 @@ body {
 .container {
     max-width: 1600px;
     margin: auto;
-    padding: 20px;
+    padding: 12px;
 }
+
+
+/* ==========================================
+   HEADER
+   ========================================== */
 
 header {
     background: #1f4e78;
     color: white;
-    padding: 22px;
+    padding: 24px;
     border-radius: 12px;
     margin-bottom: 20px;
 }
 
 header h1 {
-    margin: 0 0 5px;
+    margin: 0 0 6px;
+    font-size: 30px;
 }
 
 header p {
     margin: 0;
+    font-size: 16px;
 }
+
+
+/* ==========================================
+   CARD
+   ========================================== */
 
 .card {
     background: white;
@@ -53,6 +69,11 @@ header p {
     box-shadow: 0 3px 12px rgba(0,0,0,.08);
 }
 
+
+/* ==========================================
+   CONTROLS
+   ========================================== */
+
 .controls {
     display: flex;
     gap: 12px;
@@ -61,7 +82,7 @@ header p {
 }
 
 .control {
-    min-width: 200px;
+    min-width: 190px;
 }
 
 label {
@@ -70,8 +91,8 @@ label {
     margin-bottom: 7px;
 }
 
-input,
-button {
+input {
+    width: 100%;
     padding: 11px;
     border-radius: 7px;
     border: 1px solid #ccc;
@@ -79,8 +100,11 @@ button {
 }
 
 button {
+    padding: 11px 16px;
+    border-radius: 7px;
     border: none;
     cursor: pointer;
+    font-size: 15px;
     font-weight: bold;
 }
 
@@ -94,9 +118,70 @@ button {
     color: white;
 }
 
+button:hover {
+    opacity: .9;
+}
+
+
+/* ==========================================
+   LEGEND
+   ========================================== */
+
+.legend {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
+/* ==========================================
+   SUMMARY BOXES
+   ========================================== */
+
+.summary-boxes {
+    display: grid;
+    grid-template-columns:
+        repeat(4, 1fr);
+    gap: 15px;
+}
+
+.summary-box {
+    background: #eef5fb;
+    border-left: 5px solid #1f4e78;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.summary-box h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #555;
+}
+
+.summary-box p {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: #1f4e78;
+}
+
+
+/* ==========================================
+   TABLE
+   ========================================== */
+
 .table-wrapper {
-    overflow-x: auto;
     width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -110,7 +195,7 @@ th,
 td {
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
-    padding: 9px 10px;
+    padding: 10px;
     text-align: center;
     white-space: nowrap;
     min-width: 82px;
@@ -119,33 +204,55 @@ td {
 th {
     background: #1f4e78;
     color: white;
-    position: sticky;
-    top: 0;
-    z-index: 5;
+    font-weight: bold;
 }
+
+th small {
+    font-size: 12px;
+}
+
+
+/* ==========================================
+   EMPLOYEE COLUMN
+   ========================================== */
 
 .employee-column {
     position: sticky;
     left: 0;
-    z-index: 6;
+    z-index: 3;
     min-width: 180px;
     text-align: left;
     background: white;
+    box-shadow:
+        2px 0 4px rgba(0,0,0,.08);
 }
 
 th.employee-column {
     background: #1f4e78;
     color: white;
+    z-index: 5;
 }
 
+
+/* ==========================================
+   SUMMARY COLUMNS
+   ========================================== */
+
 .summary-column {
+    min-width: 75px;
     font-weight: bold;
     background: white;
 }
 
 th.summary-column {
     background: #1f4e78;
+    color: white;
 }
+
+
+/* ==========================================
+   ATTENDANCE STATUS
+   ========================================== */
 
 .present {
     color: #198754;
@@ -166,39 +273,10 @@ th.summary-column {
     color: #777;
 }
 
-.summary-boxes {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-}
 
-.summary-box {
-    background: #eef5fb;
-    border-left: 5px solid #1f4e78;
-    padding: 15px;
-    border-radius: 8px;
-}
-
-.summary-box h3 {
-    margin: 0 0 7px;
-    font-size: 14px;
-    color: #555;
-}
-
-.summary-box p {
-    margin: 0;
-    font-size: 22px;
-    font-weight: bold;
-    color: #1f4e78;
-}
-
-.legend {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-top: 15px;
-    font-size: 14px;
-}
+/* ==========================================
+   ERROR
+   ========================================== */
 
 .error {
     background: #f8d7da;
@@ -207,20 +285,56 @@ th.summary-column {
     border-radius: 7px;
     margin-top: 15px;
     display: none;
+    word-break: break-word;
 }
 
-@media(max-width:700px) {
+
+/* ==========================================
+   LOADING
+   ========================================== */
+
+.loading {
+    text-align: center;
+    padding: 30px;
+    color: #555;
+}
+
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 700px) {
 
     .container {
-        padding: 10px;
+        padding: 8px;
+    }
+
+    header {
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 25px;
+    }
+
+    .card {
+        padding: 14px;
     }
 
     .summary-boxes {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            1fr 1fr;
     }
 
     .employee-column {
         min-width: 150px;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        min-width: 78px;
     }
 
 }
@@ -236,144 +350,191 @@ th.summary-column {
 <div class="container">
 
 
+<!-- ==========================================
+     HEADER
+     ========================================== -->
+
 <header>
 
-<h1>Monthly Attendance</h1>
+    <h1>
+        Monthly Attendance
+    </h1>
 
-<p>
-Team attendance, leave and working hours
-</p>
+    <p>
+        Team attendance, leave and working hours
+    </p>
 
 </header>
 
 
-<div class="card">
-
-
-<div class="controls">
-
-
-<div class="control">
-
-<label>Select Month</label>
-
-<input
-    type="month"
-    id="monthFilter"
->
-
-</div>
-
-
-<button
-    class="back"
-    onclick="goBack()"
->
-← Attendance Entry
-</button>
-
-
-<button
-    class="download"
-    onclick="downloadCSV()"
->
-Download Report
-</button>
-
-
-</div>
-
-
-<div
-    id="errorMessage"
-    class="error"
-></div>
-
-
-<div class="legend">
-
-<span>🟢 Present</span>
-
-<span>🔴 Leave</span>
-
-<span>🟠 Weekly Off</span>
-
-<span>⚪ Not Marked</span>
-
-</div>
-
-</div>
-
+<!-- ==========================================
+     CONTROLS
+     ========================================== -->
 
 <div class="card">
 
+    <div class="controls">
 
-<div class="summary-boxes">
+        <div class="control">
+
+            <label for="monthFilter">
+                Select Month
+            </label>
+
+            <input
+                type="month"
+                id="monthFilter"
+            >
+
+        </div>
 
 
-<div class="summary-box">
+        <button
+            class="back"
+            type="button"
+            onclick="goBack()"
+        >
+            ← Attendance Entry
+        </button>
 
-<h3>Total Employees</h3>
 
-<p id="totalEmployees">0</p>
+        <button
+            class="download"
+            type="button"
+            onclick="downloadCSV()"
+        >
+            Download Report
+        </button>
+
+    </div>
+
+
+    <div class="legend">
+
+        <span>
+            🟢 Present
+        </span>
+
+        <span>
+            🔴 Leave
+        </span>
+
+        <span>
+            🟠 Weekly Off
+        </span>
+
+        <span>
+            ⚪ Not Marked
+        </span>
+
+    </div>
+
+
+    <div
+        id="errorMessage"
+        class="error"
+    ></div>
 
 </div>
 
 
-<div class="summary-box">
-
-<h3>Total Present</h3>
-
-<p id="totalPresent">0</p>
-
-</div>
-
-
-<div class="summary-box">
-
-<h3>Total Leave</h3>
-
-<p id="totalLeave">0</p>
-
-</div>
-
-
-<div class="summary-box">
-
-<h3>Total Team Hours</h3>
-
-<p id="totalHours">0h 00m</p>
-
-</div>
-
-
-</div>
-
-</div>
-
+<!-- ==========================================
+     TEAM SUMMARY
+     ========================================== -->
 
 <div class="card">
 
-
-<div class="table-wrapper">
-
-
-<table id="attendanceTable">
+    <div class="summary-boxes">
 
 
-<thead id="tableHead">
-</thead>
+        <div class="summary-box">
+
+            <h3>
+                Total Employees
+            </h3>
+
+            <p id="totalEmployees">
+                0
+            </p>
+
+        </div>
 
 
-<tbody id="tableBody">
-</tbody>
+        <div class="summary-box">
+
+            <h3>
+                Total Present
+            </h3>
+
+            <p id="totalPresent">
+                0
+            </p>
+
+        </div>
 
 
-</table>
+        <div class="summary-box">
 
+            <h3>
+                Total Leave
+            </h3>
+
+            <p id="totalLeave">
+                0
+            </p>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            <h3>
+                Total Team Hours
+            </h3>
+
+            <p id="totalHours">
+                0h 00m
+            </p>
+
+        </div>
+
+
+    </div>
 
 </div>
 
+
+<!-- ==========================================
+     ATTENDANCE TABLE
+     ========================================== -->
+
+<div class="card">
+
+    <div
+        id="loadingMessage"
+        class="loading"
+    >
+        Loading attendance...
+    </div>
+
+
+    <div
+        class="table-wrapper"
+        id="tableWrapper"
+        style="display:none;"
+    >
+
+        <table id="attendanceTable">
+
+            <thead id="tableHead">
+            </thead>
+
+            <tbody id="tableBody">
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
 
@@ -384,36 +545,30 @@ Download Report
 <script>
 
 
-/*
-==========================================
-SUPABASE CONFIGURATION
-==========================================
-*/
+/* ==========================================
+   SUPABASE CONFIGURATION
+   ========================================== */
 
 const SUPABASE_URL =
-"https://ifvhwjufwnonfmkeapls.supabase.co";
+    "https://ifvhwjufwnonfmkeapls.supabase.co";
 
 
 const SUPABASE_KEY =
-"sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
+    "sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
 
 
-/*
-==========================================
-GLOBAL DATA
-==========================================
-*/
+/* ==========================================
+   GLOBAL DATA
+   ========================================== */
 
 let employees = [];
 
 let attendanceData = [];
 
 
-/*
-==========================================
-SUPABASE REQUEST
-==========================================
-*/
+/* ==========================================
+   SUPABASE REQUEST
+   ========================================== */
 
 async function supabaseRequest(
     endpoint,
@@ -436,7 +591,9 @@ async function supabaseRequest(
                         SUPABASE_KEY,
 
                     "Content-Type":
-                        "application/json"
+                        "application/json",
+
+                    ...(options.headers || {})
 
                 }
 
@@ -466,11 +623,9 @@ async function supabaseRequest(
 }
 
 
-/*
-==========================================
-LOAD EMPLOYEES
-==========================================
-*/
+/* ==========================================
+   LOAD EMPLOYEES
+   ========================================== */
 
 async function loadEmployees() {
 
@@ -485,11 +640,9 @@ async function loadEmployees() {
 }
 
 
-/*
-==========================================
-LOAD ATTENDANCE
-==========================================
-*/
+/* ==========================================
+   LOAD ATTENDANCE
+   ========================================== */
 
 async function loadAttendance() {
 
@@ -502,70 +655,79 @@ async function loadAttendance() {
 }
 
 
-/*
-==========================================
-FORMAT HOURS
-==========================================
-*/
+/* ==========================================
+   FORMAT HOURS
+   ========================================== */
 
-function formatHours(decimalHours) {
+function formatHours(
+    decimalHours
+) {
 
     const totalMinutes =
         Math.round(
-            Number(decimalHours || 0) * 60
+            Number(
+                decimalHours || 0
+            ) * 60
         );
+
 
     const hours =
         Math.floor(
             totalMinutes / 60
         );
 
+
     const minutes =
         totalMinutes % 60;
+
 
     return (
         hours +
         "h " +
-        String(minutes).padStart(2, "0") +
+        String(
+            minutes
+        ).padStart(2, "0") +
         "m"
     );
 
 }
 
 
-/*
-==========================================
-SELECTED MONTH
-==========================================
-*/
+/* ==========================================
+   GET SELECTED MONTH
+   ========================================== */
 
 function getSelectedMonth() {
 
     return document
-        .getElementById("monthFilter")
+        .getElementById(
+            "monthFilter"
+        )
         .value;
 
 }
 
 
-/*
-==========================================
-NUMBER OF DAYS TO DISPLAY
-==========================================
-*/
+/* ==========================================
+   GET NUMBER OF DAYS
+   ========================================== */
 
 function getDaysToDisplay(
     year,
     month
 ) {
 
-    const today = new Date();
+    const today =
+        new Date();
+
 
     const currentYear =
         today.getFullYear();
 
+
     const currentMonth =
         today.getMonth() + 1;
+
 
     const daysInMonth =
         new Date(
@@ -573,6 +735,12 @@ function getDaysToDisplay(
             month,
             0
         ).getDate();
+
+
+    /*
+    Current month:
+    show only till today.
+    */
 
     if (
         year === currentYear &&
@@ -583,39 +751,108 @@ function getDaysToDisplay(
 
     }
 
+
+    /*
+    Previous month:
+    show complete month.
+    */
+
     return daysInMonth;
 
 }
 
 
-/*
-==========================================
-FIND ATTENDANCE
-==========================================
-*/
+/* ==========================================
+   FIND ATTENDANCE
+   ========================================== */
 
 function findAttendance(
-    employeeId,
+    employee,
     date
 ) {
 
     return attendanceData.find(
         record => {
 
-            const sameEmployee =
-                Number(
-                    record.employee_id
-                ) ===
-                Number(employeeId);
+            /*
+            Primary matching:
+            employee_id
+            */
 
-            const sameDate =
-                record.attendance_date ===
-                date;
+            if (
+                record.employee_id !==
+                null &&
+                record.employee_id !==
+                undefined
+            ) {
 
-            return (
-                sameEmployee &&
-                sameDate
-            );
+                if (
+                    Number(
+                        record.employee_id
+                    ) ===
+                    Number(
+                        employee.id
+                    )
+                ) {
+
+                    return (
+                        record.attendance_date ===
+                        date
+                    );
+
+                }
+
+            }
+
+
+            /*
+            Backup matching:
+            employee_name
+            */
+
+            if (
+                record.employee_name &&
+                String(
+                    record.employee_name
+                ).trim() ===
+                String(
+                    employee.employee_name
+                ).trim()
+            ) {
+
+                return (
+                    record.attendance_date ===
+                    date
+                );
+
+            }
+
+
+            /*
+            Older records may have
+            employee ID stored inside
+            employee_name.
+            */
+
+            if (
+                record.employee_name &&
+                String(
+                    record.employee_name
+                ).trim() ===
+                String(
+                    employee.id
+                )
+            ) {
+
+                return (
+                    record.attendance_date ===
+                    date
+                );
+
+            }
+
+
+            return false;
 
         }
     );
@@ -623,28 +860,37 @@ function findAttendance(
 }
 
 
-/*
-==========================================
-RENDER MONTHLY TABLE
-==========================================
-*/
+/* ==========================================
+   RENDER TABLE
+   ========================================== */
 
 function renderTable() {
 
     const selectedMonth =
         getSelectedMonth();
 
-    if (!selectedMonth) return;
+
+    if (!selectedMonth) {
+
+        return;
+
+    }
 
 
     const parts =
         selectedMonth.split("-");
 
+
     const year =
-        Number(parts[0]);
+        Number(
+            parts[0]
+        );
+
 
     const month =
-        Number(parts[1]);
+        Number(
+            parts[1]
+        );
 
 
     const days =
@@ -654,17 +900,15 @@ function renderTable() {
         );
 
 
-    /*
-    HEADER
-    */
+    /* ======================================
+       TABLE HEADER
+       ====================================== */
 
     let headerHTML = `
 
         <tr>
 
-            <th
-                class="employee-column"
-            >
+            <th class="employee-column">
                 Employee
             </th>
 
@@ -684,6 +928,7 @@ function renderTable() {
                 day
             );
 
+
         const dayName =
             date.toLocaleDateString(
                 "en-IN",
@@ -691,6 +936,7 @@ function renderTable() {
                     weekday: "short"
                 }
             );
+
 
         const monthName =
             date.toLocaleDateString(
@@ -723,23 +969,24 @@ function renderTable() {
     }
 
 
-   /*
-SUMMARY HEADERS
-*/
+    /*
+    Present and Leave only.
+    */
 
-headerHTML += `
+    headerHTML += `
 
-    <th class="summary-column">
-        Present
-    </th>
+            <th class="summary-column">
+                Present
+            </th>
 
-    <th class="summary-column">
-        Leave
-    </th>
+            <th class="summary-column">
+                Leave
+            </th>
 
-</tr>
+        </tr>
 
-`;
+    `;
+
 
     document.getElementById(
         "tableHead"
@@ -747,9 +994,9 @@ headerHTML += `
         headerHTML;
 
 
-    /*
-    BODY
-    */
+    /* ======================================
+       TABLE BODY
+       ====================================== */
 
     let bodyHTML = "";
 
@@ -769,18 +1016,18 @@ headerHTML += `
 
             let leaveDays = 0;
 
-            let totalHours = 0;
-
 
             bodyHTML += `
 
                 <tr>
 
-                    <td
-                        class="employee-column"
-                    >
+                    <td class="employee-column">
 
-                        ${employee.employee_name}
+                        <strong>
+                            ${
+                                employee.employee_name
+                            }
+                        </strong>
 
                     </td>
 
@@ -804,15 +1051,24 @@ headerHTML += `
 
                 const record =
                     findAttendance(
-                        employee.id,
+                        employee,
                         date
                     );
 
 
+                /*
+                ==================================
+                LEAVE
+                ==================================
+                */
+
                 if (
                     record &&
-                    record.attendance_status ===
-                    "Leave"
+                    String(
+                        record.attendance_status ||
+                        ""
+                    ).toLowerCase() ===
+                    "leave"
                 ) {
 
                     leaveDays++;
@@ -822,9 +1078,7 @@ headerHTML += `
 
                     bodyHTML += `
 
-                        <td
-                            class="leave"
-                        >
+                        <td class="leave">
 
                             🔴 Leave
 
@@ -835,18 +1089,24 @@ headerHTML += `
                 }
 
 
+                /*
+                ==================================
+                WEEKLY OFF
+                ==================================
+                */
+
                 else if (
                     record &&
-                    record.attendance_status ===
-                    "Weekly Off"
+                    String(
+                        record.attendance_status ||
+                        ""
+                    ).toLowerCase() ===
+                    "weekly off"
                 ) {
-
 
                     bodyHTML += `
 
-                        <td
-                            class="weekoff"
-                        >
+                        <td class="weekoff">
 
                             🟠 Off
 
@@ -856,6 +1116,12 @@ headerHTML += `
 
                 }
 
+
+                /*
+                ==================================
+                PRESENT
+                ==================================
+                */
 
                 else if (record) {
 
@@ -871,21 +1137,18 @@ headerHTML += `
                     teamPresent++;
 
 
-                    totalHours +=
-                        hours;
-
                     teamHours +=
                         hours;
 
 
                     bodyHTML += `
 
-                        <td
-                            class="present"
-                        >
+                        <td class="present">
 
                             🟢
-                            ${formatHours(hours)}
+                            ${formatHours(
+                                hours
+                            )}
 
                         </td>
 
@@ -894,14 +1157,17 @@ headerHTML += `
                 }
 
 
-                else {
+                /*
+                ==================================
+                NOT MARKED
+                ==================================
+                */
 
+                else {
 
                     bodyHTML += `
 
-                        <td
-                            class="not-marked"
-                        >
+                        <td class="not-marked">
 
                             ⚪ —
 
@@ -914,45 +1180,49 @@ headerHTML += `
             }
 
 
-/*
-SUMMARY COLUMNS
-*/
+            /*
+            ==================================
+            PRESENT / LEAVE SUMMARY
+            ==================================
+            */
 
-bodyHTML += `
+            bodyHTML += `
 
-    <td class="summary-column">
+                    <td class="summary-column">
 
-        <strong>
-            ${presentDays}
-        </strong>
+                        <strong>
+                            ${presentDays}
+                        </strong>
 
-    </td>
+                    </td>
 
-    <td class="summary-column">
 
-        <strong>
-            ${leaveDays}
-        </strong>
+                    <td class="summary-column">
 
-    </td>
+                        <strong>
+                            ${leaveDays}
+                        </strong>
 
-    </tr>
+                    </td>
 
-`;
+
+                </tr>
+
+            `;
 
         }
     );
 
 
-document.getElementById(
-    "tableBody"
-).innerHTML =
-    bodyHTML;
+    document.getElementById(
+        "tableBody"
+    ).innerHTML =
+        bodyHTML;
 
 
-    /*
-    SUMMARY
-    */
+    /* ======================================
+       TOP SUMMARY
+       ====================================== */
 
     document.getElementById(
         "totalEmployees"
@@ -975,16 +1245,32 @@ document.getElementById(
     document.getElementById(
         "totalHours"
     ).textContent =
-        formatHours(teamHours);
+        formatHours(
+            teamHours
+        );
+
+
+    /*
+    Show table.
+    */
+
+    document.getElementById(
+        "loadingMessage"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "tableWrapper"
+    ).style.display =
+        "block";
 
 }
 
 
-/*
-==========================================
-DOWNLOAD CSV
-==========================================
-*/
+/* ==========================================
+   DOWNLOAD CSV
+   ========================================== */
 
 function downloadCSV() {
 
@@ -1003,34 +1289,41 @@ function downloadCSV() {
     let csv = "";
 
 
-    rows.forEach(row => {
+    rows.forEach(
+        row => {
 
-        const cells =
-            row.querySelectorAll(
-                "th, td"
+            const cells =
+                row.querySelectorAll(
+                    "th, td"
+                );
+
+
+            const rowData = [];
+
+
+            cells.forEach(
+                cell => {
+
+                    rowData.push(
+                        '"' +
+                        cell.innerText
+                            .replace(
+                                /"/g,
+                                '""'
+                            ) +
+                        '"'
+                    );
+
+                }
             );
 
 
-        const rowData = [];
+            csv +=
+                rowData.join(",") +
+                "\n";
 
-
-        cells.forEach(cell => {
-
-            rowData.push(
-                '"' +
-                cell.innerText
-                    .replace(/"/g, '""') +
-                '"'
-            );
-
-        });
-
-
-        csv +=
-            rowData.join(",") +
-            "\n";
-
-    });
+        }
+    );
 
 
     const blob =
@@ -1044,11 +1337,15 @@ function downloadCSV() {
 
 
     const url =
-        URL.createObjectURL(blob);
+        URL.createObjectURL(
+            blob
+        );
 
 
     const link =
-        document.createElement("a");
+        document.createElement(
+            "a"
+        );
 
 
     link.href = url;
@@ -1060,19 +1357,29 @@ function downloadCSV() {
         ".csv";
 
 
+    document.body.appendChild(
+        link
+    );
+
+
     link.click();
 
 
-    URL.revokeObjectURL(url);
+    document.body.removeChild(
+        link
+    );
+
+
+    URL.revokeObjectURL(
+        url
+    );
 
 }
 
 
-/*
-==========================================
-BACK
-==========================================
-*/
+/* ==========================================
+   BACK TO ATTENDANCE ENTRY
+   ========================================== */
 
 function goBack() {
 
@@ -1082,11 +1389,27 @@ function goBack() {
 }
 
 
-/*
-==========================================
-INITIALIZE
-==========================================
-*/
+/* ==========================================
+   MONTH CHANGE
+   ========================================== */
+
+document
+    .getElementById(
+        "monthFilter"
+    )
+    .addEventListener(
+        "change",
+        function() {
+
+            renderTable();
+
+        }
+    );
+
+
+/* ==========================================
+   INITIALIZE
+   ========================================== */
 
 async function initialize() {
 
@@ -1094,37 +1417,65 @@ async function initialize() {
         new Date();
 
 
+    /*
+    Automatically select
+    current month.
+    */
+
     document.getElementById(
         "monthFilter"
     ).value =
 
         today.getFullYear() +
         "-" +
+
         String(
             today.getMonth() + 1
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
 
     try {
 
+
         await loadEmployees();
+
 
         await loadAttendance();
 
+
         renderTable();
+
 
     }
 
     catch (error) {
+
+
+        console.error(
+            "Monthly attendance error:",
+            error
+        );
+
+
+        document.getElementById(
+            "loadingMessage"
+        ).style.display =
+            "none";
+
 
         const errorBox =
             document.getElementById(
                 "errorMessage"
             );
 
+
         errorBox.textContent =
             "Unable to load attendance: " +
             error.message;
+
 
         errorBox.style.display =
             "block";
@@ -1134,19 +1485,9 @@ async function initialize() {
 }
 
 
-/*
-==========================================
-MONTH CHANGE
-==========================================
-*/
-
-document
-    .getElementById("monthFilter")
-    .addEventListener(
-        "change",
-        renderTable
-    );
-
+/* ==========================================
+   START
+   ========================================== */
 
 initialize();
 
