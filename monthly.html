@@ -723,31 +723,23 @@ function renderTable() {
     }
 
 
-    /*
-    SUMMARY HEADERS
-    */
+   /*
+SUMMARY HEADERS
+*/
 
-    headerHTML += `
+headerHTML += `
 
-        <th
-            class="summary-column"
-            Present
-        </th>
+    <th class="summary-column">
+        Present
+    </th>
 
-        <th
-            class="summary-column"
-            Leave
-        </th>
+    <th class="summary-column">
+        Leave
+    </th>
 
-        <th
-            class="summary-column"
-            Hours Till Date
-        </th>
+</tr>
 
-    </tr>
-
-    `;
-
+`;
 
     document.getElementById(
         "tableHead"
@@ -922,34 +914,31 @@ function renderTable() {
             }
 
 
-            /*
-            SUMMARY COLUMNS
-            */
+/*
+SUMMARY COLUMNS
+*/
 
-            bodyHTML += `
+bodyHTML += `
 
-                <td
-                    class="summary-column"
-                    style="right:260px;"
-                >
+    <td class="summary-column">
 
-                    <strong>
-                        ${presentDays}
-                    </strong>
+        <strong>
+            ${presentDays}
+        </strong>
 
-                </td>
+    </td>
 
+    <td class="summary-column">
 
-                <td
-                    class="summary-column"
-                    style="right:180px;"
-                >
+        <strong>
+            ${leaveDays}
+        </strong>
 
-                    <strong>
-                        ${leaveDays}
-                    </strong>
+    </td>
 
-                </td>
+    </tr>
+
+`;
 
 
                 <td
