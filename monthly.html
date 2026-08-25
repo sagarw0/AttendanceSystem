@@ -1,346 +1,233 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Monthly Attendance</title>
-
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-
-        body {
-
-            margin: 0;
-
-            font-family:
-                Arial,
-                sans-serif;
-
-            background:
-                #f4f6f9;
-
-            color: #222;
-
-        }
-
-
-        .container {
-
-            max-width: 1400px;
-
-            margin: auto;
-
-            padding: 20px;
-
-        }
-
-
-        header {
-
-            background:
-                #1f4e78;
-
-            color: white;
-
-            padding: 22px;
-
-            border-radius: 12px;
-
-            margin-bottom: 20px;
-
-        }
-
-
-        header h1 {
-
-            margin: 0 0 5px;
-
-        }
-
-
-        header p {
-
-            margin: 0;
-
-        }
-
-
-        .card {
-
-            background: white;
-
-            border-radius: 12px;
-
-            padding: 20px;
-
-            margin-bottom: 20px;
-
-            box-shadow:
-                0 3px 12px
-                rgba(0,0,0,.08);
-
-        }
-
-
-        .controls {
-
-            display: flex;
-
-            gap: 15px;
-
-            align-items: end;
-
-            flex-wrap: wrap;
-
-        }
-
-
-        .control {
-
-            min-width: 220px;
-
-        }
-
-
-        label {
-
-            display: block;
-
-            font-weight: bold;
-
-            margin-bottom: 7px;
-
-        }
-
-
-        input,
-        button {
-
-            padding: 11px;
-
-            border-radius: 7px;
-
-            border: 1px solid #ccc;
-
-            font-size: 15px;
-
-        }
-
-
-        button {
-
-            border: none;
-
-            cursor: pointer;
-
-            font-weight: bold;
-
-        }
-
-
-        .back {
-
-            background:
-                #6c757d;
-
-            color: white;
-
-        }
-
-
-        .download {
-
-            background:
-                #198754;
-
-            color: white;
-
-        }
-
-
-        .table-wrapper {
-
-            overflow-x: auto;
-
-        }
-
-
-        table {
-
-            border-collapse: collapse;
-
-            width: 100%;
-
-            min-width: 1200px;
-
-        }
-
-
-        th,
-        td {
-
-            border: 1px solid #ddd;
-
-            padding: 9px;
-
-            text-align: center;
-
-            white-space: nowrap;
-
-        }
-
-
-        th {
-
-            background:
-                #1f4e78;
-
-            color: white;
-
-            position: sticky;
-
-            top: 0;
-
-            z-index: 2;
-
-        }
-
-
-        th:first-child,
-        td:first-child {
-
-            position: sticky;
-
-            left: 0;
-
-            z-index: 3;
-
-            background: white;
-
-            text-align: left;
-
-            font-weight: bold;
-
-        }
-
-
-        th:first-child {
-
-            background:
-                #1f4e78;
-
-        }
-
-
-        .present {
-
-            color:
-                #198754;
-
-            font-weight:
-                bold;
-
-        }
-
-
-        .leave {
-
-            color:
-                #dc3545;
-
-            font-weight:
-                bold;
-
-        }
-
-
-        .empty {
-
-            color:
-                #777;
-
-        }
-
-
-        .summary {
-
-            display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
-            gap: 15px;
-
-            margin-top: 20px;
-
-        }
-
-
-        .summary-box {
-
-            background:
-                #eef5fb;
-
-            border-left:
-                5px solid #1f4e78;
-
-            padding: 15px;
-
-            border-radius: 8px;
-
-        }
-
-
-        .summary-box h3 {
-
-            margin: 0 0 7px;
-
-            font-size: 14px;
-
-            color: #555;
-
-        }
-
-
-        .summary-box p {
-
-            margin: 0;
-
-            font-size: 22px;
-
-            font-weight: bold;
-
-            color:
-                #1f4e78;
-
-        }
-
-
-        @media(max-width:700px) {
-
-            .summary {
-
-                grid-template-columns:
-                    1fr 1fr;
-
-            }
-
-        }
-
-    </style>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Monthly Attendance</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    color: #222;
+}
+
+.container {
+    max-width: 1600px;
+    margin: auto;
+    padding: 20px;
+}
+
+header {
+    background: #1f4e78;
+    color: white;
+    padding: 22px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    margin: 0 0 5px;
+}
+
+header p {
+    margin: 0;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.control {
+    min-width: 200px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+input,
+button {
+    padding: 11px;
+    border-radius: 7px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.back {
+    background: #6c757d;
+    color: white;
+}
+
+.download {
+    background: #198754;
+    color: white;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: max-content;
+    min-width: 100%;
+}
+
+th,
+td {
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 9px 10px;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 82px;
+}
+
+th {
+    background: #1f4e78;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.employee-column {
+    position: sticky;
+    left: 0;
+    z-index: 6;
+    min-width: 180px;
+    text-align: left;
+    background: white;
+}
+
+th.employee-column {
+    background: #1f4e78;
+    color: white;
+}
+
+.summary-column {
+    position: sticky;
+    z-index: 4;
+    background: white;
+    font-weight: bold;
+}
+
+th.summary-column {
+    background: #1f4e78;
+}
+
+.present {
+    color: #198754;
+    font-weight: bold;
+}
+
+.leave {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.weekoff {
+    color: #e67e22;
+    font-weight: bold;
+}
+
+.not-marked {
+    color: #777;
+}
+
+.summary-boxes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.summary-box {
+    background: #eef5fb;
+    border-left: 5px solid #1f4e78;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.summary-box h3 {
+    margin: 0 0 7px;
+    font-size: 14px;
+    color: #555;
+}
+
+.summary-box p {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+    color: #1f4e78;
+}
+
+.legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.error {
+    background: #f8d7da;
+    color: #842029;
+    padding: 12px;
+    border-radius: 7px;
+    margin-top: 15px;
+    display: none;
+}
+
+@media(max-width:700px) {
+
+    .container {
+        padding: 10px;
+    }
+
+    .summary-boxes {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .employee-column {
+        min-width: 150px;
+    }
+
+}
+
+</style>
 
 </head>
 
@@ -351,145 +238,146 @@
 <div class="container">
 
 
-    <header>
+<header>
 
-        <h1>
-            Monthly Attendance
-        </h1>
+<h1>Monthly Attendance</h1>
 
-        <p>
-            Team attendance and hours completed
-        </p>
+<p>
+Team attendance, leave and working hours
+</p>
 
-    </header>
+</header>
 
 
-    <div class="card">
-
-        <div class="controls">
+<div class="card">
 
 
-            <div class="control">
-
-                <label>
-                    Select Month
-                </label>
-
-                <input
-                    type="month"
-                    id="monthFilter"
-                >
-
-            </div>
+<div class="controls">
 
 
-            <button
-                class="back"
-                onclick="goBack()"
-            >
-                ← Attendance Entry
-            </button>
+<div class="control">
+
+<label>Select Month</label>
+
+<input
+    type="month"
+    id="monthFilter"
+>
+
+</div>
 
 
-            <button
-                class="download"
-                onclick="downloadCSV()"
-            >
-                Download Report
-            </button>
+<button
+    class="back"
+    onclick="goBack()"
+>
+← Attendance Entry
+</button>
 
 
-        </div>
+<button
+    class="download"
+    onclick="downloadCSV()"
+>
+Download Report
+</button>
 
 
-        <div class="summary">
+</div>
 
 
-            <div class="summary-box">
-
-                <h3>
-                    Total Employees
-                </h3>
-
-                <p id="totalEmployees">
-                    0
-                </p>
-
-            </div>
+<div
+    id="errorMessage"
+    class="error"
+></div>
 
 
-            <div class="summary-box">
+<div class="legend">
 
-                <h3>
-                    Total Present
-                </h3>
+<span>🟢 Present</span>
 
-                <p id="totalPresent">
-                    0
-                </p>
+<span>🔴 Leave</span>
 
-            </div>
+<span>🟠 Weekly Off</span>
 
+<span>⚪ Not Marked</span>
 
-            <div class="summary-box">
+</div>
 
-                <h3>
-                    Total Leave
-                </h3>
-
-                <p id="totalLeave">
-                    0
-                </p>
-
-            </div>
+</div>
 
 
-            <div class="summary-box">
-
-                <h3>
-                    Team Hours
-                </h3>
-
-                <p id="totalHours">
-                    0h
-                </p>
-
-            </div>
+<div class="card">
 
 
-        </div>
-
-    </div>
+<div class="summary-boxes">
 
 
-    <div class="card">
+<div class="summary-box">
+
+<h3>Total Employees</h3>
+
+<p id="totalEmployees">0</p>
+
+</div>
 
 
-        <div class="table-wrapper">
+<div class="summary-box">
+
+<h3>Total Present</h3>
+
+<p id="totalPresent">0</p>
+
+</div>
 
 
-            <table>
+<div class="summary-box">
+
+<h3>Total Leave</h3>
+
+<p id="totalLeave">0</p>
+
+</div>
 
 
-                <thead
-                    id="matrixHead"
-                >
-                </thead>
+<div class="summary-box">
+
+<h3>Total Team Hours</h3>
+
+<p id="totalHours">0h 00m</p>
+
+</div>
 
 
-                <tbody
-                    id="matrixBody"
-                >
-                </tbody>
+</div>
+
+</div>
 
 
-            </table>
+<div class="card">
 
 
-        </div>
+<div class="table-wrapper">
 
 
-    </div>
+<table id="attendanceTable">
+
+
+<thead id="tableHead">
+</thead>
+
+
+<tbody id="tableBody">
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
 
 
 </div>
@@ -500,18 +388,23 @@
 
 /*
 ==========================================
-SUPABASE
+SUPABASE CONFIGURATION
 ==========================================
 */
 
-
 const SUPABASE_URL =
-    "https://ifvhwjufwnonfmkeapls.supabase.co";
+"https://ifvhwjufwnonfmkeapls.supabase.co";
 
 
 const SUPABASE_KEY =
-    "sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
+"sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
 
+
+/*
+==========================================
+GLOBAL DATA
+==========================================
+*/
 
 let employees = [];
 
@@ -524,19 +417,15 @@ SUPABASE REQUEST
 ==========================================
 */
 
-
 async function supabaseRequest(
     endpoint,
     options = {}
 ) {
 
-
     const response =
         await fetch(
-            SUPABASE_URL +
-            endpoint,
+            SUPABASE_URL + endpoint,
             {
-
                 ...options,
 
                 headers: {
@@ -559,9 +448,17 @@ async function supabaseRequest(
 
     if (!response.ok) {
 
-        throw new Error(
-            await response.text()
-        );
+        const error =
+            await response.text();
+
+        throw new Error(error);
+
+    }
+
+
+    if (response.status === 204) {
+
+        return [];
 
     }
 
@@ -576,7 +473,6 @@ async function supabaseRequest(
 LOAD EMPLOYEES
 ==========================================
 */
-
 
 async function loadEmployees() {
 
@@ -597,7 +493,6 @@ LOAD ATTENDANCE
 ==========================================
 */
 
-
 async function loadAttendance() {
 
     attendanceData =
@@ -615,33 +510,25 @@ FORMAT HOURS
 ==========================================
 */
 
-
-function formatHours(
-    decimalHours
-) {
+function formatHours(decimalHours) {
 
     const totalMinutes =
         Math.round(
-            Number(decimalHours || 0)
-            * 60
+            Number(decimalHours || 0) * 60
         );
-
 
     const hours =
         Math.floor(
             totalMinutes / 60
         );
 
-
     const minutes =
         totalMinutes % 60;
-
 
     return (
         hours +
         "h " +
-        String(minutes)
-            .padStart(2, "0") +
+        String(minutes).padStart(2, "0") +
         "m"
     );
 
@@ -650,17 +537,14 @@ function formatHours(
 
 /*
 ==========================================
-GET SELECTED MONTH
+SELECTED MONTH
 ==========================================
 */
 
-
-function getMonth() {
+function getSelectedMonth() {
 
     return document
-        .getElementById(
-            "monthFilter"
-        )
+        .getElementById("monthFilter")
         .value;
 
 }
@@ -668,86 +552,150 @@ function getMonth() {
 
 /*
 ==========================================
-RENDER MATRIX
+NUMBER OF DAYS TO DISPLAY
 ==========================================
 */
 
+function getDaysToDisplay(
+    year,
+    month
+) {
 
-function renderMatrix() {
+    const today = new Date();
 
+    const currentYear =
+        today.getFullYear();
 
-    const month =
-        getMonth();
-
-
-    if (!month) return;
-
-
-    const parts =
-        month.split("-");
-
-
-    const year =
-        Number(parts[0]);
-
-
-    const monthNumber =
-        Number(parts[1]);
-
+    const currentMonth =
+        today.getMonth() + 1;
 
     const daysInMonth =
         new Date(
             year,
-            monthNumber,
+            month,
             0
         ).getDate();
 
+    if (
+        year === currentYear &&
+        month === currentMonth
+    ) {
 
-    const today =
-        new Date();
+        return today.getDate();
+
+    }
+
+    return daysInMonth;
+
+}
 
 
-    const isCurrentMonth =
-        year ===
-            today.getFullYear() &&
-        monthNumber ===
-            today.getMonth() + 1;
+/*
+==========================================
+FIND ATTENDANCE
+==========================================
+*/
+
+function findAttendance(
+    employeeId,
+    date
+) {
+
+    return attendanceData.find(
+        record => {
+
+            const sameEmployee =
+                Number(
+                    record.employee_id
+                ) ===
+                Number(employeeId);
+
+            const sameDate =
+                record.attendance_date ===
+                date;
+
+            return (
+                sameEmployee &&
+                sameDate
+            );
+
+        }
+    );
+
+}
 
 
-    const maxDay =
-        isCurrentMonth
-            ? today.getDate()
-            : daysInMonth;
+/*
+==========================================
+RENDER MONTHLY TABLE
+==========================================
+*/
+
+function renderTable() {
+
+    const selectedMonth =
+        getSelectedMonth();
+
+    if (!selectedMonth) return;
+
+
+    const parts =
+        selectedMonth.split("-");
+
+    const year =
+        Number(parts[0]);
+
+    const month =
+        Number(parts[1]);
+
+
+    const days =
+        getDaysToDisplay(
+            year,
+            month
+        );
 
 
     /*
     HEADER
     */
 
-
     let headerHTML = `
+
         <tr>
-            <th>Employee</th>
+
+            <th
+                class="employee-column"
+            >
+                Employee
+            </th>
+
     `;
 
 
     for (
         let day = 1;
-        day <= maxDay;
+        day <= days;
         day++
     ) {
-
 
         const date =
             new Date(
                 year,
-                monthNumber - 1,
+                month - 1,
                 day
             );
 
+        const dayName =
+            date.toLocaleDateString(
+                "en-IN",
+                {
+                    weekday: "short"
+                }
+            );
 
         const monthName =
-            date.toLocaleString(
+            date.toLocaleDateString(
                 "en-IN",
                 {
                     month: "short"
@@ -758,9 +706,18 @@ function renderMatrix() {
         headerHTML += `
 
             <th>
+
                 ${String(day)
                     .padStart(2, "0")}
+
                 ${monthName}
+
+                <br>
+
+                <small>
+                    ${dayName}
+                </small>
+
             </th>
 
         `;
@@ -768,30 +725,47 @@ function renderMatrix() {
     }
 
 
+    /*
+    SUMMARY HEADERS
+    */
+
     headerHTML += `
 
-        <th>Present</th>
+        <th
+            class="summary-column"
+            style="right: 260px;"
+        >
+            Present
+        </th>
 
-        <th>Leave</th>
+        <th
+            class="summary-column"
+            style="right: 180px;"
+        >
+            Leave
+        </th>
 
-        <th>Hours Till Date</th>
+        <th
+            class="summary-column"
+            style="right: 0;"
+        >
+            Hours Till Date
+        </th>
 
     </tr>
+
     `;
 
 
-    document
-        .getElementById(
-            "matrixHead"
-        )
-        .innerHTML =
+    document.getElementById(
+        "tableHead"
+    ).innerHTML =
         headerHTML;
 
 
     /*
     BODY
     */
-
 
     let bodyHTML = "";
 
@@ -807,9 +781,9 @@ function renderMatrix() {
         employee => {
 
 
-            let present = 0;
+            let presentDays = 0;
 
-            let leave = 0;
+            let leaveDays = 0;
 
             let totalHours = 0;
 
@@ -818,8 +792,12 @@ function renderMatrix() {
 
                 <tr>
 
-                    <td>
+                    <td
+                        class="employee-column"
+                    >
+
                         ${employee.employee_name}
+
                     </td>
 
             `;
@@ -827,52 +805,42 @@ function renderMatrix() {
 
             for (
                 let day = 1;
-                day <= maxDay;
+                day <= days;
                 day++
             ) {
 
 
                 const date =
                     `${year}-${String(
-                        monthNumber
+                        month
                     ).padStart(2, "0")}-${String(
                         day
                     ).padStart(2, "0")}`;
 
 
                 const record =
-                    attendanceData.find(
-                        item =>
-
-                            Number(
-                                item.employee_id
-                            ) ===
-                            Number(
-                                employee.id
-                            )
-
-                            &&
-
-                            item.attendance_date
-                            === date
+                    findAttendance(
+                        employee.id,
+                        date
                     );
 
 
                 if (
                     record &&
-                    record.attendance_status
-                    === "Leave"
+                    record.attendance_status ===
+                    "Leave"
                 ) {
 
-
-                    leave++;
+                    leaveDays++;
 
                     teamLeave++;
 
 
                     bodyHTML += `
 
-                        <td class="leave">
+                        <td
+                            class="leave"
+                        >
 
                             🔴 Leave
 
@@ -881,6 +849,29 @@ function renderMatrix() {
                     `;
 
                 }
+
+
+                else if (
+                    record &&
+                    record.attendance_status ===
+                    "Weekly Off"
+                ) {
+
+
+                    bodyHTML += `
+
+                        <td
+                            class="weekoff"
+                        >
+
+                            🟠 Off
+
+                        </td>
+
+                    `;
+
+                }
+
 
                 else if (record) {
 
@@ -891,9 +882,10 @@ function renderMatrix() {
                         ) || 0;
 
 
-                    present++;
+                    presentDays++;
 
                     teamPresent++;
+
 
                     totalHours +=
                         hours;
@@ -904,7 +896,9 @@ function renderMatrix() {
 
                     bodyHTML += `
 
-                        <td class="present">
+                        <td
+                            class="present"
+                        >
 
                             🟢
                             ${formatHours(hours)}
@@ -915,12 +909,15 @@ function renderMatrix() {
 
                 }
 
+
                 else {
 
 
                     bodyHTML += `
 
-                        <td class="empty">
+                        <td
+                            class="not-marked"
+                        >
 
                             ⚪ —
 
@@ -933,27 +930,49 @@ function renderMatrix() {
             }
 
 
+            /*
+            SUMMARY COLUMNS
+            */
+
             bodyHTML += `
 
-                <td>
+                <td
+                    class="summary-column"
+                    style="right:260px;"
+                >
+
                     <strong>
-                        ${present}
+                        ${presentDays}
                     </strong>
+
                 </td>
 
-                <td>
+
+                <td
+                    class="summary-column"
+                    style="right:180px;"
+                >
+
                     <strong>
-                        ${leave}
+                        ${leaveDays}
                     </strong>
+
                 </td>
 
-                <td>
+
+                <td
+                    class="summary-column"
+                    style="right:0;"
+                >
+
                     <strong>
                         ${formatHours(
                             totalHours
                         )}
                     </strong>
+
                 </td>
+
 
                 </tr>
 
@@ -963,11 +982,9 @@ function renderMatrix() {
     );
 
 
-    document
-        .getElementById(
-            "matrixBody"
-        )
-        .innerHTML =
+    document.getElementById(
+        "tableBody"
+    ).innerHTML =
         bodyHTML;
 
 
@@ -975,36 +992,27 @@ function renderMatrix() {
     SUMMARY
     */
 
-
-    document
-        .getElementById(
-            "totalEmployees"
-        )
-        .textContent =
+    document.getElementById(
+        "totalEmployees"
+    ).textContent =
         employees.length;
 
 
-    document
-        .getElementById(
-            "totalPresent"
-        )
-        .textContent =
+    document.getElementById(
+        "totalPresent"
+    ).textContent =
         teamPresent;
 
 
-    document
-        .getElementById(
-            "totalLeave"
-        )
-        .textContent =
+    document.getElementById(
+        "totalLeave"
+    ).textContent =
         teamLeave;
 
 
-    document
-        .getElementById(
-            "totalHours"
-        )
-        .textContent =
+    document.getElementById(
+        "totalHours"
+    ).textContent =
         formatHours(teamHours);
 
 }
@@ -1016,85 +1024,49 @@ DOWNLOAD CSV
 ==========================================
 */
 
-
 function downloadCSV() {
 
-
-    const month =
-        getMonth();
+    const table =
+        document.getElementById(
+            "attendanceTable"
+        );
 
 
     const rows =
-        document.querySelectorAll(
-            "#matrixBody tr"
+        table.querySelectorAll(
+            "tr"
         );
-
-
-    if (!rows.length) {
-
-        alert(
-            "No attendance data available."
-        );
-
-        return;
-
-    }
 
 
     let csv = "";
 
 
-    const headers =
-        document.querySelectorAll(
-            "#matrixHead th"
-        );
-
-
-    headers.forEach(
-        (header, index) => {
-
-            csv +=
-                `"${header.innerText}"`;
-
-            if (
-                index <
-                headers.length - 1
-            ) {
-                csv += ",";
-            }
-
-        }
-    );
-
-
-    csv += "\n";
-
-
     rows.forEach(row => {
 
         const cells =
-            row.querySelectorAll("td");
+            row.querySelectorAll(
+                "th, td"
+            );
 
 
-        cells.forEach(
-            (cell, index) => {
-
-                csv +=
-                    `"${cell.innerText
-                        .replace(/"/g, '""')}"`;
-
-                if (
-                    index <
-                    cells.length - 1
-                ) {
-                    csv += ",";
-                }
-
-            }
-        );
+        const rowData = [];
 
 
-        csv += "\n";
+        cells.forEach(cell => {
+
+            rowData.push(
+                '"' +
+                cell.innerText
+                    .replace(/"/g, '""') +
+                '"'
+            );
+
+        });
+
+
+        csv +=
+            rowData.join(",") +
+            "\n";
 
     });
 
@@ -1122,7 +1094,7 @@ function downloadCSV() {
 
     link.download =
         "Attendance-" +
-        month +
+        getSelectedMonth() +
         ".csv";
 
 
@@ -1136,10 +1108,9 @@ function downloadCSV() {
 
 /*
 ==========================================
-BACK BUTTON
+BACK
 ==========================================
 */
-
 
 function goBack() {
 
@@ -1155,19 +1126,15 @@ INITIALIZE
 ==========================================
 */
 
-
 async function initialize() {
-
 
     const today =
         new Date();
 
 
-    document
-        .getElementById(
-            "monthFilter"
-        )
-        .value =
+    document.getElementById(
+        "monthFilter"
+    ).value =
 
         today.getFullYear() +
         "-" +
@@ -1182,29 +1149,40 @@ async function initialize() {
 
         await loadAttendance();
 
-        renderMatrix();
+        renderTable();
 
     }
 
     catch (error) {
 
-        alert(
+        const errorBox =
+            document.getElementById(
+                "errorMessage"
+            );
+
+        errorBox.textContent =
             "Unable to load attendance: " +
-            error.message
-        );
+            error.message;
+
+        errorBox.style.display =
+            "block";
 
     }
 
 }
 
 
+/*
+==========================================
+MONTH CHANGE
+==========================================
+*/
+
 document
-    .getElementById(
-        "monthFilter"
-    )
+    .getElementById("monthFilter")
     .addEventListener(
         "change",
-        renderMatrix
+        renderTable
     );
 
 
@@ -1216,4 +1194,3 @@ initialize();
 </body>
 
 </html>
-```
