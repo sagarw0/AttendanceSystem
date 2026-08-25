@@ -1,0 +1,1219 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Monthly Attendance</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            background:
+                #f4f6f9;
+
+            color: #222;
+
+        }
+
+
+        .container {
+
+            max-width: 1400px;
+
+            margin: auto;
+
+            padding: 20px;
+
+        }
+
+
+        header {
+
+            background:
+                #1f4e78;
+
+            color: white;
+
+            padding: 22px;
+
+            border-radius: 12px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        header h1 {
+
+            margin: 0 0 5px;
+
+        }
+
+
+        header p {
+
+            margin: 0;
+
+        }
+
+
+        .card {
+
+            background: white;
+
+            border-radius: 12px;
+
+            padding: 20px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 3px 12px
+                rgba(0,0,0,.08);
+
+        }
+
+
+        .controls {
+
+            display: flex;
+
+            gap: 15px;
+
+            align-items: end;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .control {
+
+            min-width: 220px;
+
+        }
+
+
+        label {
+
+            display: block;
+
+            font-weight: bold;
+
+            margin-bottom: 7px;
+
+        }
+
+
+        input,
+        button {
+
+            padding: 11px;
+
+            border-radius: 7px;
+
+            border: 1px solid #ccc;
+
+            font-size: 15px;
+
+        }
+
+
+        button {
+
+            border: none;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+        }
+
+
+        .back {
+
+            background:
+                #6c757d;
+
+            color: white;
+
+        }
+
+
+        .download {
+
+            background:
+                #198754;
+
+            color: white;
+
+        }
+
+
+        .table-wrapper {
+
+            overflow-x: auto;
+
+        }
+
+
+        table {
+
+            border-collapse: collapse;
+
+            width: 100%;
+
+            min-width: 1200px;
+
+        }
+
+
+        th,
+        td {
+
+            border: 1px solid #ddd;
+
+            padding: 9px;
+
+            text-align: center;
+
+            white-space: nowrap;
+
+        }
+
+
+        th {
+
+            background:
+                #1f4e78;
+
+            color: white;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 2;
+
+        }
+
+
+        th:first-child,
+        td:first-child {
+
+            position: sticky;
+
+            left: 0;
+
+            z-index: 3;
+
+            background: white;
+
+            text-align: left;
+
+            font-weight: bold;
+
+        }
+
+
+        th:first-child {
+
+            background:
+                #1f4e78;
+
+        }
+
+
+        .present {
+
+            color:
+                #198754;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .leave {
+
+            color:
+                #dc3545;
+
+            font-weight:
+                bold;
+
+        }
+
+
+        .empty {
+
+            color:
+                #777;
+
+        }
+
+
+        .summary {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
+
+            margin-top: 20px;
+
+        }
+
+
+        .summary-box {
+
+            background:
+                #eef5fb;
+
+            border-left:
+                5px solid #1f4e78;
+
+            padding: 15px;
+
+            border-radius: 8px;
+
+        }
+
+
+        .summary-box h3 {
+
+            margin: 0 0 7px;
+
+            font-size: 14px;
+
+            color: #555;
+
+        }
+
+
+        .summary-box p {
+
+            margin: 0;
+
+            font-size: 22px;
+
+            font-weight: bold;
+
+            color:
+                #1f4e78;
+
+        }
+
+
+        @media(max-width:700px) {
+
+            .summary {
+
+                grid-template-columns:
+                    1fr 1fr;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <header>
+
+        <h1>
+            Monthly Attendance
+        </h1>
+
+        <p>
+            Team attendance and hours completed
+        </p>
+
+    </header>
+
+
+    <div class="card">
+
+        <div class="controls">
+
+
+            <div class="control">
+
+                <label>
+                    Select Month
+                </label>
+
+                <input
+                    type="month"
+                    id="monthFilter"
+                >
+
+            </div>
+
+
+            <button
+                class="back"
+                onclick="goBack()"
+            >
+                ← Attendance Entry
+            </button>
+
+
+            <button
+                class="download"
+                onclick="downloadCSV()"
+            >
+                Download Report
+            </button>
+
+
+        </div>
+
+
+        <div class="summary">
+
+
+            <div class="summary-box">
+
+                <h3>
+                    Total Employees
+                </h3>
+
+                <p id="totalEmployees">
+                    0
+                </p>
+
+            </div>
+
+
+            <div class="summary-box">
+
+                <h3>
+                    Total Present
+                </h3>
+
+                <p id="totalPresent">
+                    0
+                </p>
+
+            </div>
+
+
+            <div class="summary-box">
+
+                <h3>
+                    Total Leave
+                </h3>
+
+                <p id="totalLeave">
+                    0
+                </p>
+
+            </div>
+
+
+            <div class="summary-box">
+
+                <h3>
+                    Team Hours
+                </h3>
+
+                <p id="totalHours">
+                    0h
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <div class="card">
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+
+                <thead
+                    id="matrixHead"
+                >
+                </thead>
+
+
+                <tbody
+                    id="matrixBody"
+                >
+                </tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+/*
+==========================================
+SUPABASE
+==========================================
+*/
+
+
+const SUPABASE_URL =
+    "https://ifvhwjufwnonfmkeapls.supabase.co";
+
+
+const SUPABASE_KEY =
+    "YOUR_PUBLISHABLE_KEY";
+
+
+let employees = [];
+
+let attendanceData = [];
+
+
+/*
+==========================================
+SUPABASE REQUEST
+==========================================
+*/
+
+
+async function supabaseRequest(
+    endpoint,
+    options = {}
+) {
+
+
+    const response =
+        await fetch(
+            SUPABASE_URL +
+            endpoint,
+            {
+
+                ...options,
+
+                headers: {
+
+                    "apikey":
+                        SUPABASE_KEY,
+
+                    "Authorization":
+                        "Bearer " +
+                        SUPABASE_KEY,
+
+                    "Content-Type":
+                        "application/json"
+
+                }
+
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            await response.text()
+        );
+
+    }
+
+
+    return response.json();
+
+}
+
+
+/*
+==========================================
+LOAD EMPLOYEES
+==========================================
+*/
+
+
+async function loadEmployees() {
+
+    employees =
+        await supabaseRequest(
+            "/rest/v1/employees" +
+            "?select=id,employee_name" +
+            "&active=eq.true" +
+            "&order=employee_name"
+        );
+
+}
+
+
+/*
+==========================================
+LOAD ATTENDANCE
+==========================================
+*/
+
+
+async function loadAttendance() {
+
+    attendanceData =
+        await supabaseRequest(
+            "/rest/v1/attendance" +
+            "?select=*"
+        );
+
+}
+
+
+/*
+==========================================
+FORMAT HOURS
+==========================================
+*/
+
+
+function formatHours(
+    decimalHours
+) {
+
+    const totalMinutes =
+        Math.round(
+            Number(decimalHours || 0)
+            * 60
+        );
+
+
+    const hours =
+        Math.floor(
+            totalMinutes / 60
+        );
+
+
+    const minutes =
+        totalMinutes % 60;
+
+
+    return (
+        hours +
+        "h " +
+        String(minutes)
+            .padStart(2, "0") +
+        "m"
+    );
+
+}
+
+
+/*
+==========================================
+GET SELECTED MONTH
+==========================================
+*/
+
+
+function getMonth() {
+
+    return document
+        .getElementById(
+            "monthFilter"
+        )
+        .value;
+
+}
+
+
+/*
+==========================================
+RENDER MATRIX
+==========================================
+*/
+
+
+function renderMatrix() {
+
+
+    const month =
+        getMonth();
+
+
+    if (!month) return;
+
+
+    const parts =
+        month.split("-");
+
+
+    const year =
+        Number(parts[0]);
+
+
+    const monthNumber =
+        Number(parts[1]);
+
+
+    const daysInMonth =
+        new Date(
+            year,
+            monthNumber,
+            0
+        ).getDate();
+
+
+    const today =
+        new Date();
+
+
+    const isCurrentMonth =
+        year ===
+            today.getFullYear() &&
+        monthNumber ===
+            today.getMonth() + 1;
+
+
+    const maxDay =
+        isCurrentMonth
+            ? today.getDate()
+            : daysInMonth;
+
+
+    /*
+    HEADER
+    */
+
+
+    let headerHTML = `
+        <tr>
+            <th>Employee</th>
+    `;
+
+
+    for (
+        let day = 1;
+        day <= maxDay;
+        day++
+    ) {
+
+
+        const date =
+            new Date(
+                year,
+                monthNumber - 1,
+                day
+            );
+
+
+        const monthName =
+            date.toLocaleString(
+                "en-IN",
+                {
+                    month: "short"
+                }
+            );
+
+
+        headerHTML += `
+
+            <th>
+                ${String(day)
+                    .padStart(2, "0")}
+                ${monthName}
+            </th>
+
+        `;
+
+    }
+
+
+    headerHTML += `
+
+        <th>Present</th>
+
+        <th>Leave</th>
+
+        <th>Hours Till Date</th>
+
+    </tr>
+    `;
+
+
+    document
+        .getElementById(
+            "matrixHead"
+        )
+        .innerHTML =
+        headerHTML;
+
+
+    /*
+    BODY
+    */
+
+
+    let bodyHTML = "";
+
+
+    let teamPresent = 0;
+
+    let teamLeave = 0;
+
+    let teamHours = 0;
+
+
+    employees.forEach(
+        employee => {
+
+
+            let present = 0;
+
+            let leave = 0;
+
+            let totalHours = 0;
+
+
+            bodyHTML += `
+
+                <tr>
+
+                    <td>
+                        ${employee.employee_name}
+                    </td>
+
+            `;
+
+
+            for (
+                let day = 1;
+                day <= maxDay;
+                day++
+            ) {
+
+
+                const date =
+                    `${year}-${String(
+                        monthNumber
+                    ).padStart(2, "0")}-${String(
+                        day
+                    ).padStart(2, "0")}`;
+
+
+                const record =
+                    attendanceData.find(
+                        item =>
+
+                            Number(
+                                item.employee_id
+                            ) ===
+                            Number(
+                                employee.id
+                            )
+
+                            &&
+
+                            item.attendance_date
+                            === date
+                    );
+
+
+                if (
+                    record &&
+                    record.attendance_status
+                    === "Leave"
+                ) {
+
+
+                    leave++;
+
+                    teamLeave++;
+
+
+                    bodyHTML += `
+
+                        <td class="leave">
+
+                            🔴 Leave
+
+                        </td>
+
+                    `;
+
+                }
+
+                else if (record) {
+
+
+                    const hours =
+                        Number(
+                            record.hours_completed
+                        ) || 0;
+
+
+                    present++;
+
+                    teamPresent++;
+
+                    totalHours +=
+                        hours;
+
+                    teamHours +=
+                        hours;
+
+
+                    bodyHTML += `
+
+                        <td class="present">
+
+                            🟢
+                            ${formatHours(hours)}
+
+                        </td>
+
+                    `;
+
+                }
+
+                else {
+
+
+                    bodyHTML += `
+
+                        <td class="empty">
+
+                            ⚪ —
+
+                        </td>
+
+                    `;
+
+                }
+
+            }
+
+
+            bodyHTML += `
+
+                <td>
+                    <strong>
+                        ${present}
+                    </strong>
+                </td>
+
+                <td>
+                    <strong>
+                        ${leave}
+                    </strong>
+                </td>
+
+                <td>
+                    <strong>
+                        ${formatHours(
+                            totalHours
+                        )}
+                    </strong>
+                </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    document
+        .getElementById(
+            "matrixBody"
+        )
+        .innerHTML =
+        bodyHTML;
+
+
+    /*
+    SUMMARY
+    */
+
+
+    document
+        .getElementById(
+            "totalEmployees"
+        )
+        .textContent =
+        employees.length;
+
+
+    document
+        .getElementById(
+            "totalPresent"
+        )
+        .textContent =
+        teamPresent;
+
+
+    document
+        .getElementById(
+            "totalLeave"
+        )
+        .textContent =
+        teamLeave;
+
+
+    document
+        .getElementById(
+            "totalHours"
+        )
+        .textContent =
+        formatHours(teamHours);
+
+}
+
+
+/*
+==========================================
+DOWNLOAD CSV
+==========================================
+*/
+
+
+function downloadCSV() {
+
+
+    const month =
+        getMonth();
+
+
+    const rows =
+        document.querySelectorAll(
+            "#matrixBody tr"
+        );
+
+
+    if (!rows.length) {
+
+        alert(
+            "No attendance data available."
+        );
+
+        return;
+
+    }
+
+
+    let csv = "";
+
+
+    const headers =
+        document.querySelectorAll(
+            "#matrixHead th"
+        );
+
+
+    headers.forEach(
+        (header, index) => {
+
+            csv +=
+                `"${header.innerText}"`;
+
+            if (
+                index <
+                headers.length - 1
+            ) {
+                csv += ",";
+            }
+
+        }
+    );
+
+
+    csv += "\n";
+
+
+    rows.forEach(row => {
+
+        const cells =
+            row.querySelectorAll("td");
+
+
+        cells.forEach(
+            (cell, index) => {
+
+                csv +=
+                    `"${cell.innerText
+                        .replace(/"/g, '""')}"`;
+
+                if (
+                    index <
+                    cells.length - 1
+                ) {
+                    csv += ",";
+                }
+
+            }
+        );
+
+
+        csv += "\n";
+
+    });
+
+
+    const blob =
+        new Blob(
+            [csv],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href = url;
+
+
+    link.download =
+        "Attendance-" +
+        month +
+        ".csv";
+
+
+    link.click();
+
+
+    URL.revokeObjectURL(url);
+
+}
+
+
+/*
+==========================================
+BACK BUTTON
+==========================================
+*/
+
+
+function goBack() {
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+/*
+==========================================
+INITIALIZE
+==========================================
+*/
+
+
+async function initialize() {
+
+
+    const today =
+        new Date();
+
+
+    document
+        .getElementById(
+            "monthFilter"
+        )
+        .value =
+
+        today.getFullYear() +
+        "-" +
+        String(
+            today.getMonth() + 1
+        ).padStart(2, "0");
+
+
+    try {
+
+        await loadEmployees();
+
+        await loadAttendance();
+
+        renderMatrix();
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Unable to load attendance: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+document
+    .getElementById(
+        "monthFilter"
+    )
+    .addEventListener(
+        "change",
+        renderMatrix
+    );
+
+
+initialize();
+
+
+</script>
+
+</body>
+
+</html>
+```
