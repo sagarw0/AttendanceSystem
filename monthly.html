@@ -211,6 +211,7 @@ function renderTable(){
     headerHTML+=`
             <th class="summary-column">Present</th>
             <th class="summary-column">Leave</th>
+            <th class="summary-column">Total Hours</th>
         </tr>
     `;
 
@@ -224,6 +225,7 @@ function renderTable(){
     employees.forEach(employee=>{
         let presentDays=0;
         let leaveDays=0;
+        let employeeTotalHours=0;
 
         bodyHTML+=`
             <tr>
@@ -256,6 +258,7 @@ function renderTable(){
                 const hours=Number(record.hours_completed)||0;
                 presentDays++;
                 teamPresent++;
+                employeeTotalHours+=hours;
                 teamHours+=hours;
                 bodyHTML+=`<td class="present">🟢 ${formatHours(hours)}</td>`;
                 continue;
@@ -272,6 +275,7 @@ function renderTable(){
         bodyHTML+=`
             <td class="summary-column"><strong>${presentDays}</strong></td>
             <td class="summary-column"><strong>${leaveDays}</strong></td>
+            <td class="summary-column"><strong>${formatHours(employeeTotalHours)}</strong></td>
             </tr>
         `;
     });
