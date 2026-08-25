@@ -1279,56 +1279,70 @@ function downloadCSV() {
             "attendanceTable"
         );
 
-
     const rows =
-        table.querySelectorAll(
-            "tr"
-        );
-
+        table.querySelectorAll("tr");
 
     let csv = "";
 
+    rows.forEach(row => {
 
-    rows.forEach(
-        row => {
-
-            const cells =
-                row.querySelectorAll(
-                    "th, td"
-                );
-
-
-            const rowData = [];
-
-
-            cells.forEach(
-                cell => {
-
-                    rowData.push(
-                        '"' +
-                        cell.innerText
-                            .replace(
-                                /"/g,
-                                '""'
-                            ) +
-                        '"'
-                    );
-
-                }
+        const cells =
+            row.querySelectorAll(
+                "th, td"
             );
 
+        const rowData = [];
 
-            csv +=
-                rowData.join(",") +
-                "\n";
+        cells.forEach(cell => {
 
-        }
-    );
+            let value =
+                cell.innerText.trim();
+
+            /*
+            Convert emoji/status into
+            clean Excel-friendly text
+            */
+
+            value = value
+                .replace(/🟢/g, "Present -")
+                .replace(/🔴/g, "Leave")
+                .replace(/🟠/g, "Weekly Off")
+                .replace(/⚪/g, "Not Marked")
+                .replace(/—/g, "-");
+
+            rowData.push(
+                '"' +
+                value.replace(
+                    /"/g,
+                    '""'
+                ) +
+                '"'
+            );
+
+        });
+
+        csv +=
+            rowData.join(",") +
+            "\r\n";
+
+    });
+
+
+    /*
+    UTF-8 BOM
+    This makes Excel correctly
+    recognize Indian names and
+    other Unicode characters.
+    */
+
+    const BOM = "\uFEFF";
 
 
     const blob =
         new Blob(
-            [csv],
+            [
+                BOM + csv
+            ],
             {
                 type:
                     "text/csv;charset=utf-8;"
@@ -1337,15 +1351,11 @@ function downloadCSV() {
 
 
     const url =
-        URL.createObjectURL(
-            blob
-        );
+        URL.createObjectURL(blob);
 
 
     const link =
-        document.createElement(
-            "a"
-        );
+        document.createElement("a");
 
 
     link.href = url;
@@ -1357,24 +1367,18 @@ function downloadCSV() {
         ".csv";
 
 
-    document.body.appendChild(
-        link
-    );
-
+    document.body.appendChild(link);
 
     link.click();
 
-
-    document.body.removeChild(
-        link
-    );
+    document.body.removeChild(link);
 
 
-    URL.revokeObjectURL(
-        url
-    );
+    URL.revokeObjectURL(url);
 
 }
+
+
 
 
 /* ==========================================
