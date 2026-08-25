@@ -3,146 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Employee Attendance</title>
 
 <style>
-* {
-    box-sizing: border-box;
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    color:#222;
 }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    color: #222;
+.container{
+    max-width:500px;
+    margin:auto;
+    padding:15px;
 }
 
-.container {
-    max-width: 500px;
-    margin: auto;
-    padding: 15px;
+header{
+    background:#1f4e78;
+    color:#fff;
+    padding:24px 18px;
+    border-radius:14px;
+    margin-bottom:18px;
+    text-align:center;
 }
 
-header {
-    background: #1f4e78;
-    color: white;
-    padding: 22px;
-    border-radius: 14px;
-    margin-bottom: 18px;
-    text-align: center;
+header h1{
+    margin:0 0 7px;
+    font-size:30px;
 }
 
-header h1 {
-    margin: 0 0 6px;
+header p{
+    margin:0;
 }
 
-header p {
-    margin: 0;
+.card{
+    background:#fff;
+    border-radius:14px;
+    padding:22px;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+    margin-bottom:18px;
 }
 
-.card {
-    background: white;
-    border-radius: 14px;
-    padding: 22px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.08);
-    margin-bottom: 18px;
+label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:8px;
 }
 
-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 8px;
+input{
+    width:100%;
+    padding:14px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:16px;
+    text-transform:uppercase;
 }
 
-input {
-    width: 100%;
-    padding: 14px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
+button{
+    width:100%;
+    padding:14px;
+    border:0;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:12px;
 }
 
-button {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 12px;
+button:disabled{
+    cursor:not-allowed;
+    opacity:.55;
 }
 
-.login-btn {
-    background: #198754;
-    color: white;
+.login-btn{
+    background:#198754;
+    color:#fff;
 }
 
-.logout-btn {
-    background: #dc3545;
-    color: white;
+.logout-btn{
+    background:#dc3545;
+    color:#fff;
 }
 
-.logout-btn:disabled {
-    background: #aaa;
-    cursor: not-allowed;
+.employee-name{
+    text-align:center;
+    font-size:23px;
+    font-weight:bold;
+    color:#1f4e78;
+    margin-bottom:20px;
 }
 
-.employee-name {
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    color: #1f4e78;
-    margin-bottom: 20px;
+.status{
+    text-align:center;
+    padding:16px;
+    border-radius:10px;
+    margin-bottom:13px;
+    background:#eef5fb;
 }
 
-.status {
-    text-align: center;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    background: #eef5fb;
+.status-label{
+    font-size:13px;
+    color:#666;
 }
 
-.status-label {
-    font-size: 13px;
-    color: #666;
+.status-value{
+    font-size:23px;
+    font-weight:bold;
+    margin-top:5px;
+    color:#1f4e78;
 }
 
-.status-value {
-    font-size: 22px;
-    font-weight: bold;
-    margin-top: 5px;
+.message{
+    display:none;
+    padding:12px;
+    border-radius:8px;
+    margin-top:15px;
+    word-break:break-word;
 }
 
-.message {
-    display: none;
-    padding: 12px;
-    border-radius: 8px;
-    margin-top: 15px;
-    word-break: break-word;
+.success{
+    background:#d1e7dd;
+    color:#0f5132;
 }
 
-.success {
-    background: #d1e7dd;
-    color: #0f5132;
+.error{
+    background:#f8d7da;
+    color:#842029;
 }
 
-.error {
-    background: #f8d7da;
-    color: #842029;
+.info{
+    background:#cff4fc;
+    color:#055160;
 }
 
-.hidden {
-    display: none;
+.hidden{
+    display:none;
 }
 
-.small {
-    text-align: center;
-    color: #777;
-    font-size: 13px;
-    margin-top: 15px;
+.small{
+    text-align:center;
+    color:#777;
+    font-size:13px;
+    margin-top:15px;
 }
 </style>
 </head>
@@ -156,112 +161,63 @@ button {
     <p>Login and logout to record your attendance</p>
 </header>
 
-
 <!-- LOGIN CARD -->
-
 <div class="card" id="loginCard">
 
-    <label for="employeeCode">
-        Employee Code
-    </label>
+    <label for="employeeCode">Employee Code</label>
 
     <input
         type="text"
         id="employeeCode"
         placeholder="Enter employee code"
         autocomplete="off"
+        maxlength="50"
     >
 
     <button
+        id="loginButton"
         class="login-btn"
+        type="button"
         onclick="employeeLogin()"
     >
         🟢 LOGIN
     </button>
 
-    <div
-        id="loginMessage"
-        class="message"
-    ></div>
+    <div id="loginMessage" class="message"></div>
 
 </div>
 
 
 <!-- ATTENDANCE CARD -->
+<div class="card hidden" id="attendanceCard">
 
-<div
-    class="card hidden"
-    id="attendanceCard"
->
-
-    <div
-        class="employee-name"
-        id="employeeName"
-    ></div>
-
+    <div id="employeeName" class="employee-name"></div>
 
     <div class="status">
-
-        <div class="status-label">
-            Today's Login
-        </div>
-
-        <div
-            class="status-value"
-            id="loginTime"
-        >
-            --
-        </div>
-
+        <div class="status-label">Today's Login</div>
+        <div id="loginTime" class="status-value">--</div>
     </div>
-
 
     <div class="status">
-
-        <div class="status-label">
-            Today's Logout
-        </div>
-
-        <div
-            class="status-value"
-            id="logoutTime"
-        >
-            --
-        </div>
-
+        <div class="status-label">Today's Logout</div>
+        <div id="logoutTime" class="status-value">--</div>
     </div>
-
 
     <div class="status">
-
-        <div class="status-label">
-            Hours Completed
-        </div>
-
-        <div
-            class="status-value"
-            id="hoursCompleted"
-        >
-            --
-        </div>
-
+        <div class="status-label">Hours Completed</div>
+        <div id="hoursCompleted" class="status-value">--</div>
     </div>
-
 
     <button
-        class="logout-btn"
         id="logoutButton"
+        class="logout-btn"
+        type="button"
         onclick="employeeLogout()"
     >
         🔴 LOGOUT
     </button>
 
-
-    <div
-        id="attendanceMessage"
-        class="message"
-    ></div>
-
+    <div id="attendanceMessage" class="message"></div>
 
     <div class="small">
         Your attendance is recorded automatically.
@@ -285,6 +241,10 @@ const SUPABASE_KEY =
     "sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
 
 
+/* ==========================================
+   GLOBAL DATA
+   ========================================== */
+
 let currentEmployee = null;
 let todayAttendance = null;
 
@@ -305,7 +265,6 @@ async function supabaseRequest(
                 ...options,
 
                 headers: {
-
                     "apikey":
                         SUPABASE_KEY,
 
@@ -320,7 +279,6 @@ async function supabaseRequest(
                         "return=representation",
 
                     ...(options.headers || {})
-
                 }
             }
         );
@@ -331,20 +289,19 @@ async function supabaseRequest(
         const error =
             await response.text();
 
-        throw new Error(error);
+        throw new Error(
+            error || "Supabase request failed"
+        );
 
     }
 
 
     if (response.status === 204) {
-
         return [];
-
     }
 
 
     return response.json();
-
 }
 
 
@@ -354,21 +311,19 @@ async function supabaseRequest(
 
 function getToday() {
 
-    const today =
-        new Date();
+    const now = new Date();
 
     return (
-        today.getFullYear() +
+        now.getFullYear() +
         "-" +
         String(
-            today.getMonth() + 1
+            now.getMonth() + 1
         ).padStart(2, "0") +
         "-" +
         String(
-            today.getDate()
+            now.getDate()
         ).padStart(2, "0")
     );
-
 }
 
 
@@ -378,8 +333,7 @@ function getToday() {
 
 function getCurrentTime() {
 
-    const now =
-        new Date();
+    const now = new Date();
 
     return (
         String(
@@ -388,14 +342,14 @@ function getCurrentTime() {
         ":" +
         String(
             now.getMinutes()
-        ).padStart(2, "0")
+        ).padStart(2, "0") +
+        ":00"
     );
-
 }
 
 
 /* ==========================================
-   FORMAT TIME
+   DISPLAY TIME
    ========================================== */
 
 function formatTime(time) {
@@ -411,7 +365,7 @@ function formatTime(time) {
         Number(parts[0]);
 
     const minute =
-        parts[1];
+        parts[1] || "00";
 
     const period =
         hour >= 12
@@ -428,7 +382,6 @@ function formatTime(time) {
         " " +
         period
     );
-
 }
 
 
@@ -441,13 +394,9 @@ function calculateHours(
     outTime
 ) {
 
-    if (
-        !inTime ||
-        !outTime
-    ) {
+    if (!inTime || !outTime) {
         return 0;
     }
-
 
     const start =
         new Date(
@@ -455,27 +404,21 @@ function calculateHours(
             inTime
         );
 
-
     let end =
         new Date(
             "2000-01-01T" +
             outTime
         );
 
-
     if (end < start) {
-
         end.setDate(
             end.getDate() + 1
         );
-
     }
-
 
     return (
         end - start
     ) / 3600000;
-
 }
 
 
@@ -490,16 +433,13 @@ function formatHours(hours) {
             Number(hours || 0) * 60
         );
 
-
     const h =
         Math.floor(
             totalMinutes / 60
         );
 
-
     const m =
         totalMinutes % 60;
-
 
     return (
         h +
@@ -507,18 +447,17 @@ function formatHours(hours) {
         String(m).padStart(2, "0") +
         "m"
     );
-
 }
 
 
 /* ==========================================
-   MESSAGE
+   MESSAGES
    ========================================== */
 
 function showMessage(
     elementId,
     text,
-    error = false
+    type = "error"
 ) {
 
     const box =
@@ -526,145 +465,89 @@ function showMessage(
             elementId
         );
 
-
     box.textContent =
         text;
 
-
     box.className =
-        "message " +
-        (
-            error
-                ? "error"
-                : "success"
-        );
-
+        "message " + type;
 
     box.style.display =
         "block";
+}
 
+
+function clearMessage(elementId) {
+
+    const box =
+        document.getElementById(
+            elementId
+        );
+
+    box.textContent = "";
+
+    box.style.display =
+        "none";
 }
 
 
 /* ==========================================
-   EMPLOYEE LOGIN
+   BUTTON STATE
    ========================================== */
 
-async function employeeLogin() {
+function setLoginButton(
+    disabled,
+    text
+) {
 
-    const code =
+    const button =
         document.getElementById(
-            "employeeCode"
-        ).value.trim();
-
-
-    if (!code) {
-
-        showMessage(
-            "loginMessage",
-            "Please enter your employee code.",
-            true
+            "loginButton"
         );
 
-        return;
+    button.disabled =
+        disabled;
 
-    }
-
-
-    try {
-
-        /*
-        Find employee by employee code.
-        */
-
-        const result =
-            await supabaseRequest(
-                "/rest/v1/employees" +
-                "?employee_code=eq." +
-                encodeURIComponent(code) +
-                "&active=eq.true" +
-                "&select=id,employee_code,employee_name,department,designation"
-            );
+    button.textContent =
+        text;
+}
 
 
-        if (
-            !result ||
-            result.length === 0
-        ) {
+function setLogoutButton(
+    disabled,
+    text
+) {
 
-            showMessage(
-                "loginMessage",
-                "Employee code not found.",
-                true
-            );
-
-            return;
-
-        }
-
-
-        currentEmployee =
-            result[0];
-
-
-        /*
-        Check today's attendance.
-        */
-
-        await loadTodayAttendance();
-
-
-        /*
-        Display employee screen.
-        */
-
+    const button =
         document.getElementById(
-            "loginCard"
-        ).classList.add(
-            "hidden"
+            "logoutButton"
         );
 
+    button.disabled =
+        disabled;
 
-        document.getElementById(
-            "attendanceCard"
-        ).classList.remove(
-            "hidden"
-        );
-
-
-        document.getElementById(
-            "employeeName"
-        ).textContent =
-            currentEmployee.employee_name;
+    button.textContent =
+        text;
+}
 
 
-        /*
-        If employee already logged in,
-        show their existing attendance.
-        */
+/* ==========================================
+   FIND EMPLOYEE
+   ========================================== */
 
-        updateAttendanceScreen();
+async function findEmployee(
+    employeeCode
+) {
 
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Employee login error:",
-            error
-        );
-
-
-        showMessage(
-            "loginMessage",
-            "Unable to login: " +
-            error.message,
-            true
-        );
-
-    }
-
+    return await supabaseRequest(
+        "/rest/v1/employees" +
+        "?employee_code=eq." +
+        encodeURIComponent(
+            employeeCode
+        ) +
+        "&active=eq.true" +
+        "&select=id,employee_code,employee_name,department,designation" +
+        "&limit=1"
+    );
 }
 
 
@@ -677,7 +560,6 @@ async function loadTodayAttendance() {
     const today =
         getToday();
 
-
     const result =
         await supabaseRequest(
             "/rest/v1/attendance" +
@@ -686,146 +568,28 @@ async function loadTodayAttendance() {
                 currentEmployee.id
             ) +
             "&attendance_date=eq." +
-            encodeURIComponent(today) +
+            encodeURIComponent(
+                today
+            ) +
             "&select=*" +
+            "&order=id.desc" +
             "&limit=1"
         );
-
 
     todayAttendance =
         result.length > 0
             ? result[0]
             : null;
 
+    return todayAttendance;
 }
 
 
 /* ==========================================
-   UPDATE SCREEN
-   ========================================== */
-
-function updateAttendanceScreen() {
-
-    const loginButton =
-        document.getElementById(
-            "logoutButton"
-        );
-
-
-    if (!todayAttendance) {
-
-        document.getElementById(
-            "loginTime"
-        ).textContent =
-            "--";
-
-
-        document.getElementById(
-            "logoutTime"
-        ).textContent =
-            "--";
-
-
-        document.getElementById(
-            "hoursCompleted"
-        ).textContent =
-            "--";
-
-
-        loginButton.disabled =
-            true;
-
-
-        loginButton.textContent =
-            "🔴 LOGOUT";
-
-
-        return;
-
-    }
-
-
-    document.getElementById(
-        "loginTime"
-    ).textContent =
-        formatTime(
-            todayAttendance.in_time
-        );
-
-
-    document.getElementById(
-        "logoutTime"
-    ).textContent =
-        formatTime(
-            todayAttendance.out_time
-        );
-
-
-    if (
-        todayAttendance.hours_completed
-    ) {
-
-        document.getElementById(
-            "hoursCompleted"
-        ).textContent =
-            formatHours(
-                todayAttendance.hours_completed
-            );
-
-    }
-
-    else {
-
-        document.getElementById(
-            "hoursCompleted"
-        ).textContent =
-            "--";
-
-    }
-
-
-    /*
-    Already logged out.
-    */
-
-    if (
-        todayAttendance.out_time
-    ) {
-
-        loginButton.disabled =
-            true;
-
-        loginButton.textContent =
-            "✓ LOGOUT COMPLETED";
-
-    }
-
-    else {
-
-        loginButton.disabled =
-            false;
-
-        loginButton.textContent =
-            "🔴 LOGOUT";
-
-    }
-
-}
-
-
-/* ==========================================
-   EMPLOYEE FIRST LOGIN
+   CREATE NEW LOGIN RECORD
    ========================================== */
 
 async function createLoginAttendance() {
-
-    const today =
-        getToday();
-
-
-    const currentTime =
-        getCurrentTime();
-
 
     const payload = {
 
@@ -836,10 +600,10 @@ async function createLoginAttendance() {
             currentEmployee.employee_name,
 
         attendance_date:
-            today,
+            getToday(),
 
         in_time:
-            currentTime,
+            getCurrentTime(),
 
         out_time:
             null,
@@ -849,7 +613,6 @@ async function createLoginAttendance() {
 
         attendance_status:
             "Present"
-
     };
 
 
@@ -857,22 +620,325 @@ async function createLoginAttendance() {
         await supabaseRequest(
             "/rest/v1/attendance",
             {
-
-                method:
-                    "POST",
+                method: "POST",
 
                 body:
                     JSON.stringify(
                         payload
                     )
-
             }
         );
 
 
+    if (
+        !result ||
+        result.length === 0
+    ) {
+
+        throw new Error(
+            "Login attendance was not created."
+        );
+    }
+
+
     todayAttendance =
         result[0];
+}
 
+
+/* ==========================================
+   UPDATE EXISTING RECORD WITH LOGIN
+   ========================================== */
+
+async function updateExistingLogin() {
+
+    const loginTime =
+        getCurrentTime();
+
+
+    const result =
+        await supabaseRequest(
+            "/rest/v1/attendance?id=eq." +
+            encodeURIComponent(
+                todayAttendance.id
+            ),
+            {
+                method: "PATCH",
+
+                body:
+                    JSON.stringify({
+
+                        in_time:
+                            loginTime,
+
+                        attendance_status:
+                            "Present"
+
+                    })
+            }
+        );
+
+
+    if (
+        !result ||
+        result.length === 0
+    ) {
+
+        throw new Error(
+            "Unable to save login time."
+        );
+    }
+
+
+    todayAttendance =
+        result[0];
+}
+
+
+/* ==========================================
+   EMPLOYEE LOGIN
+   ========================================== */
+
+async function employeeLogin() {
+
+    clearMessage(
+        "loginMessage"
+    );
+
+    const input =
+        document.getElementById(
+            "employeeCode"
+        );
+
+    const code =
+        input.value.trim();
+
+
+    if (!code) {
+
+        showMessage(
+            "loginMessage",
+            "Please enter your employee code.",
+            "error"
+        );
+
+        input.focus();
+
+        return;
+    }
+
+
+    setLoginButton(
+        true,
+        "Checking..."
+    );
+
+
+    try {
+
+        /*
+        1. Find employee
+        */
+
+        const result =
+            await findEmployee(
+                code
+            );
+
+
+        if (
+            !result ||
+            result.length === 0
+        ) {
+
+            setLoginButton(
+                false,
+                "🟢 LOGIN"
+            );
+
+            showMessage(
+                "loginMessage",
+                "Employee code not found.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        currentEmployee =
+            result[0];
+
+
+        /*
+        2. Find today's attendance
+        */
+
+        await loadTodayAttendance();
+
+
+        /*
+        3. No record:
+           create today's login.
+        */
+
+        if (!todayAttendance) {
+
+            await createLoginAttendance();
+
+        }
+
+
+        /*
+        4. Record exists but
+           IN TIME is empty:
+           update it with current time.
+        */
+
+        else if (
+            !todayAttendance.in_time
+        ) {
+
+            await updateExistingLogin();
+
+        }
+
+
+        /*
+        5. Show employee screen.
+        */
+
+        document.getElementById(
+            "loginCard"
+        ).classList.add(
+            "hidden"
+        );
+
+        document.getElementById(
+            "attendanceCard"
+        ).classList.remove(
+            "hidden"
+        );
+
+        document.getElementById(
+            "employeeName"
+        ).textContent =
+            currentEmployee.employee_name;
+
+
+        updateAttendanceScreen();
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "Employee login error:",
+            error
+        );
+
+        setLoginButton(
+            false,
+            "🟢 LOGIN"
+        );
+
+        showMessage(
+            "loginMessage",
+            "Unable to login: " +
+            error.message,
+            "error"
+        );
+    }
+}
+
+
+/* ==========================================
+   UPDATE ATTENDANCE SCREEN
+   ========================================== */
+
+function updateAttendanceScreen() {
+
+    const loginTime =
+        document.getElementById(
+            "loginTime"
+        );
+
+    const logoutTime =
+        document.getElementById(
+            "logoutTime"
+        );
+
+    const hours =
+        document.getElementById(
+            "hoursCompleted"
+        );
+
+
+    if (!todayAttendance) {
+
+        loginTime.textContent =
+            "--";
+
+        logoutTime.textContent =
+            "--";
+
+        hours.textContent =
+            "--";
+
+        setLogoutButton(
+            true,
+            "🔴 LOGOUT"
+        );
+
+        return;
+    }
+
+
+    loginTime.textContent =
+        formatTime(
+            todayAttendance.in_time
+        );
+
+
+    logoutTime.textContent =
+        formatTime(
+            todayAttendance.out_time
+        );
+
+
+    /*
+    Already logged out
+    */
+
+    if (
+        todayAttendance.out_time
+    ) {
+
+        hours.textContent =
+            formatHours(
+                todayAttendance.hours_completed
+            );
+
+        setLogoutButton(
+            true,
+            "✓ LOGOUT COMPLETED"
+        );
+
+        return;
+    }
+
+
+    /*
+    Logged in but not logged out
+    */
+
+    hours.textContent =
+        "In Progress";
+
+    setLogoutButton(
+        false,
+        "🔴 LOGOUT"
+    );
 }
 
 
@@ -882,12 +948,20 @@ async function createLoginAttendance() {
 
 async function employeeLogout() {
 
-    if (
-        !todayAttendance
-    ) {
+    clearMessage(
+        "attendanceMessage"
+    );
+
+
+    if (!todayAttendance) {
+
+        showMessage(
+            "attendanceMessage",
+            "No login record found.",
+            "error"
+        );
 
         return;
-
     }
 
 
@@ -898,12 +972,44 @@ async function employeeLogout() {
         showMessage(
             "attendanceMessage",
             "You have already logged out.",
-            true
+            "info"
+        );
+
+        updateAttendanceScreen();
+
+        return;
+    }
+
+
+    if (
+        !todayAttendance.in_time
+    ) {
+
+        showMessage(
+            "attendanceMessage",
+            "Login time is missing. Please contact the administrator.",
+            "error"
         );
 
         return;
-
     }
+
+
+    const confirmed =
+        window.confirm(
+            "Are you sure you want to logout?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    setLogoutButton(
+        true,
+        "Saving..."
+    );
 
 
     try {
@@ -912,27 +1018,11 @@ async function employeeLogout() {
             getCurrentTime();
 
 
-        const hours =
+        const completedHours =
             calculateHours(
                 todayAttendance.in_time,
                 logoutTime
             );
-
-
-        const payload = {
-
-            out_time:
-                logoutTime,
-
-            hours_completed:
-                Number(
-                    hours.toFixed(2)
-                ),
-
-            attendance_status:
-                "Present"
-
-        };
 
 
         const result =
@@ -942,17 +1032,36 @@ async function employeeLogout() {
                     todayAttendance.id
                 ),
                 {
-
-                    method:
-                        "PATCH",
+                    method: "PATCH",
 
                     body:
-                        JSON.stringify(
-                            payload
-                        )
+                        JSON.stringify({
 
+                            out_time:
+                                logoutTime,
+
+                            hours_completed:
+                                Number(
+                                    completedHours.toFixed(2)
+                                ),
+
+                            attendance_status:
+                                "Present"
+
+                        })
                 }
             );
+
+
+        if (
+            !result ||
+            result.length === 0
+        ) {
+
+            throw new Error(
+                "Logout was not saved."
+            );
+        }
 
 
         todayAttendance =
@@ -964,30 +1073,59 @@ async function employeeLogout() {
 
         showMessage(
             "attendanceMessage",
-            "Logout recorded successfully."
+            "Logout recorded successfully. Hours completed: " +
+            formatHours(
+                completedHours
+            ),
+            "success"
         );
 
 
     }
-
     catch (error) {
 
         console.error(
-            "Logout error:",
+            "Employee logout error:",
             error
         );
 
+        setLogoutButton(
+            false,
+            "🔴 LOGOUT"
+        );
 
         showMessage(
             "attendanceMessage",
             "Unable to record logout: " +
             error.message,
-            true
+            "error"
         );
-
     }
-
 }
+
+
+/* ==========================================
+   ENTER KEY
+   ========================================== */
+
+document
+    .getElementById(
+        "employeeCode"
+    )
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                employeeLogin();
+
+            }
+
+        }
+    );
 
 </script>
 
