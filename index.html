@@ -1,48 +1,1129 @@
-<!doctype html>
+```html
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AttendanceSystem</title>
-  <style>
-    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin: 40px; color: #111 }
-    header { border-bottom: 1px solid #e6e6e6; padding-bottom: 12px; margin-bottom: 24px }
-    h1 { margin: 0 }
-    .meta { color: #555; margin-top: 6px }
-    .card { background: #fafafa; border: 1px solid #f0f0f0; padding: 16px; border-radius: 8px }
-    footer { margin-top: 28px; color: #666; font-size: 0.9rem }
-    a { color: #0366d6 }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Team Attendance System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        header {
+            background: #1f4e78;
+            color: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0 0 5px;
+        }
+
+        header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #1f4e78;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 7px;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 11px;
+            border-radius: 7px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #1f4e78;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #163a5c;
+        }
+
+        .btn-success {
+            background: #198754;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 7px 10px;
+            width: auto;
+        }
+
+        .btn-export {
+            background: #6f42c1;
+            color: white;
+            width: auto;
+            padding: 10px 18px;
+        }
+
+        .button-area {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .summary {
+            padding: 18px;
+            border-radius: 10px;
+            background: #eef5fb;
+            border-left: 5px solid #1f4e78;
+        }
+
+        .summary h3 {
+            margin: 0 0 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .summary p {
+            margin: 0;
+            font-size: 25px;
+            font-weight: bold;
+            color: #1f4e78;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #1f4e78;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f7f7f7;
+        }
+
+        .present {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        .incomplete {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .filter-area {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 15px;
+        }
+
+        .filter-area > div {
+            flex: 1;
+        }
+
+        .month-info {
+            background: #fff3cd;
+            border: 1px solid #ffe69c;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid,
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-grid,
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-area {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .button-area {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <header>
-    <h1>AttendanceSystem</h1>
-    <div class="meta">Repository: <strong>sagarw0/AttendanceSystem</strong></div>
-  </header>
 
-  <section class="card">
-    <h2>About</h2>
-    <p>This is a simple landing page for the AttendanceSystem project. It gives a quick overview and pointers into the repository.</p>
+<div class="container">
 
-    <h3>What this repo contains</h3>
-    <ul>
-      <li>Source code for an attendance management system</li>
-      <li>Configuration and deployment files (if present)</li>
-      <li>Documentation such as README and usage notes</li>
-    </ul>
+    <header>
+        <h1>Team Attendance System</h1>
+        <p>Record attendance and automatically calculate monthly working hours.</p>
+    </header>
 
-    <h3>Languages</h3>
-    <p>See the repository language breakdown on GitHub for the exact composition.</p>
 
-    <p>Quick links:</p>
-    <ul>
-      <li><a href="https://github.com/sagarw0/AttendanceSystem">Repository on GitHub</a></li>
-      <li><a href="https://github.com/sagarw0/AttendanceSystem/blob/main/README.md">README</a> (if present)</li>
-    </ul>
-  </section>
+    <!-- Attendance Entry -->
+    <div class="card">
 
-  <footer>
-    Generated by GitHub Copilot assistant on behalf of the repository owner.
-  </footer>
+        <h2>Mark Attendance</h2>
+
+        <form id="attendanceForm">
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Employee Name</label>
+
+                    <select id="employee" required>
+                        <option value="">Select Employee</option>
+                        <option>Rahul Sharma</option>
+                        <option>Sagar Waghmare</option>
+                        <option>Priya Patil</option>
+                        <option>Amit Joshi</option>
+                        <option>Neha Kulkarni</option>
+                    </select>
+                </div>
+
+
+                <div>
+                    <label>Date</label>
+
+                    <input
+                        type="date"
+                        id="attendanceDate"
+                        required
+                    >
+                </div>
+
+
+                <div>
+                    <label>In Time</label>
+
+                    <input
+                        type="time"
+                        id="inTime"
+                        required
+                    >
+                </div>
+
+
+                <div>
+                    <label>Out Time</label>
+
+                    <input
+                        type="time"
+                        id="outTime"
+                        required
+                    >
+                </div>
+
+            </div>
+
+
+            <div class="button-area">
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Submit Attendance
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-success"
+                    onclick="fillCurrentTime()"
+                >
+                    Use Current Time
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- Monthly Summary -->
+    <div class="card">
+
+        <h2>Team Monthly Summary</h2>
+
+        <div class="filter-area">
+
+            <div>
+                <label>Select Month</label>
+
+                <input
+                    type="month"
+                    id="monthFilter"
+                >
+            </div>
+
+        </div>
+
+
+        <div class="month-info">
+            Showing attendance and working hours for the selected month.
+        </div>
+
+
+        <div class="summary-grid">
+
+            <div class="summary">
+                <h3>Total Employees</h3>
+                <p id="totalEmployees">0</p>
+            </div>
+
+            <div class="summary">
+                <h3>Total Attendance Days</h3>
+                <p id="totalAttendance">0</p>
+            </div>
+
+            <div class="summary">
+                <h3>Total Team Hours</h3>
+                <p id="totalHours">0h</p>
+            </div>
+
+            <div class="summary">
+                <h3>Average Hours / Day</h3>
+                <p id="averageHours">0h</p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Employee Summary -->
+    <div class="card">
+
+        <h2>Employee Monthly Summary</h2>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Employee</th>
+                        <th>Attendance Days</th>
+                        <th>Total Hours</th>
+                        <th>Average Hours</th>
+                        <th>Expected Hours*</th>
+                        <th>Difference</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="employeeSummaryBody"></tbody>
+
+            </table>
+
+        </div>
+
+        <p>
+            <small>
+                * Expected hours are calculated using 8 hours per attendance day.
+            </small>
+        </p>
+
+    </div>
+
+
+    <!-- Attendance Records -->
+    <div class="card">
+
+        <h2>Complete Team Attendance</h2>
+
+        <button
+            class="btn-export"
+            onclick="exportCSV()"
+        >
+            Export CSV
+        </button>
+
+        <br><br>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Employee</th>
+                        <th>In Time</th>
+                        <th>Out Time</th>
+                        <th>Hours Completed</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="attendanceBody"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /*
+       ==========================================
+       ATTENDANCE SYSTEM
+       ==========================================
+    */
+
+
+    // Employee list
+    const employees = [
+        "Rahul Sharma",
+        "Sagar Waghmare",
+        "Priya Patil",
+        "Amit Joshi",
+        "Neha Kulkarni"
+    ];
+
+
+    // Get attendance data from browser
+    let attendanceData =
+        JSON.parse(localStorage.getItem("attendanceData")) || [];
+
+
+    // Today's date
+    const today = new Date();
+
+    document.getElementById("attendanceDate").value =
+        formatDate(today);
+
+
+    // Current month
+    document.getElementById("monthFilter").value =
+        today.getFullYear() +
+        "-" +
+        String(today.getMonth() + 1).padStart(2, "0");
+
+
+    /*
+       Format Date
+    */
+
+    function formatDate(date) {
+
+        return date.getFullYear() +
+            "-" +
+            String(date.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(date.getDate()).padStart(2, "0");
+
+    }
+
+
+    /*
+       Calculate Hours
+    */
+
+    function calculateHours(inTime, outTime) {
+
+        const start = new Date("2000-01-01 " + inTime);
+        let end = new Date("2000-01-01 " + outTime);
+
+        // Handles night shifts
+        if (end < start) {
+            end.setDate(end.getDate() + 1);
+        }
+
+        const difference =
+            (end - start) / (1000 * 60 * 60);
+
+        return difference;
+
+    }
+
+
+    /*
+       Convert decimal hours to HH:MM
+    */
+
+    function formatHours(decimalHours) {
+
+        const hours = Math.floor(decimalHours);
+
+        const minutes =
+            Math.round((decimalHours - hours) * 60);
+
+        return hours + "h " +
+            String(minutes).padStart(2, "0") +
+            "m";
+
+    }
+
+
+    /*
+       Submit Attendance
+    */
+
+    document
+        .getElementById("attendanceForm")
+        .addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+
+            const employee =
+                document.getElementById("employee").value;
+
+            const date =
+                document.getElementById("attendanceDate").value;
+
+            const inTime =
+                document.getElementById("inTime").value;
+
+            const outTime =
+                document.getElementById("outTime").value;
+
+
+            if (!employee || !date || !inTime || !outTime) {
+
+                alert("Please fill all fields.");
+
+                return;
+            }
+
+
+            const hours =
+                calculateHours(inTime, outTime);
+
+
+            if (hours <= 0) {
+
+                alert("Invalid attendance time.");
+
+                return;
+            }
+
+
+            /*
+               Prevent duplicate attendance
+               for same employee and date
+            */
+
+            const duplicate =
+                attendanceData.find(
+                    record =>
+                        record.employee === employee &&
+                        record.date === date
+                );
+
+
+            if (duplicate) {
+
+                const confirmUpdate =
+                    confirm(
+                        "Attendance already exists for this employee on this date. Update it?"
+                    );
+
+                if (!confirmUpdate) {
+                    return;
+                }
+
+
+                attendanceData =
+                    attendanceData.filter(
+                        record =>
+                            !(
+                                record.employee === employee &&
+                                record.date === date
+                            )
+                    );
+
+            }
+
+
+            const attendance = {
+
+                id: Date.now(),
+
+                employee: employee,
+
+                date: date,
+
+                inTime: inTime,
+
+                outTime: outTime,
+
+                hours: hours
+
+            };
+
+
+            attendanceData.push(attendance);
+
+
+            saveData();
+
+
+            document.getElementById("attendanceForm").reset();
+
+
+            document.getElementById("attendanceDate").value =
+                formatDate(new Date());
+
+
+            renderAll();
+
+
+            alert("Attendance submitted successfully.");
+
+        });
+
+
+    /*
+       Save Data
+    */
+
+    function saveData() {
+
+        localStorage.setItem(
+            "attendanceData",
+            JSON.stringify(attendanceData)
+        );
+
+    }
+
+
+    /*
+       Render Everything
+    */
+
+    function renderAll() {
+
+        renderAttendanceTable();
+
+        renderEmployeeSummary();
+
+        renderTeamSummary();
+
+    }
+
+
+    /*
+       Get selected month
+    */
+
+    function getSelectedMonth() {
+
+        return document.getElementById("monthFilter").value;
+
+    }
+
+
+    /*
+       Filter records by selected month
+    */
+
+    function getMonthlyRecords() {
+
+        const month =
+            getSelectedMonth();
+
+        return attendanceData.filter(
+            record =>
+                record.date.startsWith(month)
+        );
+
+    }
+
+
+    /*
+       Attendance Table
+    */
+
+    function renderAttendanceTable() {
+
+        const tbody =
+            document.getElementById("attendanceBody");
+
+        tbody.innerHTML = "";
+
+
+        const records =
+            getMonthlyRecords()
+                .sort(
+                    (a, b) =>
+                        new Date(b.date) -
+                        new Date(a.date)
+                );
+
+
+        records.forEach(record => {
+
+            const row =
+                document.createElement("tr");
+
+
+            const status =
+                record.hours >= 8
+                    ? "Full Day"
+                    : "Less than 8 hrs";
+
+
+            const statusClass =
+                record.hours >= 8
+                    ? "present"
+                    : "incomplete";
+
+
+            row.innerHTML = `
+
+                <td>${record.date}</td>
+
+                <td>${record.employee}</td>
+
+                <td>${record.inTime}</td>
+
+                <td>${record.outTime}</td>
+
+                <td>
+                    ${formatHours(record.hours)}
+                </td>
+
+                <td class="${statusClass}">
+                    ${status}
+                </td>
+
+                <td>
+
+                    <button
+                        class="btn-danger"
+                        onclick="deleteAttendance(${record.id})"
+                    >
+                        Delete
+                    </button>
+
+                </td>
+
+            `;
+
+
+            tbody.appendChild(row);
+
+        });
+
+
+        if (records.length === 0) {
+
+            tbody.innerHTML = `
+
+                <tr>
+
+                    <td colspan="7"
+                        style="text-align:center">
+
+                        No attendance records found.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+    }
+
+
+    /*
+       Employee Summary
+    */
+
+    function renderEmployeeSummary() {
+
+        const tbody =
+            document.getElementById(
+                "employeeSummaryBody"
+            );
+
+
+        tbody.innerHTML = "";
+
+
+        const records =
+            getMonthlyRecords();
+
+
+        employees.forEach(employee => {
+
+            const employeeRecords =
+                records.filter(
+                    record =>
+                        record.employee === employee
+                );
+
+
+            const days =
+                employeeRecords.length;
+
+
+            const totalHours =
+                employeeRecords.reduce(
+                    (sum, record) =>
+                        sum + record.hours,
+                    0
+                );
+
+
+            const average =
+                days > 0
+                    ? totalHours / days
+                    : 0;
+
+
+            const expected =
+                days * 8;
+
+
+            const difference =
+                totalHours - expected;
+
+
+            const row =
+                document.createElement("tr");
+
+
+            row.innerHTML = `
+
+                <td>
+                    <strong>${employee}</strong>
+                </td>
+
+                <td>
+                    ${days}
+                </td>
+
+                <td>
+                    ${formatHours(totalHours)}
+                </td>
+
+                <td>
+                    ${formatHours(average)}
+                </td>
+
+                <td>
+                    ${formatHours(expected)}
+                </td>
+
+                <td>
+                    ${formatHours(Math.abs(difference))}
+                    ${difference >= 0 ? "Extra" : "Short"}
+                </td>
+
+            `;
+
+
+            tbody.appendChild(row);
+
+        });
+
+    }
+
+
+    /*
+       Team Summary
+    */
+
+    function renderTeamSummary() {
+
+        const records =
+            getMonthlyRecords();
+
+
+        const totalHours =
+            records.reduce(
+                (sum, record) =>
+                    sum + record.hours,
+                0
+            );
+
+
+        const totalAttendance =
+            records.length;
+
+
+        const averageHours =
+            totalAttendance > 0
+                ? totalHours / totalAttendance
+                : 0;
+
+
+        document.getElementById(
+            "totalEmployees"
+        ).textContent =
+            employees.length;
+
+
+        document.getElementById(
+            "totalAttendance"
+        ).textContent =
+            totalAttendance;
+
+
+        document.getElementById(
+            "totalHours"
+        ).textContent =
+            formatHours(totalHours);
+
+
+        document.getElementById(
+            "averageHours"
+        ).textContent =
+            formatHours(averageHours);
+
+    }
+
+
+    /*
+       Delete Attendance
+    */
+
+    function deleteAttendance(id) {
+
+        const confirmation =
+            confirm(
+                "Are you sure you want to delete this attendance?"
+            );
+
+
+        if (!confirmation) {
+            return;
+        }
+
+
+        attendanceData =
+            attendanceData.filter(
+                record =>
+                    record.id !== id
+            );
+
+
+        saveData();
+
+        renderAll();
+
+    }
+
+
+    /*
+       Current Time
+    */
+
+    function fillCurrentTime() {
+
+        const now =
+            new Date();
+
+
+        const time =
+            String(now.getHours())
+                .padStart(2, "0") +
+            ":" +
+            String(now.getMinutes())
+                .padStart(2, "0");
+
+
+        const inTime =
+            document.getElementById("inTime");
+
+        const outTime =
+            document.getElementById("outTime");
+
+
+        if (!inTime.value) {
+
+            inTime.value = time;
+
+        } else {
+
+            outTime.value = time;
+
+        }
+
+    }
+
+
+    /*
+       Month filter
+    */
+
+    document
+        .getElementById("monthFilter")
+        .addEventListener(
+            "change",
+            renderAll
+        );
+
+
+    /*
+       Export CSV
+    */
+
+    function exportCSV() {
+
+        const records =
+            getMonthlyRecords();
+
+
+        if (records.length === 0) {
+
+            alert(
+                "There is no attendance data to export."
+            );
+
+            return;
+        }
+
+
+        let csv =
+            "Date,Employee,In Time,Out Time,Hours,Minutes\n";
+
+
+        records.forEach(record => {
+
+            const totalMinutes =
+                Math.round(record.hours * 60);
+
+
+            csv +=
+                `${record.date},` +
+                `"${record.employee}",` +
+                `${record.inTime},` +
+                `${record.outTime},` +
+                `${record.hours.toFixed(2)},` +
+                `${totalMinutes}\n`;
+
+        });
+
+
+        const blob =
+            new Blob(
+                [csv],
+                { type: "text/csv" }
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href = url;
+
+
+        link.download =
+            "team-attendance-" +
+            getSelectedMonth() +
+            ".csv";
+
+
+        link.click();
+
+
+        URL.revokeObjectURL(url);
+
+    }
+
+
+    /*
+       Initial load
+    */
+
+    renderAll();
+
+</script>
+
 </body>
 </html>
+```
