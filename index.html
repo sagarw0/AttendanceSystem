@@ -1,982 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Team Attendance System</title>
-
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #222;
-        }
-
-
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-        }
-
-
-        /* ==============================
-           HEADER
-           ============================== */
-
-        header {
-            background: #1f4e78;
-            color: white;
-            padding: 22px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-
-        header h1 {
-            margin: 0 0 5px;
-        }
-
-
-        header p {
-            margin: 0;
-        }
-
-
-        /* ==============================
-           CARD
-           ============================== */
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 12px rgba(0,0,0,.08);
-        }
-
-
-        h2 {
-            color: #1f4e78;
-            margin-top: 0;
-        }
-
-
-        /* ==============================
-           FORM
-           ============================== */
-
-        .form-grid {
-            display: grid;
-            grid-template-columns:
-                repeat(4, 1fr);
-            gap: 15px;
-        }
-
-
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 7px;
-        }
-
-
-        input,
-        select,
-        button {
-            width: 100%;
-            padding: 11px;
-            border-radius: 7px;
-            border: 1px solid #ccc;
-            font-size: 15px;
-        }
-
-
-        button {
-            cursor: pointer;
-            border: none;
-            font-weight: bold;
-        }
-
-
-        .primary {
-            background: #1f4e78;
-            color: white;
-        }
-
-
-        .monthly-button {
-            background: #198754;
-            color: white;
-        }
-
-
-        .button-area {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-
-        /* ==============================
-           MESSAGE
-           ============================== */
-
-        .message {
-            padding: 12px;
-            border-radius: 7px;
-            margin-top: 15px;
-            display: none;
-        }
-
-
-        .success {
-            background: #d1e7dd;
-            color: #0f5132;
-        }
-
-
-        .error {
-            background: #f8d7da;
-            color: #842029;
-        }
-
-
-        /* ==============================
-           MOBILE
-           ============================== */
-
-        @media (max-width: 900px) {
-
-            .form-grid {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
-
-        }
-
-
-        @media (max-width: 600px) {
-
-            .container {
-                padding: 10px;
-            }
-
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-
-            .button-area {
-                flex-direction: column;
-            }
-
-
-            header h1 {
-                font-size: 26px;
-            }
-
-        }
-
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Attendance System</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;color:#222}
+.container{max-width:1100px;margin:auto;padding:16px}
+header{background:#1f4e78;color:#fff;padding:24px;border-radius:12px;margin-bottom:20px}
+header h1{margin:0 0 6px;font-size:30px}
+header p{margin:0}
+.card{background:#fff;border-radius:12px;padding:22px;margin-bottom:20px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+h2{color:#1f4e78;margin:0 0 20px}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+label{display:block;font-weight:bold;margin-bottom:7px}
+input,select,button{width:100%;padding:12px;border:1px solid #ccc;border-radius:7px;font-size:15px}
+button{border:0;cursor:pointer;font-weight:bold}
+.primary{background:#1f4e78;color:#fff}
+.monthly-button{background:#198754;color:#fff}
+.button-area{display:flex;gap:12px;margin-top:20px}
+.message{display:none;padding:12px;border-radius:7px;margin-top:15px;word-break:break-word}
+.success{background:#d1e7dd;color:#0f5132}
+.error{background:#f8d7da;color:#842029}
+@media(max-width:800px){.form-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.container{padding:10px}.form-grid{grid-template-columns:1fr}.button-area{flex-direction:column}header h1{font-size:25px}}
+</style>
 </head>
-
-
 <body>
-
-
 <div class="container">
+<header>
+<h1>Team Attendance System</h1>
+<p>Attendance and monthly working-hours dashboard</p>
+</header>
 
-
-    <!-- ==================================
-         HEADER
-         ================================== -->
-
-    <header>
-
-        <h1>
-            Team Attendance System
-        </h1>
-
-        <p>
-            Attendance and monthly working-hours dashboard
-        </p>
-
-    </header>
-
-
-    <!-- ==================================
-         ATTENDANCE ENTRY
-         ================================== -->
-
-    <div class="card">
-
-        <h2>
-            Mark Attendance
-        </h2>
-
-
-        <form id="attendanceForm">
-
-
-            <div class="form-grid">
-
-
-                <!-- EMPLOYEE -->
-
-                <div>
-
-                    <label for="employee">
-                        Employee Name
-                    </label>
-
-                    <select
-                        id="employee"
-                        required
-                    >
-
-                        <option value="">
-                            Loading employees...
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- DATE -->
-
-                <div>
-
-                    <label for="attendanceDate">
-                        Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="attendanceDate"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- IN TIME -->
-
-                <div>
-
-                    <label for="inTime">
-                        In Time
-                    </label>
-
-                    <input
-                        type="time"
-                        id="inTime"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- OUT TIME -->
-
-                <div>
-
-                    <label for="outTime">
-                        Out Time
-                    </label>
-
-                    <input
-                        type="time"
-                        id="outTime"
-                        required
-                    >
-
-                </div>
-
-
-            </div>
-
-
-            <!-- BUTTONS -->
-
-            <div class="button-area">
-
-
-                <button
-                    class="primary"
-                    type="submit"
-                >
-                    Submit Attendance
-                </button>
-
-
-                <button
-                    class="monthly-button"
-                    type="button"
-                    onclick="openMonthlyAttendance()"
-                >
-                    📊 Monthly Attendance
-                </button>
-
-
-            </div>
-
-
-        </form>
-
-
-        <!-- MESSAGE -->
-
-        <div
-            id="message"
-            class="message"
-        ></div>
-
-
-    </div>
-
-
+<div class="card">
+<h2>Mark Attendance</h2>
+<form id="attendanceForm">
+<div class="form-grid">
+<div>
+<label for="employee">Employee Name</label>
+<select id="employee" required>
+<option value="">Loading employees...</option>
+</select>
 </div>
 
+<div>
+<label for="attendanceDate">Date</label>
+<input type="date" id="attendanceDate" required>
+</div>
+
+<div>
+<label for="inTime">In Time</label>
+<input type="time" id="inTime" required>
+</div>
+
+<div>
+<label for="outTime">Out Time</label>
+<input type="time" id="outTime" required>
+</div>
+</div>
+
+<div class="button-area">
+<button class="primary" type="submit">Submit Attendance</button>
+<button class="monthly-button" type="button" onclick="openMonthlyAttendance()">📊 Monthly Attendance</button>
+</div>
+</form>
+
+<div id="message" class="message"></div>
+</div>
+</div>
 
 <script>
+const SUPABASE_URL="https://ifvhwjufwnonfmkeapls.supabase.co";
+const SUPABASE_KEY="sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
 
+let employees=[];
 
-/* ==========================================
-   SUPABASE CONFIGURATION
-   ========================================== */
-
-const SUPABASE_URL =
-    "https://ifvhwjufwnonfmkeapls.supabase.co";
-
-
-const SUPABASE_KEY =
-    "sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
-
-
-/* ==========================================
-   GLOBAL DATA
-   ========================================== */
-
-let employees = [];
-
-
-/* ==========================================
-   INITIAL DATE
-   ========================================== */
-
-const today =
-    new Date();
-
-
-document.getElementById(
-    "attendanceDate"
-).value =
-    formatDate(today);
-
-
-/* ==========================================
-   DATE FORMAT
-   ========================================== */
-
-function formatDate(date) {
-
-    return (
-        date.getFullYear() +
-        "-" +
-        String(
-            date.getMonth() + 1
-        ).padStart(2, "0") +
-        "-" +
-        String(
-            date.getDate()
-        ).padStart(2, "0")
-    );
-
+function formatDate(date){
+    return date.getFullYear()+"-"+
+        String(date.getMonth()+1).padStart(2,"0")+"-"+
+        String(date.getDate()).padStart(2,"0");
 }
 
-
-/* ==========================================
-   CALCULATE HOURS
-   ========================================== */
-
-function calculateHours(
-    inTime,
-    outTime
-) {
-
-    const start =
-        new Date(
-            "2000-01-01T" +
-            inTime
-        );
-
-
-    let end =
-        new Date(
-            "2000-01-01T" +
-            outTime
-        );
-
-
-    /*
-    Supports overnight shifts.
-    */
-
-    if (end < start) {
-
-        end.setDate(
-            end.getDate() + 1
-        );
-
-    }
-
-
-    return (
-        end - start
-    ) / 3600000;
-
-}
-
-
-/* ==========================================
-   SUPABASE REQUEST
-   ========================================== */
-
-async function supabaseRequest(
-    endpoint,
-    options = {}
-) {
-
-    const response =
-        await fetch(
-            SUPABASE_URL + endpoint,
-            {
-                ...options,
-
-                headers: {
-
-                    "apikey":
-                        SUPABASE_KEY,
-
-                    "Authorization":
-                        "Bearer " +
-                        SUPABASE_KEY,
-
-                    "Content-Type":
-                        "application/json",
-
-                    "Prefer":
-                        "return=representation",
-
-                    ...(options.headers || {})
-
-                }
-
-            }
-        );
-
-
-    if (!response.ok) {
-
-        const error =
-            await response.text();
-
-        throw new Error(
-            error
-        );
-
-    }
-
-
-    if (
-        response.status === 204
-    ) {
-
-        return [];
-
-    }
-
-
-    return response.json();
-
-}
-
-
-/* ==========================================
-   LOAD EMPLOYEES
-   ========================================== */
-
-async function loadEmployees() {
-
-    try {
-
-        employees =
-            await supabaseRequest(
-                "/rest/v1/employees" +
-                "?select=id,employee_code,employee_name,department,designation" +
-                "&active=eq.true" +
-                "&order=employee_name"
-            );
-
-
-        const select =
-            document.getElementById(
-                "employee"
-            );
-
-
-        select.innerHTML =
-            '<option value="">Select Employee</option>';
-
-
-        employees.forEach(
-            employee => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                /*
-                IMPORTANT:
-                value = employee ID
-                */
-
-                option.value =
-                    employee.id;
-
-
-                /*
-                Display actual name
-                */
-
-                option.textContent =
-                    employee.employee_name;
-
-
-                select.appendChild(
-                    option
-                );
-
-            }
-        );
-
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Employee loading error:",
-            error
-        );
-
-
-        const select =
-            document.getElementById(
-                "employee"
-            );
-
-
-        select.innerHTML =
-            '<option value="">Unable to load employees</option>';
-
-
-        showMessage(
-            "Unable to load employees: " +
-            error.message,
-            true
-        );
-
-    }
-
-}
-
-
-/* ==========================================
-   SUBMIT ATTENDANCE
-   ========================================== */
-
-document
-    .getElementById(
-        "attendanceForm"
-    )
-    .addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-
-            /* ==========================
-               GET SELECTED EMPLOYEE ID
-               ========================== */
-
-            const employeeId =
-                document.getElementById(
-                    "employee"
-                ).value;
-
-
-            /* ==========================
-               FIND EMPLOYEE
-               ========================== */
-
-            const selectedEmployee =
-                employees.find(
-                    employee =>
-                        String(
-                            employee.id
-                        ) ===
-                        String(
-                            employeeId
-                        )
-                );
-
-
-            if (!selectedEmployee) {
-
-                showMessage(
-                    "Please select an employee.",
-                    true
-                );
-
-                return;
-
-            }
-
-
-            /*
-            THIS IS THE IMPORTANT FIX.
-
-            We now save the actual employee
-            name instead of saving the ID.
-            */
-
-            const employeeName =
-                selectedEmployee.employee_name;
-
-
-            /* ==========================
-               OTHER VALUES
-               ========================== */
-
-            const date =
-                document.getElementById(
-                    "attendanceDate"
-                ).value;
-
-
-            const inTime =
-                document.getElementById(
-                    "inTime"
-                ).value;
-
-
-            const outTime =
-                document.getElementById(
-                    "outTime"
-                ).value;
-
-
-            /* ==========================
-               VALIDATE
-               ========================== */
-
-            if (
-                !employeeId ||
-                !date ||
-                !inTime ||
-                !outTime
-            ) {
-
-                showMessage(
-                    "Please fill all fields.",
-                    true
-                );
-
-                return;
-
-            }
-
-
-            /* ==========================
-               CALCULATE HOURS
-               ========================== */
-
-            const hours =
-                calculateHours(
-                    inTime,
-                    outTime
-                );
-
-
-            if (hours <= 0) {
-
-                showMessage(
-                    "Invalid time entered.",
-                    true
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-
-                /* ==========================
-                   CHECK DUPLICATE
-                   ========================== */
-
-                const existing =
-                    await supabaseRequest(
-                        "/rest/v1/attendance" +
-                        "?employee_id=eq." +
-                        encodeURIComponent(
-                            employeeId
-                        ) +
-                        "&attendance_date=eq." +
-                        encodeURIComponent(
-                            date
-                        ) +
-                        "&select=id"
-                    );
-
-
-                /* ==========================
-                   UPDATE EXISTING
-                   ========================== */
-
-                if (
-                    existing.length > 0
-                ) {
-
-                    const id =
-                        existing[0].id;
-
-
-                    await supabaseRequest(
-                        "/rest/v1/attendance?id=eq." +
-                        id,
-                        {
-
-                            method: "PATCH",
-
-                            body:
-                                JSON.stringify({
-
-                                    employee_id:
-                                        employeeId,
-
-                                    employee_name:
-                                        employeeName,
-
-                                    attendance_date:
-                                        date,
-
-                                    in_time:
-                                        inTime,
-
-                                    out_time:
-                                        outTime,
-
-                                    hours_completed:
-                                        hours.toFixed(2)
-
-                                })
-
-                        }
-                    );
-
-                }
-
-
-                /* ==========================
-                   INSERT NEW
-                   ========================== */
-
-                else {
-
-                    await supabaseRequest(
-                        "/rest/v1/attendance",
-                        {
-
-                            method: "POST",
-
-                            body:
-                                JSON.stringify({
-
-                                    employee_id:
-                                        employeeId,
-
-                                    employee_name:
-                                        employeeName,
-
-                                    attendance_date:
-                                        date,
-
-                                    in_time:
-                                        inTime,
-
-                                    out_time:
-                                        outTime,
-
-                                    hours_completed:
-                                        hours.toFixed(2)
-
-                                })
-
-                        }
-                    );
-
-                }
-
-
-                /* ==========================
-                   SUCCESS
-                   ========================== */
-
-                showMessage(
-                    "Attendance saved successfully.",
-                    false
-                );
-
-
-                /*
-                Reset form
-                */
-
-                document
-                    .getElementById(
-                        "attendanceForm"
-                    )
-                    .reset();
-
-
-                /*
-                Put today's date back
-                */
-
-                document.getElementById(
-                    "attendanceDate"
-                ).value =
-                    formatDate(
-                        new Date()
-                    );
-
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Attendance save error:",
-                    error
-                );
-
-
-                showMessage(
-                    "Error saving attendance: " +
-                    error.message,
-                    true
-                );
-
-            }
-
+document.getElementById("attendanceDate").value=formatDate(new Date());
+
+async function supabaseRequest(endpoint,options={}){
+    const response=await fetch(SUPABASE_URL+endpoint,{
+        ...options,
+        headers:{
+            "apikey":SUPABASE_KEY,
+            "Authorization":"Bearer "+SUPABASE_KEY,
+            "Content-Type":"application/json",
+            "Prefer":"return=representation",
+            ...(options.headers||{})
         }
-    );
+    });
 
+    if(!response.ok){
+        const error=await response.text();
+        throw new Error(error);
+    }
 
-/* ==========================================
-   MESSAGE
-   ========================================== */
-
-function showMessage(
-    text,
-    error = false
-) {
-
-    const message =
-        document.getElementById(
-            "message"
-        );
-
-
-    message.textContent =
-        text;
-
-
-    message.className =
-        "message " +
-        (
-            error
-                ? "error"
-                : "success"
-        );
-
-
-    message.style.display =
-        "block";
-
-
-    setTimeout(
-        () => {
-
-            message.style.display =
-                "none";
-
-        },
-        4000
-    );
-
+    if(response.status===204)return [];
+    return response.json();
 }
 
+async function loadEmployees(){
+    const data=await supabaseRequest(
+        "/rest/v1/employees?select=id,employee_code,employee_name,department,designation&active=eq.true&order=employee_name"
+    );
 
-/* ==========================================
-   OPEN MONTHLY ATTENDANCE
-   ========================================== */
+    employees=Array.isArray(data)?data:[];
 
-function openMonthlyAttendance() {
+    const select=document.getElementById("employee");
+    select.innerHTML='<option value="">Select Employee</option>';
 
-    window.location.href =
-        "monthly.html";
-
+    employees.forEach(employee=>{
+        const option=document.createElement("option");
+        option.value=employee.id;
+        option.textContent=employee.employee_name;
+        select.appendChild(option);
+    });
 }
 
+function calculateHours(inTime,outTime){
+    const start=new Date("2000-01-01T"+inTime);
+    let end=new Date("2000-01-01T"+outTime);
 
-/* ==========================================
-   START
-   ========================================== */
+    if(end<start) end.setDate(end.getDate()+1);
+    return (end-start)/3600000;
+}
 
-loadEmployees();
+function showMessage(text,isError=false){
+    const box=document.getElementById("message");
+    box.textContent=text;
+    box.className="message "+(isError?"error":"success");
+    box.style.display="block";
+    setTimeout(()=>box.style.display="none",4000);
+}
 
+document.getElementById("attendanceForm").addEventListener("submit",async event=>{
+    event.preventDefault();
 
+    const employeeId=document.getElementById("employee").value;
+    const selectedEmployee=employees.find(e=>String(e.id)===String(employeeId));
+    const date=document.getElementById("attendanceDate").value;
+    const inTime=document.getElementById("inTime").value;
+    const outTime=document.getElementById("outTime").value;
+
+    if(!selectedEmployee){
+        showMessage("Please select an employee.",true);
+        return;
+    }
+
+    if(!date||!inTime||!outTime){
+        showMessage("Please fill all fields.",true);
+        return;
+    }
+
+    const hours=calculateHours(inTime,outTime);
+    if(hours<=0){
+        showMessage("Invalid time entered.",true);
+        return;
+    }
+
+    try{
+        const existing=await supabaseRequest(
+            "/rest/v1/attendance?employee_id=eq."+
+            encodeURIComponent(employeeId)+
+            "&attendance_date=eq."+
+            encodeURIComponent(date)+
+            "&select=id"
+        );
+
+        const payload={
+            employee_id:employeeId,
+            employee_name:selectedEmployee.employee_name,
+            attendance_date:date,
+            in_time:inTime,
+            out_time:outTime,
+            hours_completed:Number(hours.toFixed(2)),
+            attendance_status:"Present"
+        };
+
+        if(existing.length>0){
+            await supabaseRequest(
+                "/rest/v1/attendance?id=eq."+encodeURIComponent(existing[0].id),
+                {method:"PATCH",body:JSON.stringify(payload)}
+            );
+            showMessage("Attendance updated successfully.");
+        }else{
+            await supabaseRequest(
+                "/rest/v1/attendance",
+                {method:"POST",body:JSON.stringify(payload)}
+            );
+            showMessage("Attendance saved successfully.");
+        }
+
+        document.getElementById("attendanceForm").reset();
+        document.getElementById("attendanceDate").value=formatDate(new Date());
+    }catch(error){
+        console.error(error);
+        showMessage("Error saving attendance: "+error.message,true);
+    }
+});
+
+function openMonthlyAttendance(){
+    window.location.href="monthly.html";
+}
+
+loadEmployees().catch(error=>{
+    console.error(error);
+    const select=document.getElementById("employee");
+    select.innerHTML='<option value="">Unable to load employees</option>';
+    showMessage("Unable to load employees: "+error.message,true);
+});
 </script>
-
-
 </body>
-
 </html>
