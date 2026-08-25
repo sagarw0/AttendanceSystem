@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Employee Attendance</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    color: #222;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    padding: 15px;
+}
+
+header {
+    background: #1f4e78;
+    color: white;
+    padding: 22px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0 0 6px;
+}
+
+header p {
+    margin: 0;
+}
+
+.card {
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+.login-btn {
+    background: #198754;
+    color: white;
+}
+
+.logout-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.logout-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+.employee-name {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #1f4e78;
+    margin-bottom: 20px;
+}
+
+.status {
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background: #eef5fb;
+}
+
+.status-label {
+    font-size: 13px;
+    color: #666;
+}
+
+.status-value {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.message {
+    display: none;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    word-break: break-word;
+}
+
+.success {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.error {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.hidden {
+    display: none;
+}
+
+.small {
+    text-align: center;
+    color: #777;
+    font-size: 13px;
+    margin-top: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+    <h1>Employee Attendance</h1>
+    <p>Login and logout to record your attendance</p>
+</header>
+
+
+<!-- LOGIN CARD -->
+
+<div class="card" id="loginCard">
+
+    <label for="employeeCode">
+        Employee Code
+    </label>
+
+    <input
+        type="text"
+        id="employeeCode"
+        placeholder="Enter employee code"
+        autocomplete="off"
+    >
+
+    <button
+        class="login-btn"
+        onclick="employeeLogin()"
+    >
+        🟢 LOGIN
+    </button>
+
+    <div
+        id="loginMessage"
+        class="message"
+    ></div>
+
+</div>
+
+
+<!-- ATTENDANCE CARD -->
+
+<div
+    class="card hidden"
+    id="attendanceCard"
+>
+
+    <div
+        class="employee-name"
+        id="employeeName"
+    ></div>
+
+
+    <div class="status">
+
+        <div class="status-label">
+            Today's Login
+        </div>
+
+        <div
+            class="status-value"
+            id="loginTime"
+        >
+            --
+        </div>
+
+    </div>
+
+
+    <div class="status">
+
+        <div class="status-label">
+            Today's Logout
+        </div>
+
+        <div
+            class="status-value"
+            id="logoutTime"
+        >
+            --
+        </div>
+
+    </div>
+
+
+    <div class="status">
+
+        <div class="status-label">
+            Hours Completed
+        </div>
+
+        <div
+            class="status-value"
+            id="hoursCompleted"
+        >
+            --
+        </div>
+
+    </div>
+
+
+    <button
+        class="logout-btn"
+        id="logoutButton"
+        onclick="employeeLogout()"
+    >
+        🔴 LOGOUT
+    </button>
+
+
+    <div
+        id="attendanceMessage"
+        class="message"
+    ></div>
+
+
+    <div class="small">
+        Your attendance is recorded automatically.
+    </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   SUPABASE CONFIGURATION
+   ========================================== */
+
+const SUPABASE_URL =
+    "https://ifvhwjufwnonfmkeapls.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
+
+
+let currentEmployee = null;
+let todayAttendance = null;
+
+
+/* ==========================================
+   SUPABASE REQUEST
+   ========================================== */
+
+async function supabaseRequest(
+    endpoint,
+    options = {}
+) {
+
+    const response =
+        await fetch(
+            SUPABASE_URL + endpoint,
+            {
+                ...options,
+
+                headers: {
+
+                    "apikey":
+                        SUPABASE_KEY,
+
+                    "Authorization":
+                        "Bearer " +
+                        SUPABASE_KEY,
+
+                    "Content-Type":
+                        "application/json",
+
+                    "Prefer":
+                        "return=representation",
+
+                    ...(options.headers || {})
+
+                }
+            }
+        );
+
+
+    if (!response.ok) {
+
+        const error =
+            await response.text();
+
+        throw new Error(error);
+
+    }
+
+
+    if (response.status === 204) {
+
+        return [];
+
+    }
+
+
+    return response.json();
+
+}
+
+
+/* ==========================================
+   TODAY'S DATE
+   ========================================== */
+
+function getToday() {
+
+    const today =
+        new Date();
+
+    return (
+        today.getFullYear() +
+        "-" +
+        String(
+            today.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            today.getDate()
+        ).padStart(2, "0")
+    );
+
+}
+
+
+/* ==========================================
+   CURRENT TIME
+   ========================================== */
+
+function getCurrentTime() {
+
+    const now =
+        new Date();
+
+    return (
+        String(
+            now.getHours()
+        ).padStart(2, "0") +
+        ":" +
+        String(
+            now.getMinutes()
+        ).padStart(2, "0")
+    );
+
+}
+
+
+/* ==========================================
+   FORMAT TIME
+   ========================================== */
+
+function formatTime(time) {
+
+    if (!time) {
+        return "--";
+    }
+
+    const parts =
+        String(time).split(":");
+
+    let hour =
+        Number(parts[0]);
+
+    const minute =
+        parts[1];
+
+    const period =
+        hour >= 12
+            ? "PM"
+            : "AM";
+
+    hour =
+        hour % 12 || 12;
+
+    return (
+        hour +
+        ":" +
+        minute +
+        " " +
+        period
+    );
+
+}
+
+
+/* ==========================================
+   CALCULATE HOURS
+   ========================================== */
+
+function calculateHours(
+    inTime,
+    outTime
+) {
+
+    if (
+        !inTime ||
+        !outTime
+    ) {
+        return 0;
+    }
+
+
+    const start =
+        new Date(
+            "2000-01-01T" +
+            inTime
+        );
+
+
+    let end =
+        new Date(
+            "2000-01-01T" +
+            outTime
+        );
+
+
+    if (end < start) {
+
+        end.setDate(
+            end.getDate() + 1
+        );
+
+    }
+
+
+    return (
+        end - start
+    ) / 3600000;
+
+}
+
+
+/* ==========================================
+   FORMAT HOURS
+   ========================================== */
+
+function formatHours(hours) {
+
+    const totalMinutes =
+        Math.round(
+            Number(hours || 0) * 60
+        );
+
+
+    const h =
+        Math.floor(
+            totalMinutes / 60
+        );
+
+
+    const m =
+        totalMinutes % 60;
+
+
+    return (
+        h +
+        "h " +
+        String(m).padStart(2, "0") +
+        "m"
+    );
+
+}
+
+
+/* ==========================================
+   MESSAGE
+   ========================================== */
+
+function showMessage(
+    elementId,
+    text,
+    error = false
+) {
+
+    const box =
+        document.getElementById(
+            elementId
+        );
+
+
+    box.textContent =
+        text;
+
+
+    box.className =
+        "message " +
+        (
+            error
+                ? "error"
+                : "success"
+        );
+
+
+    box.style.display =
+        "block";
+
+}
+
+
+/* ==========================================
+   EMPLOYEE LOGIN
+   ========================================== */
+
+async function employeeLogin() {
+
+    const code =
+        document.getElementById(
+            "employeeCode"
+        ).value.trim();
+
+
+    if (!code) {
+
+        showMessage(
+            "loginMessage",
+            "Please enter your employee code.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        /*
+        Find employee by employee code.
+        */
+
+        const result =
+            await supabaseRequest(
+                "/rest/v1/employees" +
+                "?employee_code=eq." +
+                encodeURIComponent(code) +
+                "&active=eq.true" +
+                "&select=id,employee_code,employee_name,department,designation"
+            );
+
+
+        if (
+            !result ||
+            result.length === 0
+        ) {
+
+            showMessage(
+                "loginMessage",
+                "Employee code not found.",
+                true
+            );
+
+            return;
+
+        }
+
+
+        currentEmployee =
+            result[0];
+
+
+        /*
+        Check today's attendance.
+        */
+
+        await loadTodayAttendance();
+
+
+        /*
+        Display employee screen.
+        */
+
+        document.getElementById(
+            "loginCard"
+        ).classList.add(
+            "hidden"
+        );
+
+
+        document.getElementById(
+            "attendanceCard"
+        ).classList.remove(
+            "hidden"
+        );
+
+
+        document.getElementById(
+            "employeeName"
+        ).textContent =
+            currentEmployee.employee_name;
+
+
+        /*
+        If employee already logged in,
+        show their existing attendance.
+        */
+
+        updateAttendanceScreen();
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Employee login error:",
+            error
+        );
+
+
+        showMessage(
+            "loginMessage",
+            "Unable to login: " +
+            error.message,
+            true
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   LOAD TODAY'S ATTENDANCE
+   ========================================== */
+
+async function loadTodayAttendance() {
+
+    const today =
+        getToday();
+
+
+    const result =
+        await supabaseRequest(
+            "/rest/v1/attendance" +
+            "?employee_id=eq." +
+            encodeURIComponent(
+                currentEmployee.id
+            ) +
+            "&attendance_date=eq." +
+            encodeURIComponent(today) +
+            "&select=*" +
+            "&limit=1"
+        );
+
+
+    todayAttendance =
+        result.length > 0
+            ? result[0]
+            : null;
+
+}
+
+
+/* ==========================================
+   UPDATE SCREEN
+   ========================================== */
+
+function updateAttendanceScreen() {
+
+    const loginButton =
+        document.getElementById(
+            "logoutButton"
+        );
+
+
+    if (!todayAttendance) {
+
+        document.getElementById(
+            "loginTime"
+        ).textContent =
+            "--";
+
+
+        document.getElementById(
+            "logoutTime"
+        ).textContent =
+            "--";
+
+
+        document.getElementById(
+            "hoursCompleted"
+        ).textContent =
+            "--";
+
+
+        loginButton.disabled =
+            true;
+
+
+        loginButton.textContent =
+            "🔴 LOGOUT";
+
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "loginTime"
+    ).textContent =
+        formatTime(
+            todayAttendance.in_time
+        );
+
+
+    document.getElementById(
+        "logoutTime"
+    ).textContent =
+        formatTime(
+            todayAttendance.out_time
+        );
+
+
+    if (
+        todayAttendance.hours_completed
+    ) {
+
+        document.getElementById(
+            "hoursCompleted"
+        ).textContent =
+            formatHours(
+                todayAttendance.hours_completed
+            );
+
+    }
+
+    else {
+
+        document.getElementById(
+            "hoursCompleted"
+        ).textContent =
+            "--";
+
+    }
+
+
+    /*
+    Already logged out.
+    */
+
+    if (
+        todayAttendance.out_time
+    ) {
+
+        loginButton.disabled =
+            true;
+
+        loginButton.textContent =
+            "✓ LOGOUT COMPLETED";
+
+    }
+
+    else {
+
+        loginButton.disabled =
+            false;
+
+        loginButton.textContent =
+            "🔴 LOGOUT";
+
+    }
+
+}
+
+
+/* ==========================================
+   EMPLOYEE FIRST LOGIN
+   ========================================== */
+
+async function createLoginAttendance() {
+
+    const today =
+        getToday();
+
+
+    const currentTime =
+        getCurrentTime();
+
+
+    const payload = {
+
+        employee_id:
+            currentEmployee.id,
+
+        employee_name:
+            currentEmployee.employee_name,
+
+        attendance_date:
+            today,
+
+        in_time:
+            currentTime,
+
+        out_time:
+            null,
+
+        hours_completed:
+            0,
+
+        attendance_status:
+            "Present"
+
+    };
+
+
+    const result =
+        await supabaseRequest(
+            "/rest/v1/attendance",
+            {
+
+                method:
+                    "POST",
+
+                body:
+                    JSON.stringify(
+                        payload
+                    )
+
+            }
+        );
+
+
+    todayAttendance =
+        result[0];
+
+}
+
+
+/* ==========================================
+   EMPLOYEE LOGOUT
+   ========================================== */
+
+async function employeeLogout() {
+
+    if (
+        !todayAttendance
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        todayAttendance.out_time
+    ) {
+
+        showMessage(
+            "attendanceMessage",
+            "You have already logged out.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const logoutTime =
+            getCurrentTime();
+
+
+        const hours =
+            calculateHours(
+                todayAttendance.in_time,
+                logoutTime
+            );
+
+
+        const payload = {
+
+            out_time:
+                logoutTime,
+
+            hours_completed:
+                Number(
+                    hours.toFixed(2)
+                ),
+
+            attendance_status:
+                "Present"
+
+        };
+
+
+        const result =
+            await supabaseRequest(
+                "/rest/v1/attendance?id=eq." +
+                encodeURIComponent(
+                    todayAttendance.id
+                ),
+                {
+
+                    method:
+                        "PATCH",
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+
+                }
+            );
+
+
+        todayAttendance =
+            result[0];
+
+
+        updateAttendanceScreen();
+
+
+        showMessage(
+            "attendanceMessage",
+            "Logout recorded successfully."
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+
+        showMessage(
+            "attendanceMessage",
+            "Unable to record logout: " +
+            error.message,
+            true
+        );
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
