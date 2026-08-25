@@ -1275,9 +1275,7 @@ function renderTable() {
 function downloadCSV() {
 
     const table =
-        document.getElementById(
-            "attendanceTable"
-        );
+        document.getElementById("attendanceTable");
 
     const rows =
         table.querySelectorAll("tr");
@@ -1287,39 +1285,80 @@ function downloadCSV() {
     rows.forEach(row => {
 
         const cells =
-            row.querySelectorAll(
-                "th, td"
-            );
+            row.querySelectorAll("th, td");
 
         const rowData = [];
 
         cells.forEach(cell => {
 
-            let value =
-                cell.innerText.trim();
+            let value = cell.innerText.trim();
 
             /*
-            Convert emoji/status into
-            clean Excel-friendly text
+            Attendance cells:
+            convert them to plain text.
             */
 
-            value = value
-                .replace(/🟢/g, "Present -")
-                .replace(/🔴/g, "Leave")
-                .replace(/🟠/g, "Weekly Off")
-                .replace(/⚪/g, "Not Marked")
-                .replace(/—/g, "-");
+            if (cell.classList.contains("present")) {
 
-            rowData.push(
-                '"' +
+                /*
+                Remove emoji / unwanted symbols
+                and keep the hours.
+                */
+
+                value =
+                    value.replace(
+                        /[^\x00-\x7F]/g,
+                        ""
+                    ).trim();
+
+                value =
+                    "Present - " + value;
+
+            }
+
+            else if (
+                cell.classList.contains("leave")
+            ) {
+
+                value = "Leave";
+
+            }
+
+            else if (
+                cell.classList.contains("weekoff")
+            ) {
+
+                value = "Weekly Off";
+
+            }
+
+            else if (
+                cell.classList.contains("not-marked")
+            ) {
+
+                value = "Not Marked";
+
+            }
+
+            /*
+            Protect CSV quotation marks.
+            */
+
+            value =
                 value.replace(
                     /"/g,
                     '""'
-                ) +
+                );
+
+
+            rowData.push(
+                '"' +
+                value +
                 '"'
             );
 
         });
+
 
         csv +=
             rowData.join(",") +
@@ -1329,10 +1368,7 @@ function downloadCSV() {
 
 
     /*
-    UTF-8 BOM
-    This makes Excel correctly
-    recognize Indian names and
-    other Unicode characters.
+    UTF-8 BOM for Excel
     */
 
     const BOM = "\uFEFF";
