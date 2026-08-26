@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Management</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;color:#222}
+.container{max-width:1300px;margin:auto;padding:15px}
+header{background:#1f4e78;color:#fff;padding:24px;border-radius:12px;margin-bottom:20px}
+header h1{margin:0 0 6px} header p{margin:0}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+h2{margin:0 0 18px;color:#1f4e78}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+label{display:block;font-weight:bold;margin-bottom:7px}
+input,select,button{width:100%;padding:11px;border:1px solid #ccc;border-radius:7px;font-size:15px}
+button{border:0;cursor:pointer;font-weight:bold}
+.primary{background:#1f4e78;color:#fff}.secondary{background:#6c757d;color:#fff}
+.edit{background:#ffc107;color:#222;padding:8px 12px;width:auto}
+.delete{background:#dc3545;color:#fff;padding:8px 12px;width:auto}
+.restore{background:#198754;color:#fff;padding:8px 12px;width:auto}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.actions button{width:auto;min-width:130px}
+.search-row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.search-box{flex:1;min-width:220px}
+.table-wrapper{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:850px}
+th,td{padding:11px;border-bottom:1px solid #ddd;text-align:left;white-space:nowrap}
+th{background:#1f4e78;color:#fff}
+.status-active{color:#198754;font-weight:bold}.status-inactive{color:#dc3545;font-weight:bold}
+.message{display:none;padding:12px;border-radius:7px;margin-top:15px}
+.success{background:#d1e7dd;color:#0f5132}.error{background:#f8d7da;color:#842029}
+.empty{text-align:center;padding:25px;color:#777}
+@media(max-width:800px){.form-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.container{padding:10px}.form-grid{grid-template-columns:1fr}.card{padding:15px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Employee Management</h1>
+<p>Add, edit and deactivate employees</p>
+</header>
+
+<div class="card">
+<h2 id="formTitle">Add Employee</h2>
+<form id="employeeForm">
+<div class="form-grid">
+<div><label for="employeeCode">Employee Code</label><input id="employeeCode" required maxlength="50" placeholder="EMP001"></div>
+<div><label for="employeeName">Employee Name</label><input id="employeeName" required maxlength="150" placeholder="Employee name"></div>
+<div><label for="department">Department</label><input id="department" maxlength="100" placeholder="Department"></div>
+<div><label for="designation">Designation</label><input id="designation" maxlength="100" placeholder="Designation"></div>
+<div><label for="branch">Branch</label><input id="branch" maxlength="100" placeholder="Mumbai"></div>
+<div><label for="active">Status</label><select id="active"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+</div>
+<div class="actions">
+<button class="primary" type="submit" id="saveButton">+ Add Employee</button>
+<button class="secondary" type="button" onclick="resetForm()">Clear</button>
+</div>
+</form>
+<div id="formMessage" class="message"></div>
+</div>
+
+<div class="card">
+<div class="search-row">
+<div class="search-box">
+<label for="search">Search Employee</label>
+<input id="search" placeholder="Search by code, name, department or branch">
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Employees</h2>
+<div id="emptyMessage" class="empty" style="display:none">No employees found.</div>
+<div class="table-wrapper">
+<table>
+<thead><tr>
+<th>Employee Code</th><th>Name</th><th>Department</th><th>Designation</th><th>Branch</th><th>Status</th><th>Action</th>
+</tr></thead>
+<tbody id="employeeBody"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL="https://ifvhwjufwnonfmkeapls.supabase.co";
+const SUPABASE_KEY="sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
+
+let employees=[];
+let editingId=null;
+
+async function supabaseRequest(endpoint,options={}){
+    const response=await fetch(SUPABASE_URL+endpoint,{
+        ...options,
+        headers:{
+            "apikey":SUPABASE_KEY,
+            "Authorization":"Bearer "+SUPABASE_KEY,
+            "Content-Type":"application/json",
+            "Prefer":"return=representation",
+            ...(options.headers||{})
+        }
+    });
+    if(!response.ok)throw new Error(await response.text());
+    if(response.status===204)return [];
+    return response.json();
+}
+
+function escapeHTML(value){
+    return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+
+function showMessage(text,type="success"){
+    const box=document.getElementById("formMessage");
+    box.textContent=text;
+    box.className="message "+type;
+    box.style.display="block";
+}
+
+async function loadEmployees(){
+    employees=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,department,designation,branch,active&order=employee_name");
+    employees=Array.isArray(employees)?employees:[];
+    renderEmployees();
+}
+
+function renderEmployees(){
+    const search=document.getElementById("search").value.trim().toLowerCase();
+    const list=employees.filter(e=>{
+        const text=[e.employee_code,e.employee_name,e.department,e.designation,e.branch].join(" ").toLowerCase();
+        return text.includes(search);
+    });
+
+    const body=document.getElementById("employeeBody");
+    document.getElementById("emptyMessage").style.display=list.length?"none":"block";
+
+    body.innerHTML=list.map(e=>{
+        const active=e.active===true;
+        return `<tr>
+            <td>${escapeHTML(e.employee_code)}</td>
+            <td>${escapeHTML(e.employee_name)}</td>
+            <td>${escapeHTML(e.department||"")}</td>
+            <td>${escapeHTML(e.designation||"")}</td>
+            <td>${escapeHTML(e.branch||"")}</td>
+            <td class="${active?"status-active":"status-inactive"}">${active?"Active":"Inactive"}</td>
+            <td>
+                <button class="edit" onclick="editEmployee(${Number(e.id)})">Edit</button>
+                ${active
+                    ? `<button class="delete" onclick="deactivateEmployee(${Number(e.id)})">Delete</button>`
+                    : `<button class="restore" onclick="activateEmployee(${Number(e.id)})">Restore</button>`}
+            </td>
+        </tr>`;
+    }).join("");
+}
+
+async function saveEmployee(event){
+    event.preventDefault();
+
+    const code=document.getElementById("employeeCode").value.trim().toUpperCase();
+    const name=document.getElementById("employeeName").value.trim();
+    const department=document.getElementById("department").value.trim();
+    const designation=document.getElementById("designation").value.trim();
+    const branch=document.getElementById("branch").value.trim();
+    const active=document.getElementById("active").value==="true";
+
+    if(!code||!name){
+        showMessage("Employee Code and Employee Name are required.","error");
+        return;
+    }
+
+    try{
+        const duplicate=employees.find(e=>
+            Number(e.id)!==Number(editingId) &&
+            String(e.employee_code||"").trim().toUpperCase()===code
+        );
+
+        if(duplicate){
+            showMessage("This employee code already exists.","error");
+            return;
+        }
+
+        const payload={
+            employee_code:code,
+            employee_name:name,
+            department:department||null,
+            designation:designation||null,
+            branch:branch||null,
+            active
+        };
+
+        if(editingId===null){
+            await supabaseRequest("/rest/v1/employees",{method:"POST",body:JSON.stringify(payload)});
+            showMessage("Employee added successfully.");
+        }else{
+            await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(editingId),{method:"PATCH",body:JSON.stringify(payload)});
+            showMessage("Employee updated successfully.");
+        }
+
+        resetForm();
+        await loadEmployees();
+
+    }catch(error){
+        console.error(error);
+        showMessage("Unable to save employee: "+error.message,"error");
+    }
+}
+
+function editEmployee(id){
+    const employee=employees.find(e=>Number(e.id)===Number(id));
+    if(!employee)return;
+
+    editingId=employee.id;
+    document.getElementById("formTitle").textContent="Edit Employee";
+    document.getElementById("saveButton").textContent="Save Changes";
+    document.getElementById("employeeCode").value=employee.employee_code||"";
+    document.getElementById("employeeName").value=employee.employee_name||"";
+    document.getElementById("department").value=employee.department||"";
+    document.getElementById("designation").value=employee.designation||"";
+    document.getElementById("branch").value=employee.branch||"";
+    document.getElementById("active").value=employee.active===false?"false":"true";
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+async function deactivateEmployee(id){
+    const employee=employees.find(e=>Number(e.id)===Number(id));
+    if(!employee)return;
+
+    if(!window.confirm("Deactivate "+employee.employee_name+"?
+
+Previous attendance will be preserved."))return;
+
+    try{
+        await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:false})});
+        showMessage("Employee deactivated successfully.");
+        await loadEmployees();
+    }catch(error){
+        showMessage("Unable to deactivate employee: "+error.message,"error");
+    }
+}
+
+async function activateEmployee(id){
+    try{
+        await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:true})});
+        showMessage("Employee activated successfully.");
+        await loadEmployees();
+    }catch(error){
+        showMessage("Unable to activate employee: "+error.message,"error");
+    }
+}
+
+function resetForm(){
+    editingId=null;
+    document.getElementById("employeeForm").reset();
+    document.getElementById("active").value="true";
+    document.getElementById("formTitle").textContent="Add Employee";
+    document.getElementById("saveButton").textContent="+ Add Employee";
+}
+
+document.getElementById("employeeForm").addEventListener("submit",saveEmployee);
+document.getElementById("search").addEventListener("input",renderEmployees);
+
+loadEmployees().catch(error=>showMessage("Unable to load employees: "+error.message,"error"));
+</script>
+</body>
+</html>
