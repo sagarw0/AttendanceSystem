@@ -7,382 +7,546 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;color:#222}
-.container{max-width:1600px;margin:auto;padding:12px}
-header{background:#1f4e78;color:#fff;padding:24px;border-radius:12px;margin-bottom:20px}
-header h1{margin:0 0 6px;font-size:30px}
-header p{margin:0}
-.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
-.controls{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
-.control{min-width:190px}
-label{display:block;font-weight:bold;margin-bottom:7px}
-input,button{padding:11px 14px;border-radius:7px;border:1px solid #ccc;font-size:15px}
-button{border:0;cursor:pointer;font-weight:bold}
-.back{background:#6c757d;color:#fff}
-.download{background:#198754;color:#fff}
-.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;font-size:14px}
-.summary-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
-.summary-box{background:#eef5fb;border-left:5px solid #1f4e78;padding:15px;border-radius:8px}
-.summary-box h3{margin:0 0 7px;font-size:14px;color:#555}
-.summary-box p{margin:0;font-size:23px;font-weight:bold;color:#1f4e78}
-.table-wrapper{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
-th,td{border-right:1px solid #ddd;border-bottom:1px solid #ddd;padding:9px 10px;text-align:center;white-space:nowrap;min-width:82px}
-th{background:#1f4e78;color:#fff;position:sticky;top:0;z-index:5}
-.employee-column{position:sticky;left:0;z-index:6;min-width:180px;text-align:left;background:#fff;box-shadow:2px 0 4px rgba(0,0,0,.08)}
-th.employee-column{background:#1f4e78;color:#fff;z-index:8}
-.summary-column{font-weight:bold;background:#fff;min-width:70px}
-th.summary-column{background:#1f4e78}
-.present{color:#198754;font-weight:bold}
-.leave{color:#dc3545;font-weight:bold}
-.weekoff{color:#e67e22;font-weight:bold}
-.error{background:#f8d7da;color:#842029;padding:12px;border-radius:7px;margin-top:15px;display:none;word-break:break-word}
-.loading{text-align:center;padding:30px;color:#555}
-@media(max-width:800px){.summary-boxes{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.container{padding:8px}.card{padding:14px}.employee-column{min-width:150px}th,td{min-width:78px;padding:8px}}
+.container{max-width:1500px;margin:auto;padding:15px}
+.card{background:#fff;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+h1{margin:0;color:#1f4e78}
+h2{color:#1f4e78;margin:0 0 15px}
+.filters{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+label{font-weight:bold;display:block;margin-bottom:7px}
+input,select,button{font:inherit;border-radius:7px}
+input,select{width:100%;padding:11px;border:1px solid #ccc}
+button{padding:11px 16px;border:0;cursor:pointer;font-weight:bold}
+.primary{background:#1f4e78;color:#fff}
+.secondary{background:#6c757d;color:#fff}
+.edit-mode{background:#198754;color:#fff}
+.cancel-edit{background:#dc3545;color:#fff}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.message{display:none;padding:12px;border-radius:7px;margin-top:12px}
+.success{background:#d1e7dd;color:#0f5132}
+.error{background:#f8d7da;color:#842029}
+.edit-note{display:none;background:#fff3cd;color:#664d03;padding:11px;border-radius:7px;margin-top:12px}
+
+.summary-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}
+.summary-card{background:#eef5fb;border-left:5px solid #1f4e78;border-radius:8px;padding:15px 18px}
+.summary-card .label{font-size:14px;font-weight:bold;color:#333;margin-bottom:7px}
+.summary-card .value{font-size:24px;font-weight:bold;color:#1f4e78}
+@media(max-width:900px){.summary-cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.summary-cards{grid-template-columns:1fr}}
+
+.table-wrap{overflow-x:auto;border:1px solid #ddd;border-radius:5px}
+table{border-collapse:collapse;min-width:max-content;width:100%}
+th,td{border-bottom:1px solid #ddd;border-right:1px solid #ddd;padding:8px;text-align:center;white-space:nowrap}
+th{background:#20547f;color:#fff;font-size:15px;position:sticky;top:0;z-index:3}
+th.employee-head{left:0;z-index:5}
+td.employee{font-weight:bold;text-align:left;position:sticky;left:0;background:#fff;z-index:2;min-width:180px}
+td.editable{cursor:pointer;background:#fffdf0}
+td.editable:hover{background:#fff0b3}
+.day-head{min-width:98px}
+.day-head small{display:block;font-size:12px;margin-top:3px}
+.cell-present{color:#087f50;font-weight:bold}
+.cell-leave{color:#dc3545;font-weight:bold}
+.cell-absent{color:#dc3545;font-weight:bold}
+.cell-off{color:#e67e22;font-weight:bold}
+.dot{display:inline-block;width:15px;height:15px;border-radius:50%;vertical-align:-2px;margin-right:6px}
+.green{background:#58d996}
+.red{background:#e83e58}
+.orange{background:#f4a340}
+.summary{font-weight:bold;font-size:16px;min-width:75px}
+.loading{text-align:center;padding:25px;color:#777}
+.empty{text-align:center;padding:25px;color:#777;display:none}
+.modal{display:none;position:fixed;z-index:9999;inset:0;background:rgba(0,0,0,.55);padding:15px;overflow:auto}
+.modal-box{background:#fff;max-width:500px;margin:5vh auto;padding:22px;border-radius:12px}
+.modal-info{background:#eef5fb;padding:12px;border-radius:7px;line-height:1.7;margin-bottom:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-actions{display:flex;gap:10px;margin-top:18px}
+.modal-actions button{width:50%}
+@media(max-width:700px){.filters{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.container{padding:10px}}
 </style>
 </head>
 <body>
 <div class="container">
 
-<header>
-<h1>Monthly Attendance</h1>
-<p>Team attendance, leave and working hours</p>
-</header>
-
 <div class="card">
-<div class="controls">
-<div class="control">
-<label for="monthFilter">Select Month</label>
-<input type="month" id="monthFilter">
+<h1>📊 Monthly Employee Attendance</h1>
+<p>View monthly attendance and edit any previous date directly from this screen.</p>
+
+<div class="filters">
+<div>
+<label>Month</label>
+<input type="month" id="month">
+</div>
+<div>
+<label>Branch</label>
+<select id="branch"><option value="">All Branches</option></select>
+</div>
+<div>
+<label>Employee</label>
+<select id="employee"><option value="">All Employees</option></select>
+</div>
 </div>
 
-<button class="back" type="button" onclick="goBack()">← Attendance Entry</button>
-<button class="download" type="button" onclick="downloadCSV()">Download Report</button>
+<div class="actions">
+<button class="primary" onclick="loadPage()">Apply Filters</button>
+<button class="secondary" onclick="goBack()">← Back</button>
+<button id="editToggle" class="edit-mode" onclick="toggleEditMode()">✏️ Edit Attendance</button>
+<button id="cancelEdit" class="cancel-edit" style="display:none" onclick="finishEditMode()">💾 Save Edits</button>
 </div>
 
-<div class="legend">
-<span>🟢 Present</span>
-<span>🔴 Leave</span>
-<span>🟠 Weekly Off</span>
+<div id="editNote" class="edit-note">
+<strong>Edit mode is ON.</strong> Click any attendance cell containing Present, Leave or Weekly Off to change that day's attendance.
 </div>
 
-<div id="errorMessage" class="error"></div>
-</div>
-
-<div class="card">
-<div class="summary-boxes">
-<div class="summary-box">
-<h3>Total Employees</h3>
-<p id="totalEmployees">0</p>
-</div>
-<div class="summary-box">
-<h3>Total Present</h3>
-<p id="totalPresent">0</p>
-</div>
-<div class="summary-box">
-<h3>Total Leave</h3>
-<p id="totalLeave">0</p>
-</div>
-<div class="summary-box">
-<h3>Total Team Hours</h3>
-<p id="totalHours">0h 00m</p>
-</div>
-</div>
+<div id="message" class="message"></div>
 </div>
 
 <div class="card">
-<div id="loadingMessage" class="loading">Loading attendance...</div>
-<div id="tableWrapper" class="table-wrapper" style="display:none;">
+<div class="summary-cards">
+<div class="summary-card">
+<div class="label">Total Employees</div>
+<div class="value" id="totalEmployees">0</div>
+</div>
+<div class="summary-card">
+<div class="label">Total Leaves</div>
+<div class="value" id="totalLeaves">0</div>
+</div>
+<div class="summary-card">
+<div class="label">Today Present</div>
+<div class="value" id="todayPresent">0</div>
+</div>
+<div class="summary-card">
+<div class="label">Today Leaves</div>
+<div class="value" id="todayLeaves">0</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div id="loading" class="loading">Loading attendance...</div>
+<div id="empty" class="empty">No attendance found for the selected filters.</div>
+
+<div id="tableWrap" class="table-wrap" style="display:none">
 <table id="attendanceTable">
 <thead id="tableHead"></thead>
 <tbody id="tableBody"></tbody>
 </table>
 </div>
 </div>
-
 </div>
 
+<!-- EDIT POPUP -->
+<div id="modal" class="modal">
+<div class="modal-box">
+<h2>✏️ Edit Attendance</h2>
+
+<div class="modal-info">
+<div><strong>Employee:</strong> <span id="mEmployee"></span></div>
+<div><strong>Employee Code:</strong> <span id="mCode"></span></div>
+<div><strong>Date:</strong> <span id="mDate"></span></div>
+</div>
+
+<div class="grid">
+<div>
+<label>Status</label>
+<select id="mStatus">
+<option value="Present">Present</option>
+<option value="Leave">Leave</option>
+<option value="Weekly Off">Weekly Off</option>
+</select>
+</div>
+<div></div>
+<div>
+<label>Login Time</label>
+<input type="time" id="mIn">
+</div>
+<div>
+<label>Logout Time</label>
+<input type="time" id="mOut">
+</div>
+</div>
+
+<div id="modalMessage" class="message"></div>
+
+<div class="modal-actions">
+<button class="secondary" onclick="closeModal()">Cancel</button>
+<button class="primary" id="saveBtn" onclick="saveAttendance()">Save Changes</button>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL="https://ifvhwjufwnonfmkeapls.supabase.co";
 const SUPABASE_KEY="sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let employees=[];
-let attendanceData=[];
+let records=[];
+let editMode=false;
+let selectedRecord=null;
 
-async function supabaseRequest(endpoint,options={}){
-    const response=await fetch(SUPABASE_URL+endpoint,{
-        ...options,
-        headers:{
-            "apikey":SUPABASE_KEY,
-            "Authorization":"Bearer "+SUPABASE_KEY,
-            "Content-Type":"application/json",
-            "Prefer":"return=representation",
-            ...(options.headers||{})
-        }
-    });
+function esc(v){
+return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function time(v){return v?String(v).substring(0,5):""}
+function key(date,id){return Number(id)+"_"+date}
+function hours(inTime,outTime){
+if(!inTime||!outTime)return 0;
+const a=inTime.split(":").map(Number),b=outTime.split(":").map(Number);
+let x=a[0]*60+a[1],y=b[0]*60+b[1];
+if(y<x)y+=1440;
+return Number(((y-x)/60).toFixed(2));
+}
+function hm(v){
+if(v===null||v===undefined||v==="")return "—";
+let m=Math.round(Number(v)*60);
+if(Number.isNaN(m))return "—";
+return Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";
+}
+function employee(id){return employees.find(e=>Number(e.id)===Number(id))}
+function monthDays(month){
+const [y,m]=month.split("-").map(Number);
+const monthTotalDays=new Date(y,m,0).getDate();
 
-    if(!response.ok){
-        const error=await response.text();
-        throw new Error(error);
-    }
+const today=new Date();
+const todayY=today.getFullYear();
+const todayM=today.getMonth()+1;
+const todayD=today.getDate();
 
-    if(response.status===204)return [];
-    return response.json();
+let days=monthTotalDays;
+
+// For the current month, never show future dates.
+// Past months continue to show the complete month.
+if(y===todayY && m===todayM){
+    days=todayD;
+}
+
+return Array.from({length:days},(_,i)=>{
+const d=new Date(y,m-1,i+1);
+return {
+date:`${y}-${String(m).padStart(2,"0")}-${String(i+1).padStart(2,"0")}`,
+label:d.toLocaleDateString("en-IN",{day:"2-digit",month:"short"}),
+weekday:d.toLocaleDateString("en-IN",{weekday:"short"})
+};
+});
+}
+function show(text,type){
+const x=document.getElementById("message");
+x.textContent=text;x.className="message "+type;x.style.display="block";
+setTimeout(()=>x.style.display="none",4500);
 }
 
 async function loadEmployees(){
-    const data=await supabaseRequest(
-        "/rest/v1/employees?select=id,employee_code,employee_name,department,designation&active=eq.true&order=employee_name"
-    );
-    employees=Array.isArray(data)?data:[];
+const {data,error}=await db.from("employees")
+.select("id,employee_code,employee_name,branch,active")
+.order("employee_name");
+if(error)throw error;
+employees=data||[];
+
+const branches=[...new Set(employees.map(e=>String(e.branch||"").trim()).filter(Boolean))].sort();
+document.getElementById("branch").innerHTML='<option value="">All Branches</option>'+
+branches.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
+document.getElementById("employee").innerHTML='<option value="">All Employees</option>'+
+employees.map(e=>`<option value="${e.id}">${esc(e.employee_name)} (${esc(e.employee_code)})</option>`).join("");
 }
 
-async function loadAttendance(){
-    const data=await supabaseRequest(
-        "/rest/v1/attendance?select=*"
-    );
-    attendanceData=Array.isArray(data)?data:[];
+async function loadRecords(){
+const month=document.getElementById("month").value;
+const start=month+"-01";
+const [y,m]=month.split("-").map(Number);
+const end=`${y}-${String(m).padStart(2,"0")}-${new Date(y,m,0).getDate()}`;
+
+const {data,error}=await db.from("attendance")
+.select("*")
+.gte("attendance_date",start)
+.lte("attendance_date",end)
+.eq("is_deleted",false)
+.order("attendance_date");
+if(error)throw error;
+records=data||[];
 }
 
-function formatHours(decimalHours){
-    const totalMinutes=Math.round(Number(decimalHours||0)*60);
-    const hours=Math.floor(totalMinutes/60);
-    const minutes=totalMinutes%60;
-    return hours+"h "+String(minutes).padStart(2,"0")+"m";
+function filteredEmployees(){
+const b=document.getElementById("branch").value;
+const id=document.getElementById("employee").value;
+return employees.filter(e=>{
+if(id&&Number(e.id)!==Number(id))return false;
+if(b&&String(e.branch||"")!==b)return false;
+return e.active!==false;
+});
 }
 
-function getSelectedMonth(){
-    return document.getElementById("monthFilter").value;
+function recordFor(empId,date){
+return records.find(r=>Number(r.employee_id)===Number(empId)&&String(r.attendance_date)===date);
 }
 
-function getDaysToDisplay(year,month){
-    const today=new Date();
-    const currentYear=today.getFullYear();
-    const currentMonth=today.getMonth()+1;
-    const daysInMonth=new Date(year,month,0).getDate();
-
-    if(year===currentYear&&month===currentMonth){
-        return today.getDate();
-    }
-    return daysInMonth;
+function cellHTML(r){
+if(!r)return '<span style="color:#999">—</span>';
+const status=r.attendance_status||"Present";
+if(status==="Leave")return '<span class="dot red"></span><span class="cell-leave">Leave</span>';
+if(status==="Absent")return '<span class="dot red"></span><span class="cell-absent">Absent</span>';
+if(status==="Weekly Off")return '<span class="dot orange"></span><span class="cell-off">Weekly Off</span>';
+return '<span class="dot green"></span><span class="cell-present">'+esc(hm(r.hours_completed))+'</span>';
 }
 
-function findAttendance(employee,date){
-    return attendanceData.find(record=>{
-        const sameDate=String(record.attendance_date)===date;
-        if(!sameDate)return false;
+function updateSummary(){
+const branch=document.getElementById("branch").value;
+const employeeId=document.getElementById("employee").value;
+const month=document.getElementById("month").value;
 
-        if(record.employee_id!==null&&record.employee_id!==undefined){
-            if(String(record.employee_id)===String(employee.id)){
-                return true;
-            }
+const emps=employees.filter(e=>{
+if(e.active===false)return false;
+if(employeeId&&Number(e.id)!==Number(employeeId))return false;
+if(branch&&String(e.branch||"")!==branch)return false;
+return true;
+});
+
+const filteredRecords=records.filter(r=>{
+const e=employee(r.employee_id);
+if(!e||e.active===false)return false;
+if(employeeId&&Number(r.employee_id)!==Number(employeeId))return false;
+if(branch&&String(e.branch||"")!==branch)return false;
+if(month&&String(r.attendance_date||"").substring(0,7)!==month)return false;
+return true;
+});
+
+let totalLeaves=0;
+filteredRecords.forEach(r=>{
+if((r.attendance_status||"Present")==="Leave")totalLeaves++;
+});
+
+// "Today" means the actual current date. For a past selected month there is
+// no "today" inside that month, so today's cards are zero.
+const now=new Date();
+const todayDate=
+now.getFullYear()+"-"+
+String(now.getMonth()+1).padStart(2,"0")+"-"+
+String(now.getDate()).padStart(2,"0");
+
+let todayPresent=0;
+let todayLeaves=0;
+
+if(month===todayDate.substring(0,7)){
+    filteredRecords.forEach(r=>{
+        if(String(r.attendance_date)===todayDate){
+            const status=r.attendance_status||"Present";
+            if(status==="Present")todayPresent++;
+            if(status==="Leave")todayLeaves++;
         }
-
-        return String(record.employee_name||"").trim()===
-               String(employee.employee_name||"").trim();
     });
 }
 
-function renderTable(){
-    const selectedMonth=getSelectedMonth();
-    if(!selectedMonth)return;
-
-    const [year,month]=selectedMonth.split("-").map(Number);
-    const days=getDaysToDisplay(year,month);
-
-    let headerHTML=`
-        <tr>
-            <th class="employee-column">Employee</th>
-    `;
-
-    for(let day=1;day<=days;day++){
-        const date=new Date(year,month-1,day);
-        const dayName=date.toLocaleDateString("en-IN",{weekday:"short"});
-        const monthName=date.toLocaleDateString("en-IN",{month:"short"});
-
-        headerHTML+=`
-            <th>
-                ${String(day).padStart(2,"0")} ${monthName}
-                <br><small>${dayName}</small>
-            </th>
-        `;
-    }
-
-    headerHTML+=`
-            <th class="summary-column">Present</th>
-            <th class="summary-column">Leave</th>
-            <th class="summary-column">Total Hours</th>
-        </tr>
-    `;
-
-    document.getElementById("tableHead").innerHTML=headerHTML;
-
-    let bodyHTML="";
-    let teamPresent=0;
-    let teamLeave=0;
-    let teamHours=0;
-
-    employees.forEach(employee=>{
-        let presentDays=0;
-        let leaveDays=0;
-        let employeeTotalHours=0;
-
-        bodyHTML+=`
-            <tr>
-                <td class="employee-column">
-                    <strong>${escapeHTML(employee.employee_name)}</strong>
-                </td>
-        `;
-
-        for(let day=1;day<=days;day++){
-            const date=
-                `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-
-            const record=findAttendance(employee,date);
-
-            if(record &&
-               String(record.attendance_status||"").toLowerCase()==="weekly off"){
-                bodyHTML+=`<td class="weekoff">🟠 Off</td>`;
-                continue;
-            }
-
-            if(record &&
-               String(record.attendance_status||"").toLowerCase()==="leave"){
-                leaveDays++;
-                teamLeave++;
-                bodyHTML+=`<td class="leave">🔴 Leave</td>`;
-                continue;
-            }
-
-            if(record){
-                const hours=Number(record.hours_completed)||0;
-                presentDays++;
-                teamPresent++;
-                employeeTotalHours+=hours;
-                teamHours+=hours;
-                bodyHTML+=`<td class="present">🟢 ${formatHours(hours)}</td>`;
-                continue;
-            }
-
-            /*
-             No attendance record = Leave.
-             */
-            leaveDays++;
-            teamLeave++;
-            bodyHTML+=`<td class="leave">🔴 Leave</td>`;
-        }
-
-        bodyHTML+=`
-            <td class="summary-column"><strong>${presentDays}</strong></td>
-            <td class="summary-column"><strong>${leaveDays}</strong></td>
-            <td class="summary-column"><strong>${formatHours(employeeTotalHours)}</strong></td>
-            </tr>
-        `;
-    });
-
-    document.getElementById("tableBody").innerHTML=bodyHTML;
-    document.getElementById("totalEmployees").textContent=employees.length;
-    document.getElementById("totalPresent").textContent=teamPresent;
-    document.getElementById("totalLeave").textContent=teamLeave;
-    document.getElementById("totalHours").textContent=formatHours(teamHours);
-
-    document.getElementById("loadingMessage").style.display="none";
-    document.getElementById("tableWrapper").style.display="block";
+document.getElementById("totalEmployees").textContent=emps.length;
+document.getElementById("totalLeaves").textContent=totalLeaves;
+document.getElementById("todayPresent").textContent=todayPresent;
+document.getElementById("todayLeaves").textContent=todayLeaves;
 }
 
-function escapeHTML(value){
-    return String(value??"")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+function render(){
+updateSummary();
+const month=document.getElementById("month").value;
+const days=monthDays(month);
+const emps=filteredEmployees();
+
+const head=document.getElementById("tableHead");
+const body=document.getElementById("tableBody");
+
+head.innerHTML="<tr><th class='employee-head'>Employee</th>"+
+days.map(d=>`<th class="day-head">${d.label}<small>${d.weekday}</small></th>`).join("")+
+"<th>Present</th><th>Leave</th><th>Total Hrs</th></tr>";
+
+if(!emps.length){
+body.innerHTML="";
+document.getElementById("tableWrap").style.display="none";
+document.getElementById("empty").style.display="block";
+return;
 }
 
-function csvValue(value){
-    return '"'+String(value??"").replace(/"/g,'""')+'"';
+document.getElementById("empty").style.display="none";
+document.getElementById("tableWrap").style.display="block";
+
+body.innerHTML=emps.map(emp=>{
+let present=0,leave=0,total=0;
+
+const cells=days.map(d=>{
+const r=recordFor(emp.id,d.date);
+if(r){
+const s=r.attendance_status||"Present";
+if(s==="Present"){present++;total+=Number(r.hours_completed||0)}
+else if(s==="Leave")leave++;
+}
+return `<td class="${editMode&&r?"editable":""}" ${editMode&&r?`onclick="openEdit(${r.id})"`:""}>${cellHTML(r)}</td>`;
+}).join("");
+
+return `<tr>
+<td class="employee">${esc(emp.employee_name)}</td>
+${cells}
+<td class="summary">${present}</td>
+<td class="summary">${leave}</td>
+<td class="summary">${hm(total)}</td>
+</tr>`;
+}).join("");
 }
 
-function downloadCSV(){
-    const table=document.getElementById("attendanceTable");
-    const rows=table.querySelectorAll("tr");
-    let csv="";
+function toggleEditMode(){
+editMode=true;
+document.getElementById("editToggle").style.display="none";
 
-    rows.forEach(row=>{
-        const cells=row.querySelectorAll("th,td");
-        const rowData=[];
+const finishButton=document.getElementById("cancelEdit");
+finishButton.textContent="✕ Cancel Editing";
+finishButton.className="cancel-edit";
+finishButton.style.display="inline-block";
 
-        cells.forEach(cell=>{
-            let value=cell.innerText.trim();
-
-            if(cell.classList.contains("present")){
-                value=value.replace("🟢","").trim();
-                value="Present - "+value;
-            }else if(cell.classList.contains("leave")){
-                value="Leave";
-            }else if(cell.classList.contains("weekoff")){
-                value="Weekly Off";
-            }
-
-            rowData.push(csvValue(value));
-        });
-
-        csv+=rowData.join(",")+"\r\n";
-    });
-
-    /*
-    UTF-8 BOM makes Excel read Unicode names correctly.
-    Emojis are removed from CSV values above.
-    */
-    const blob=new Blob(["\uFEFF"+csv],{
-        type:"text/csv;charset=utf-8;"
-    });
-
-    const url=URL.createObjectURL(blob);
-    const link=document.createElement("a");
-
-    link.href=url;
-    link.download="Attendance-"+getSelectedMonth()+".csv";
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    URL.revokeObjectURL(url);
+document.getElementById("editNote").style.display="block";
+render();
 }
 
-function goBack(){
-    window.location.href="index.html";
+function cancelEditMode(){
+editMode=false;
+document.getElementById("editToggle").style.display="inline-block";
+document.getElementById("cancelEdit").style.display="none";
+document.getElementById("cancelEdit").textContent="✕ Cancel Editing";
+document.getElementById("cancelEdit").className="cancel-edit";
+document.getElementById("editNote").style.display="none";
+closeModal();
+render();
 }
 
-document.getElementById("monthFilter").addEventListener("change",renderTable);
-
-async function initialize(){
-    const today=new Date();
-
-    document.getElementById("monthFilter").value=
-        today.getFullYear()+"-"+
-        String(today.getMonth()+1).padStart(2,"0");
-
-    try{
-        await Promise.all([
-            loadEmployees(),
-            loadAttendance()
-        ]);
-
-        renderTable();
-    }catch(error){
-        console.error("Monthly attendance error:",error);
-
-        document.getElementById("loadingMessage").style.display="none";
-
-        const errorBox=document.getElementById("errorMessage");
-        errorBox.textContent="Unable to load attendance: "+error.message;
-        errorBox.style.display="block";
-    }
+function finishEditMode(){
+    // Individual changes have already been saved to Supabase.
+    // This button simply finishes the editing session.
+    editMode=false;
+    document.getElementById("editToggle").style.display="inline-block";
+    document.getElementById("cancelEdit").style.display="none";
+    document.getElementById("editNote").style.display="none";
+    closeModal();
+    render();
+    show("All attendance edits have been saved.","success");
 }
 
-initialize();
+function openEdit(id){
+if(!editMode)return;
+const r=records.find(x=>Number(x.id)===Number(id));
+if(!r)return;
+selectedRecord=r;
+const e=employee(r.employee_id);
+
+document.getElementById("mEmployee").textContent=e?.employee_name||r.employee_name||"Unknown";
+document.getElementById("mCode").textContent=e?.employee_code||"";
+document.getElementById("mDate").textContent=r.attendance_date;
+document.getElementById("mStatus").value=r.attendance_status||"Present";
+document.getElementById("mIn").value=time(r.in_time||r.login_time);
+document.getElementById("mOut").value=time(r.out_time||r.logout_time);
+document.getElementById("modalMessage").style.display="none";
+document.getElementById("modal").style.display="block";
+}
+
+function closeModal(){
+document.getElementById("modal").style.display="none";
+selectedRecord=null;
+}
+
+function syncTimeState(){
+const status=document.getElementById("mStatus").value;
+const inBox=document.getElementById("mIn");
+const outBox=document.getElementById("mOut");
+
+// The attendance table requires in_time and out_time to be NOT NULL.
+// Therefore Leave / Weekly Off keep the existing times in the database.
+// Their hours are set to 0, but the time fields are not cleared.
+inBox.disabled=false;
+outBox.disabled=false;
+
+if(status!=="Present"){
+    inBox.title="Required by the attendance table; existing time is retained.";
+    outBox.title="Required by the attendance table; existing time is retained.";
+}else{
+    inBox.title="";
+    outBox.title="";
+}
+}
+
+document.getElementById("mStatus").addEventListener("change",syncTimeState);
+
+async function saveAttendance(){
+if(!selectedRecord)return;
+
+const status=document.getElementById("mStatus").value;
+const inTime=document.getElementById("mIn").value||null;
+const outTime=document.getElementById("mOut").value||null;
+
+if(!inTime||!outTime){
+document.getElementById("modalMessage").textContent=
+"Login and Logout time are required. For Leave or Weekly Off, the existing times are retained.";
+document.getElementById("modalMessage").className="message error";
+document.getElementById("modalMessage").style.display="block";
+return;
+}
+
+const button=document.getElementById("saveBtn");
+button.disabled=true;button.textContent="Saving...";
+
+try{
+const e=employee(selectedRecord.employee_id);
+const update={
+employee_name:e?.employee_name||selectedRecord.employee_name,
+attendance_status:status,
+in_time:inTime,
+out_time:outTime,
+hours_completed:status==="Present"?hours(inTime,outTime):0
+};
+
+const {error}=await db.from("attendance").update(update).eq("id",selectedRecord.id);
+if(error)throw error;
+
+closeModal();
+
+const finishButton=document.getElementById("cancelEdit");
+finishButton.textContent="💾 Save Edits";
+finishButton.className="edit-mode";
+
+show("Attendance updated successfully. Click Save Edits when finished.","success");
+
+await loadRecords();
+render();
+}catch(error){
+document.getElementById("modalMessage").textContent="Unable to update attendance: "+error.message;
+document.getElementById("modalMessage").className="message error";
+document.getElementById("modalMessage").style.display="block";
+}finally{
+button.disabled=false;button.textContent="Save Changes";
+}
+}
+
+async function loadPage(){
+try{
+document.getElementById("loading").style.display="block";
+await loadRecords();
+render();
+}catch(error){
+show("Unable to load attendance: "+error.message,"error");
+}finally{
+document.getElementById("loading").style.display="none";
+}
+}
+
+function goBack(){window.location.href="index.html"}
+
+window.addEventListener("click",e=>{
+if(e.target===document.getElementById("modal"))closeModal();
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+
+async function init(){
+const d=new Date();
+document.getElementById("month").value=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+try{
+await loadEmployees();
+await loadRecords();
+render();
+}catch(error){show("Unable to initialize: "+error.message,"error")}
+finally{document.getElementById("loading").style.display="none"}
+}
+init();
 </script>
 </body>
 </html>
