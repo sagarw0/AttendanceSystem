@@ -88,6 +88,7 @@ td.editable:hover{background:#fff0b3}
 <div class="actions">
 <button class="primary" onclick="loadPage()">Apply Filters</button>
 <button class="secondary" onclick="goBack()">← Back</button>
+<button type="button" class="primary" onclick="exportExcel()">📥 Download Excel</button>
 <button id="editToggle" class="edit-mode" onclick="toggleEditMode()">✏️ Edit Attendance</button>
 <button id="cancelEdit" class="cancel-edit" style="display:none" onclick="finishEditMode()">💾 Save Edits</button>
 </div>
@@ -174,6 +175,7 @@ td.editable:hover{background:#fff0b3}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const SUPABASE_URL="https://ifvhwjufwnonfmkeapls.supabase.co";
 const SUPABASE_KEY="sb_publishable_Uvg5V3wAptklWEH5ZuYCQg_bk9hiYVa";
@@ -527,6 +529,96 @@ show("Unable to load attendance: "+error.message,"error");
 }finally{
 document.getElementById("loading").style.display="none";
 }
+}
+
+
+function exportExcel(){
+    const month=document.getElementById("month").value;
+    const branch=document.getElementById("branch").value;
+    const employeeId=document.getElementById("employee").value;
+
+    if(!month){
+        show("Please select a month first.","error");
+        return;
+    }
+
+    const days=monthDays(month);
+    const emps=filteredEmployees();
+
+    if(!emps.length){
+        show("There is no attendance data to export.","error");
+        return;
+    }
+
+    const rows=[];
+
+    emps.forEach(emp=>{
+        const row={
+            "Employee Code":emp.employee_code||"",
+            "Employee Name":emp.employee_name||"",
+            "Branch":emp.branch||""
+        };
+
+        let present=0;
+        let leave=0;
+        let total=0;
+
+        days.forEach(d=>{
+            const r=recordFor(emp.id,d.date);
+            let value="—";
+
+            if(r){
+                const status=r.attendance_status||"Present";
+
+                if(status==="Present"){
+                    present++;
+                    total+=Number(r.hours_completed||0);
+                    value=hm(r.hours_completed);
+                }else if(status==="Leave"){
+                    leave++;
+                    value="Leave";
+                }else if(status==="Weekly Off"){
+                    value="Weekly Off";
+                }
+            }
+
+            row[d.label+" "+d.weekday]=value;
+        });
+
+        row["Present"]=present;
+        row["Leave"]=leave;
+        row["Total Hours"]=hm(total);
+
+        rows.push(row);
+    });
+
+    const worksheet=XLSX.utils.json_to_sheet(rows);
+    const workbook=XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook,worksheet,"Monthly Attendance");
+
+    // Make columns readable.
+    const widths=Object.keys(rows[0]).map((key,i)=>{
+        let max=String(key).length;
+        rows.forEach(r=>{
+            max=Math.max(max,String(r[key]??"").length);
+        });
+        return {wch:Math.min(Math.max(max+2,12),28)};
+    });
+    worksheet["!cols"]=widths;
+
+    const monthLabel=month.replace("-","_");
+    const branchLabel=branch?("_"+branch.replace(/[^a-zA-Z0-9]/g,"_")):"";
+    const employeeLabel=employeeId
+        ?("_"+(employee(employeeId)?.employee_code||"employee"))
+        :"";
+
+    XLSX.writeFile(
+        workbook,
+        "Monthly_Attendance_"+monthLabel+branchLabel+employeeLabel+".xlsx"
+    );
+
+    show("Excel file downloaded successfully.","success");
 }
 
 function goBack(){window.location.href="index.html"}
