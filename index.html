@@ -62,9 +62,32 @@ button{border:0;cursor:pointer;font-weight:bold}
 </div>
 
 <div class="button-area">
-<button class="primary" type="submit">Submit Attendance</button>
-<button class="monthly-button" type="button" onclick="openMonthlyAttendance()">📊 Monthly Attendance</button>
+
+    <button
+        class="primary"
+        type="submit"
+    >
+        Submit Attendance
+    </button>
+
+    <button
+        class="monthly-button"
+        type="button"
+        onclick="openMonthlyAttendance()"
+    >
+        📊 Monthly Attendance
+    </button>
+
+    <button
+        class="employee-management-btn"
+        type="button"
+        onclick="window.location.href='UpdateEmpDtl.html'"
+    >
+        👥 Modify Employees
+    </button>
+
 </div>
+    
 </form>
 
 <div id="message" class="message"></div>
