@@ -130,6 +130,34 @@ th:first-child,td:first-child{text-align:left}
 
 </div>
 
+<!-- DELETE ATTENDANCE MODAL -->
+<div id="deleteModal" class="modal">
+<div class="modal-box">
+
+<h2>Delete Attendance</h2>
+
+<div class="modal-info">
+<div><strong>Employee:</strong> <span id="deleteEmployee"></span></div>
+<div><strong>Date:</strong> <span id="deleteDate"></span></div>
+</div>
+
+<p>
+This attendance will <strong>not</strong> be permanently deleted.
+It will move to Deleted Attendance and can be restored later.
+</p>
+
+<input type="hidden" id="deleteRecordId">
+
+<div class="modal-actions">
+<button type="button" class="close-btn" onclick="closeDeleteModal()">Cancel</button>
+<button type="button" class="delete" id="confirmDeleteButton" onclick="confirmDeleteAttendance()">Delete Attendance</button>
+</div>
+
+<div id="deleteMessage" class="message"></div>
+
+</div>
+</div>
+
 <!-- EDIT ATTENDANCE MODAL -->
 <div id="editModal" class="modal">
 <div class="modal-box">
@@ -436,7 +464,7 @@ function renderTable(){
                     <button
                         type="button"
                         class="delete"
-                        onclick="deleteAttendance(${Number(record.id)})">
+                        onclick="openDeleteModal(${Number(record.id)})">
                         Delete
                     </button>`
                 }
@@ -623,8 +651,7 @@ async function saveEditedAttendance(){
    DELETE
 ========================= */
 
-async function deleteAttendance(id){
-
+function openDeleteModal(id){
     const record=attendance.find(
         r=>Number(r.id)===Number(id)
     );
@@ -633,15 +660,33 @@ async function deleteAttendance(id){
 
     const emp=getEmployee(record.employee_id);
 
-    if(!confirm(
-        "Delete attendance for "+
-        (emp?.employee_name||"employee")+
-        " on "+
-        (record.attendance_date||"this date")+
-        "?\\n\\n"+
-        "The record will NOT be permanently deleted.\\n"+
-        "You can restore it later."
-    ))return;
+    document.getElementById("deleteEmployee").textContent =
+        emp?.employee_name || "Unknown Employee";
+
+    document.getElementById("deleteDate").textContent =
+        record.attendance_date || "";
+
+    document.getElementById("deleteRecordId").value =
+        String(record.id);
+
+    document.getElementById("deleteMessage").style.display="none";
+    document.getElementById("deleteModal").style.display="block";
+}
+
+function closeDeleteModal(){
+    document.getElementById("deleteModal").style.display="none";
+    document.getElementById("deleteRecordId").value="";
+}
+
+async function confirmDeleteAttendance(){
+
+    const id=document.getElementById("deleteRecordId").value;
+
+    if(!id)return;
+
+    const button=document.getElementById("confirmDeleteButton");
+    button.disabled=true;
+    button.textContent="Deleting...";
 
     try{
 
@@ -651,11 +696,12 @@ async function deleteAttendance(id){
             {
                 method:"PATCH",
                 body:JSON.stringify({
-                    is_deleted:true,
-                    deleted_at:new Date().toISOString()
+                    is_deleted:true
                 })
             }
         );
+
+        closeDeleteModal();
 
         showMessage(
             "Attendance moved to Deleted Attendance.",
@@ -666,10 +712,15 @@ async function deleteAttendance(id){
 
     }catch(error){
 
-        showMessage(
-            "Unable to delete attendance: "+error.message,
-            "error"
-        );
+        const box=document.getElementById("deleteMessage");
+        box.textContent="Unable to delete attendance: "+error.message;
+        box.className="message error";
+        box.style.display="block";
+
+    }finally{
+
+        button.disabled=false;
+        button.textContent="Delete Attendance";
     }
 }
 
@@ -700,9 +751,7 @@ async function restoreAttendance(id){
             {
                 method:"PATCH",
                 body:JSON.stringify({
-                    is_deleted:false,
-                    deleted_at:null,
-                    deleted_by:null
+                    is_deleted:false
                 })
             }
         );
@@ -734,10 +783,22 @@ function goBack(){
 /* Close modal when clicking outside */
 window.addEventListener("click",function(event){
 
-    const modal=document.getElementById("editModal");
+    const editModal=document.getElementById("editModal");
+    const deleteModal=document.getElementById("deleteModal");
 
-    if(event.target===modal){
+    if(event.target===editModal){
         closeEditModal();
+    }
+
+    if(event.target===deleteModal){
+        closeDeleteModal();
+    }
+});
+
+document.addEventListener("keydown",function(event){
+    if(event.key==="Escape"){
+        closeEditModal();
+        closeDeleteModal();
     }
 });
 
