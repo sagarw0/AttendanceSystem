@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f4f6f9;color:#222}
-.container{max-width:1350px;margin:auto;padding:15px}
+.container{max-width:1400px;margin:auto;padding:15px}
 header{background:#1f4e78;color:#fff;padding:24px;border-radius:12px;margin-bottom:20px}
 header h1{margin:0 0 6px;font-size:30px} header p{margin:0}
 .card{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
@@ -23,9 +23,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .restore{width:auto;background:#198754;color:#fff;padding:8px 12px}
 .actions,.top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .actions button,.top-actions button{width:auto;min-width:130px}
-.search-box{max-width:550px}
+.search-box{max-width:600px}
 .table-wrapper{width:100%;overflow-x:auto}
-table{width:100%;min-width:950px;border-collapse:collapse}
+table{width:100%;min-width:1050px;border-collapse:collapse}
 th,td{padding:11px;border-bottom:1px solid #ddd;text-align:left;white-space:nowrap}
 th{background:#1f4e78;color:#fff}
 .status-active{color:#198754;font-weight:bold}.status-inactive{color:#dc3545;font-weight:bold}
@@ -33,7 +33,7 @@ th{background:#1f4e78;color:#fff}
 .message{display:none;padding:12px;border-radius:7px;margin-top:15px;word-break:break-word}
 .success{background:#d1e7dd;color:#0f5132}.error{background:#f8d7da;color:#842029}
 .loading,.empty{text-align:center;padding:25px;color:#777}
-@media(max-width:850px){.form-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.form-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.container{padding:10px}.card{padding:15px}.form-grid{grid-template-columns:1fr}header h1{font-size:25px}}
 </style>
 </head>
@@ -63,6 +63,11 @@ th{background:#1f4e78;color:#fff}
 <div>
 <label for="employeeName">Employee Name</label>
 <input type="text" id="employeeName" placeholder="Sagar Waghmare" maxlength="150" required>
+</div>
+
+<div>
+<label for="mobile">Mobile Number</label>
+<input type="tel" id="mobile" placeholder="9876543210" maxlength="10" inputmode="numeric">
 </div>
 
 <div>
@@ -103,7 +108,7 @@ th{background:#1f4e78;color:#fff}
 <h2>Search Employees</h2>
 <div class="search-box">
 <label for="search">Search</label>
-<input type="text" id="search" placeholder="Employee code, name, department or branch">
+<input type="text" id="search" placeholder="Code, name, mobile, department or branch">
 </div>
 </div>
 
@@ -118,6 +123,7 @@ th{background:#1f4e78;color:#fff}
 <tr>
 <th>Employee Code</th>
 <th>Name</th>
+<th>Mobile</th>
 <th>Department</th>
 <th>Designation</th>
 <th>Branch</th>
@@ -188,8 +194,9 @@ function showMessage(message,type="success"){
 
 async function loadEmployees(){
     const data=await supabaseRequest(
-        "/rest/v1/employees?select=id,employee_code,employee_name,department,designation,branch,active&order=employee_name"
+        "/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active&order=employee_name"
     );
+
     employees=Array.isArray(data)?data:[];
     renderEmployees();
 }
@@ -201,10 +208,12 @@ function renderEmployees(){
         const text=[
             employee.employee_code,
             employee.employee_name,
+            employee.mobile,
             employee.department,
             employee.designation,
             employee.branch
         ].join(" ").toLowerCase();
+
         return text.includes(search);
     });
 
@@ -231,6 +240,7 @@ function renderEmployees(){
         return `<tr>
             <td>${escapeHTML(employee.employee_code)}</td>
             <td>${escapeHTML(employee.employee_name)}</td>
+            <td>${escapeHTML(employee.mobile||"")}</td>
             <td>${escapeHTML(employee.department||"")}</td>
             <td>${escapeHTML(employee.designation||"")}</td>
             <td>${escapeHTML(employee.branch||"")}</td>
@@ -254,6 +264,7 @@ async function saveEmployee(event){
 
     const code=document.getElementById("employeeCode").value.trim().toUpperCase();
     const name=document.getElementById("employeeName").value.trim();
+    const mobile=document.getElementById("mobile").value.trim();
     const department=document.getElementById("department").value.trim();
     const designation=document.getElementById("designation").value.trim();
     const branch=document.getElementById("branch").value.trim();
@@ -269,20 +280,39 @@ async function saveEmployee(event){
         return false;
     }
 
-    const duplicate=employees.find(employee=>{
+    if(mobile && !/^\d{10}$/.test(mobile)){
+        showMessage("Mobile Number must contain exactly 10 digits.","error");
+        return false;
+    }
+
+    const duplicateCode=employees.find(employee=>{
         const sameCode=String(employee.employee_code||"").trim().toUpperCase()===code;
         const sameEmployee=editingId!==null && Number(employee.id)===Number(editingId);
         return sameCode && !sameEmployee;
     });
 
-    if(duplicate){
+    if(duplicateCode){
         showMessage("Employee Code "+code+" already exists.","error");
+        return false;
+    }
+
+    const duplicateMobile=mobile
+        ? employees.find(employee=>{
+            const sameMobile=String(employee.mobile||"").trim()===mobile;
+            const sameEmployee=editingId!==null && Number(employee.id)===Number(editingId);
+            return sameMobile && !sameEmployee;
+        })
+        : null;
+
+    if(duplicateMobile){
+        showMessage("This mobile number is already assigned to another employee.","error");
         return false;
     }
 
     const employeeData={
         employee_code:code,
         employee_name:name,
+        mobile:mobile||null,
         department:department||null,
         designation:designation||null,
         branch:branch||null,
@@ -295,24 +325,24 @@ async function saveEmployee(event){
 
     try{
         if(editingId===null){
-            const result=await supabaseRequest(
+            await supabaseRequest(
                 "/rest/v1/employees",
                 {
                     method:"POST",
                     body:JSON.stringify(employeeData)
                 }
             );
-            console.log("Employee inserted:",result);
+
             showMessage("Employee added successfully.","success");
         }else{
-            const result=await supabaseRequest(
+            await supabaseRequest(
                 "/rest/v1/employees?id=eq."+encodeURIComponent(editingId),
                 {
                     method:"PATCH",
                     body:JSON.stringify(employeeData)
                 }
             );
-            console.log("Employee updated:",result);
+
             showMessage("Employee updated successfully.","success");
         }
 
@@ -344,6 +374,7 @@ function editEmployee(id){
     document.getElementById("saveButton").textContent="Save Changes";
     document.getElementById("employeeCode").value=employee.employee_code||"";
     document.getElementById("employeeName").value=employee.employee_name||"";
+    document.getElementById("mobile").value=employee.mobile||"";
     document.getElementById("department").value=employee.department||"";
     document.getElementById("designation").value=employee.designation||"";
     document.getElementById("branch").value=employee.branch||"";
@@ -354,6 +385,7 @@ function editEmployee(id){
 
 async function deactivateEmployee(id){
     const employee=employees.find(item=>Number(item.id)===Number(id));
+
     if(!employee)return;
 
     if(!window.confirm(
