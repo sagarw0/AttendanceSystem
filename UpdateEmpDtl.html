@@ -94,7 +94,7 @@ th{background:#1f4e78;color:#fff}.status-active{color:#198754;font-weight:bold}.
 
 
 <div class="card" id="salaryTotalsCard">
-<h2>Salary Summary</h2>
+<h2>Salary Summary - All Employees</h2>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
 <div class="preview">
 <span>Monthly Salary</span>
@@ -177,8 +177,7 @@ employees=Array.isArray(data)?data:[];renderEmployees();
 }
 
 function updateSalaryTotals(){
-const activeEmployees=employees.filter(e=>e.active===true);
-const totalMonthly=activeEmployees.reduce((sum,e)=>sum+Number(e.monthly_salary||0),0);
+const totalMonthly=employees.reduce((sum,e)=>sum+Number(e.monthly_salary||0),0);
 const totalYearly=totalMonthly*12;
 document.getElementById("totalMonthlySalary").textContent=money(totalMonthly);
 document.getElementById("totalYearlySalary").textContent=money(totalYearly);
@@ -205,7 +204,7 @@ const department=document.getElementById("department").value.trim(),designation=
 const monthly=Number(document.getElementById("monthlySalary").value||0);
 if(!code)return showMessage("Please enter Employee Code.","error");
 if(!name)return showMessage("Please enter Employee Name.","error");
-if(mobile&&!/^\\d{10}$/.test(mobile))return showMessage("Mobile Number must contain exactly 10 digits.","error");
+if(mobile&&!/^\d{10}$/.test(mobile))return showMessage("Mobile Number must contain exactly 10 digits.","error");
 if(editingId===null&&monthly<=0)return showMessage("Please enter Monthly Salary.","error");
 const duplicate=employees.find(e=>String(e.employee_code||"").toUpperCase()===code&&!(editingId!==null&&Number(e.id)===Number(editingId)));
 if(duplicate)return showMessage("Employee Code "+code+" already exists.","error");
