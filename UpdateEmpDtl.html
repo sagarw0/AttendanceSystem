@@ -35,7 +35,7 @@ th{background:#1f4e78;color:#fff}.status-active{color:#198754;font-weight:bold}.
 .remark{min-height:90px;resize:vertical;font-family:Arial}.history{margin-top:20px}.history table{min-width:100%;font-size:14px}
 .history th{background:#5c7890}.history td{white-space:normal}
 .badge{display:inline-block;padding:5px 9px;border-radius:15px;background:#e9ecef;font-size:12px}
-@media(max-width:950px){.form-grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){
+@media(max-width:950px){.form-grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){#salaryTotalsCard > div{grid-template-columns:1fr!important}
 .container{padding:10px}.card{padding:15px}.form-grid,.salary-grid,.salary-preview,.modal-grid{grid-template-columns:1fr}header h1{font-size:25px}
 }
 </style>
@@ -90,6 +90,21 @@ th{background:#1f4e78;color:#fff}.status-active{color:#198754;font-weight:bold}.
 <div class="card">
 <h2>Search Employees</h2>
 <div class="search-box"><label for="search">Search</label><input id="search" placeholder="Code, name, mobile, department or branch"></div>
+</div>
+
+
+<div class="card" id="salaryTotalsCard">
+<h2>Salary Summary</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div class="preview">
+<span>Monthly Salary</span>
+<strong id="totalMonthlySalary">₹0.00</strong>
+</div>
+<div class="preview">
+<span>Yearly Salary</span>
+<strong id="totalYearlySalary">₹0.00</strong>
+</div>
+</div>
 </div>
 
 <div class="card">
@@ -160,7 +175,17 @@ async function loadEmployees(){
 const data=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active,monthly_salary,salary_remark,salary_updated_at&order=employee_name");
 employees=Array.isArray(data)?data:[];renderEmployees();
 }
+
+function updateSalaryTotals(){
+const activeEmployees=employees.filter(e=>e.active===true);
+const totalMonthly=activeEmployees.reduce((sum,e)=>sum+Number(e.monthly_salary||0),0);
+const totalYearly=totalMonthly*12;
+document.getElementById("totalMonthlySalary").textContent=money(totalMonthly);
+document.getElementById("totalYearlySalary").textContent=money(totalYearly);
+}
+
 function renderEmployees(){
+updateSalaryTotals();
 const q=document.getElementById("search").value.trim().toLowerCase();
 const filtered=employees.filter(e=>[e.employee_code,e.employee_name,e.mobile,e.department,e.designation,e.branch].join(" ").toLowerCase().includes(q));
 const body=document.getElementById("employeeBody"),empty=document.getElementById("emptyMessage"),table=document.getElementById("tableWrapper");
