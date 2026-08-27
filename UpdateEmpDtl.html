@@ -76,7 +76,7 @@ th{background:#1f4e78;color:#fff}.status-active{color:#198754;font-weight:bold}.
 <div class="salary-box" id="editSalaryBox" style="display:none">
 <h3>💰 Salary</h3>
 <p style="margin-top:0;color:#666">Salary is protected from normal employee-detail editing.</p>
-<button type="button" class="review" onclick="openSalaryReview()">Review Salary</button>
+<button type="button" class="review" id="salaryActionButton" onclick="openSalaryReview()">Change Salary</button>
 </div>
 
 <div class="actions">
@@ -230,15 +230,21 @@ editingId=e.id;document.getElementById("formTitle").textContent="Edit Employee";
 document.getElementById("employeeCode").value=e.employee_code||"";document.getElementById("employeeName").value=e.employee_name||"";document.getElementById("mobile").value=e.mobile||"";
 document.getElementById("department").value=e.department||"";document.getElementById("designation").value=e.designation||"";document.getElementById("branch").value=e.branch||"";document.getElementById("active").value=e.active===false?"false":"true";
 document.getElementById("newSalaryBox").style.display="none";document.getElementById("editSalaryBox").style.display="block";
+document.getElementById("salaryActionButton").textContent =
+Number(e.monthly_salary||0) > 0 ? "Change Salary" : "Assign Salary";
 document.getElementById("monthlySalary").value="";document.getElementById("yearlySalary").value="";updateSalaryPreview();window.scrollTo({top:0,behavior:"smooth"});
 }
 
 async function openSalaryReview(){
 const e=employees.find(x=>Number(x.id)===Number(editingId));if(!e)return;
-const m=Number(e.monthly_salary||0);if(m<=0)return showMessage("No salary is currently assigned to this employee.","error");
+const m=Number(e.monthly_salary||0);
 document.getElementById("salaryEmployee").textContent=e.employee_name+" ("+e.employee_code+")";
-document.getElementById("currentMonthly").textContent=money(m);document.getElementById("currentYearly").textContent=money(m*12);
-document.getElementById("newMonthlySalary").value=m;document.getElementById("newYearlySalary").value=m*12;document.getElementById("salaryRemark").value="";
+document.getElementById("currentMonthly").textContent=m>0?money(m):"Not Assigned";
+document.getElementById("currentYearly").textContent=m>0?money(m*12):"Not Assigned";
+document.getElementById("newMonthlySalary").value=m>0?m:"";
+document.getElementById("newYearlySalary").value=m>0?m*12:"";
+document.getElementById("salaryRemark").value="";
+document.getElementById("salaryModalMessage").style.display="none";
 document.getElementById("salaryModalMessage").style.display="none";document.getElementById("salaryModal").classList.add("show");
 await loadSalaryHistory(e.id);
 }
@@ -278,7 +284,7 @@ effective_from:effective,remark:remark,changed_at:new Date().toISOString()
 await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(e.id),{method:"PATCH",body:JSON.stringify({
 monthly_salary:newMonthly,salary_remark:remark,salary_updated_at:new Date().toISOString()
 })});
-closeSalaryReview();showMessage("Salary changed successfully and history saved.","success");await loadEmployees();
+closeSalaryReview();showMessage((oldMonthly>0?"Salary changed":"Salary assigned")+" successfully and history saved.","success");await loadEmployees();
 }catch(error){showSalaryModalMessage("Unable to change salary: "+error.message)}
 }
 function showSalaryModalMessage(m){const b=document.getElementById("salaryModalMessage");b.textContent=m;b.style.display="block"}
@@ -294,7 +300,7 @@ try{await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{me
 function resetForm(){
 editingId=null;document.getElementById("employeeForm").reset();document.getElementById("active").value="true";
 document.getElementById("formTitle").textContent="Add Employee";document.getElementById("saveButton").textContent="+ Add Employee";
-document.getElementById("newSalaryBox").style.display="block";document.getElementById("editSalaryBox").style.display="none";updateSalaryPreview();
+document.getElementById("newSalaryBox").style.display="block";document.getElementById("editSalaryBox").style.display="none";document.getElementById("salaryActionButton").textContent="Change Salary";updateSalaryPreview();
 }
 function goBack(){window.location.href="index.html"}
 document.getElementById("search").addEventListener("input",renderEmployees);
