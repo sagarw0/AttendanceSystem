@@ -304,8 +304,28 @@ function fromYearly(){const y=Number(document.getElementById("yearlySalary").val
 function updateSalaryPreview(){const m=Number(document.getElementById("monthlySalary").value||0);document.getElementById("monthlyPreview").textContent=money(m);document.getElementById("yearlyPreview").textContent=money(m*12)}
 
 async function loadEmployees(){
-const data=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active,monthly_salary,salary_remark,salary_updated_at&order=employee_name");
-employees=Array.isArray(data)?data:[];renderEmployees();
+try{
+let data;
+try{
+/* Preferred query: includes salary history metadata when those columns exist. */
+data=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active,monthly_salary,salary_remark,salary_updated_at&order=employee_name");
+}catch(firstError){
+try{
+/* Compatibility query: works when salary_remark/salary_updated_at are not present. */
+data=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active,monthly_salary&order=employee_name");
+}catch(secondError){
+/* Final fallback for older employee tables without salary columns. */
+data=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active&order=employee_name");
+}
+}
+employees=Array.isArray(data)?data:[];
+renderEmployees();
+}catch(error){
+employees=[];
+renderEmployees();
+document.getElementById("loadingMessage").style.display="none";
+showMessage("Unable to load employees: "+error.message,"error");
+}
 }
 
 function updateSalaryTotals(){
