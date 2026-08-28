@@ -328,7 +328,7 @@ if(!filtered.length){body.innerHTML="";table.style.display="none";empty.style.di
 empty.style.display="none";table.style.display="block";
 body.innerHTML=filtered.map(e=>{
 const active=e.active===true,m=Number(e.monthly_salary||0);
-return `<tr><td>${escapeHTML(e.employee_code)}</td><td>${escapeHTML(e.employee_name)}</td><td>${escapeHTML(e.mobile||"")}</td><td>${escapeHTML(e.department||"")}</td><td>${escapeHTML(e.designation||"")}</td><td>${escapeHTML(e.branch||"")}</td><td class="${active?"status-active":"status-inactive"}">${active?"Active":"Inactive"}</td><td>${m?money(m):"—"}</td><td>${m?money(m*12):"—"}</td><td><div class="action-cell"><button type="button" class="edit" onclick="editEmployee(${Number(e.id)})">Edit</button><button type="button" class="review" onclick="openPayrollForEmployee(${Number(e.id)})">Pay Salary</button><button type="button" class="review" style="background:#198754" onclick="openAdvanceForEmployee(${Number(e.id)})">Pay Advance</button>${active?`<button type="button" class="delete" onclick="deactivateEmployee(${Number(e.id)})">Delete</button>`:`<button type="button" class="restore" onclick="activateEmployee(${Number(e.id)})">Restore</button>`}</div></td></tr>`;
+return `<tr><td>${escapeHTML(e.employee_code)}</td><td>${escapeHTML(e.employee_name)}</td><td>${escapeHTML(e.mobile||"")}</td><td>${escapeHTML(e.department||"")}</td><td>${escapeHTML(e.designation||"")}</td><td>${escapeHTML(e.branch||"")}</td><td class="${active?"status-active":"status-inactive"}">${active?"Active":"Inactive"}</td><td>${m?money(m):"—"}</td><td>${m?money(m*12):"—"}</td><td><div class="action-cell"><button type="button" class="edit" onclick="editEmployee(${Number(e.id)})">Edit</button>${active?`<button type="button" class="delete" onclick="deactivateEmployee(${Number(e.id)})">Inactive</button>`:`<button type="button" class="restore" onclick="activateEmployee(${Number(e.id)})">Active</button>`}<button type="button" class="review" onclick="openPayrollForEmployee(${Number(e.id)})">Pay Salary</button><button type="button" class="review" style="background:#198754" onclick="openAdvanceForEmployee(${Number(e.id)})">Pay Advance</button></div></td></tr>`;
 }).join("");
 }
 
@@ -538,12 +538,25 @@ box.textContent=message;
 box.style.display="block";
 }
 
-async function openPayrollForEmployee(id){
-if(!id)return showMessage("Please add an employee first.","error");
-const e=employees.find(x=>Number(x.id)===Number(id));if(!e)return showMessage("Employee not found.","error");
-payrollEmployeeId=e.id;document.getElementById("payrollEmployee").textContent=e.employee_name+" ("+e.employee_code+")";
-document.getElementById("payrollMonth").value=currentMonthValue();document.getElementById("payMethod").value="days";document.getElementById("paymentDate").value=new Date().toISOString().slice(0,10);
-document.getElementById("advanceAmount").value="0";document.getElementById("advanceRemark").value="";document.getElementById("paymentRemark").value="";document.getElementById("payrollModalMessage").style.display="none";document.getElementById("payrollModal").classList.add("show");await refreshPayroll()
+function openPayrollForEmployee(id){
+if(!id){showMessage("Please add an employee first.","error");return;}
+const e=employees.find(x=>Number(x.id)===Number(id));
+if(!e){showMessage("Employee not found.","error");return;}
+
+payrollEmployeeId=e.id;
+document.getElementById("payrollEmployee").textContent=e.employee_name+" ("+e.employee_code+")";
+document.getElementById("payrollMonth").value=currentMonthValue();
+document.getElementById("payMethod").value="days";
+document.getElementById("paymentDate").value=new Date().toISOString().slice(0,10);
+document.getElementById("paymentRemark").value="";
+document.getElementById("payrollModalMessage").style.display="none";
+
+/* Open the modal immediately. Attendance/payment loading must not block the button. */
+document.getElementById("payrollModal").classList.add("show");
+
+refreshPayroll().catch(err=>{
+showPayrollMessage("Unable to calculate salary: "+err.message);
+});
 }
 function openPayroll(){openPayrollForEmployee(editingId||employees[0]?.id)}
 function closePayroll(){document.getElementById("payrollModal").classList.remove("show")}
@@ -583,7 +596,7 @@ payrollPayments=await supabaseRequest(
 );
 }catch(err){payrollPayments=[]}
 
-const present=payrollAttendance.filter(a=>String(a.status||"").toLowerCase()==="present");
+const present=payrollAttendance.filter(a=>String(a.attendance_status||a.status||"").toLowerCase()==="present");
 const completedDays=present.length;
 const completedHours=present.reduce((s,a)=>s+Number(a.total_hours||0),0);
 
@@ -666,20 +679,59 @@ renderPaymentHistory()
 }
 function renderPaymentHistory(){const body=document.getElementById("paymentHistoryBody"),empty=document.getElementById("paymentHistoryEmpty"),table=document.getElementById("paymentHistoryTable");document.getElementById("paymentHistoryLoading").style.display="none";if(!payrollPayments.length){table.style.display="none";empty.style.display="block";return}empty.style.display="none";table.style.display="block";body.innerHTML=payrollPayments.map(p=>"<tr><td>"+escapeHTML(p.payment_date||"")+"</td><td>"+escapeHTML(p.payment_type||"")+"</td><td>"+escapeHTML(p.payment_basis||"")+"</td><td>"+money(p.amount)+"</td><td>"+escapeHTML(p.remark||"")+"</td></tr>").join("")}
 async function saveSalaryPayment(){
-const e=employees.find(x=>Number(x.id)===Number(payrollEmployeeId)),month=document.getElementById("payrollMonth").value,basis=document.getElementById("payMethod").value,amount=Number(document.getElementById("paymentAmount").value||0),advance=Number(document.getElementById("advanceAmount").value||0),remark=document.getElementById("paymentRemark").value.trim(),advanceRemark=document.getElementById("advanceRemark").value.trim();
-if(amount<=0&&advance<=0)return showPayrollMessage("Enter a salary payment or advance amount.");if(amount>0&&!remark)return showPayrollMessage("Payment remark is mandatory.");if(advance>0&&!advanceRemark)return showPayrollMessage("Advance remark is mandatory.");
-if(!confirm("Are you sure you want to record this payment?\\n\\nEmployee: "+e.employee_name+"\\nSalary Payment: "+money(amount)+(advance>0?"\\nAdvance: "+money(advance):"")))return;
-try{const rows=[];if(amount>0)rows.push({employee_id:Number(e.id),salary_month:month,payment_type:"salary",payment_basis:basis,amount,payment_date:document.getElementById("paymentDate").value,remark});if(advance>0)rows.push({employee_id:Number(e.id),salary_month:month,payment_type:"advance",payment_basis:"advance",amount:advance,payment_date:document.getElementById("paymentDate").value,remark:advanceRemark});await supabaseRequest("/rest/v1/salary_payments",{method:"POST",body:JSON.stringify(rows)});await refreshPayroll();showMessage("Salary payment saved successfully.","success")}catch(err){showPayrollMessage("Unable to save salary payment: "+err.message)}
+const e=employees.find(x=>Number(x.id)===Number(payrollEmployeeId));
+const month=document.getElementById("payrollMonth").value;
+const basis=document.getElementById("payMethod").value;
+const amount=Number(document.getElementById("paymentAmount").value||0);
+const remark=document.getElementById("paymentRemark").value.trim();
+const paymentDate=document.getElementById("paymentDate").value;
+
+if(!e)return showPayrollMessage("Employee not found.");
+if(!month)return showPayrollMessage("Please select salary month.");
+if(amount<=0)return showPayrollMessage("Please enter a valid salary payment amount.");
+if(!paymentDate)return showPayrollMessage("Please select payment date.");
+if(!remark)return showPayrollMessage("Payment remark is mandatory.");
+
+const confirmed=confirm(
+"Are you sure you want to record this salary payment?\\n\\n"+
+"Employee: "+e.employee_name+"\\n"+
+"Salary Month: "+month+"\\n"+
+"Basis: "+basis+"\\n"+
+"Amount: "+money(amount)+"\\n"+
+"Payment Date: "+paymentDate+"\\n"+
+"Remark: "+remark
+);
+if(!confirmed)return;
+
+try{
+await supabaseRequest("/rest/v1/salary_payments",{
+method:"POST",
+body:JSON.stringify({
+employee_id:Number(e.id),
+salary_month:month,
+payment_type:"salary",
+payment_basis:basis,
+amount:amount,
+payment_date:paymentDate,
+remark:remark
+})
+});
+await refreshPayroll();
+showMessage("Salary payment saved successfully.","success");
+}catch(err){
+showPayrollMessage("Unable to pay salary: "+err.message);
 }
+}
+
 function showPayrollMessage(m){const b=document.getElementById("payrollModalMessage");b.textContent=m;b.style.display="block"}
 
 async function deactivateEmployee(id){
 const e=employees.find(x=>Number(x.id)===Number(id));if(!e)return;
 if(!confirm("Deactivate "+e.employee_name+"?\\n\\nPrevious attendance and salary information will be preserved."))return;
-try{await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:false})});showMessage("Employee deactivated successfully.","success");await loadEmployees()}catch(error){showMessage("Unable to deactivate employee: "+error.message,"error")}
+try{await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:false})});showMessage("Employee marked as Inactive successfully.","success");await loadEmployees()}catch(error){showMessage("Unable to deactivate employee: "+error.message,"error")}
 }
 async function activateEmployee(id){
-try{await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:true})});showMessage("Employee restored successfully.","success");await loadEmployees()}catch(error){showMessage("Unable to restore employee: "+error.message,"error")}
+try{await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:true})});showMessage("Employee marked as Active successfully.","success");await loadEmployees()}catch(error){showMessage("Unable to restore employee: "+error.message,"error")}
 }
 function resetForm(){
 editingId=null;document.getElementById("employeeForm").reset();document.getElementById("active").value="true";
