@@ -328,7 +328,7 @@ if(!filtered.length){body.innerHTML="";table.style.display="none";empty.style.di
 empty.style.display="none";table.style.display="block";
 body.innerHTML=filtered.map(e=>{
 const active=e.active===true,m=Number(e.monthly_salary||0);
-return `<tr><td>${escapeHTML(e.employee_code)}</td><td>${escapeHTML(e.employee_name)}</td><td>${escapeHTML(e.mobile||"")}</td><td>${escapeHTML(e.department||"")}</td><td>${escapeHTML(e.designation||"")}</td><td>${escapeHTML(e.branch||"")}</td><td class="${active?"status-active":"status-inactive"}">${active?"Active":"Inactive"}</td><td>${m?money(m):"—"}</td><td>${m?money(m*12):"—"}</td><td><div class="action-cell"><button type="button" class="edit" onclick="editEmployee(${Number(e.id)})">Edit</button>${active?`<button type="button" class="delete" onclick="deactivateEmployee(${Number(e.id)})">Inactive</button>`:`<button type="button" class="restore" onclick="activateEmployee(${Number(e.id)})">Active</button>`}<button type="button" class="review" onclick="openPayrollForEmployee(${Number(e.id)})">Pay Salary</button><button type="button" class="review" style="background:#198754" onclick="openAdvanceForEmployee(${Number(e.id)})">Pay Advance</button></div></td></tr>`;
+return `<tr><td>${escapeHTML(e.employee_code)}</td><td>${escapeHTML(e.employee_name)}</td><td>${escapeHTML(e.mobile||"")}</td><td>${escapeHTML(e.department||"")}</td><td>${escapeHTML(e.designation||"")}</td><td>${escapeHTML(e.branch||"")}</td><td class="${active?"status-active":"status-inactive"}">${active?"Active":"Inactive"}</td><td>${m?money(m):"—"}</td><td>${m?money(m*12):"—"}</td><td><div class="action-cell"><button type="button" class="edit" onclick="editEmployee(${Number(e.id)})">Edit</button><button type="button" class="review" onclick="openPayrollForEmployee(${Number(e.id)})">Pay Salary</button><button type="button" class="review" style="background:#198754" onclick="openAdvanceForEmployee(${Number(e.id)})">Pay Advance</button>${active?`<button type="button" class="delete" onclick="deactivateEmployee(${Number(e.id)})">Delete</button>`:`<button type="button" class="restore" onclick="activateEmployee(${Number(e.id)})">Restore</button>`}</div></td></tr>`;
 }).join("");
 }
 
@@ -676,10 +676,10 @@ function showPayrollMessage(m){const b=document.getElementById("payrollModalMess
 async function deactivateEmployee(id){
 const e=employees.find(x=>Number(x.id)===Number(id));if(!e)return;
 if(!confirm("Deactivate "+e.employee_name+"?\\n\\nPrevious attendance and salary information will be preserved."))return;
-try{await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:false})});showMessage("Employee marked as Inactive successfully.","success");await loadEmployees()}catch(error){showMessage("Unable to deactivate employee: "+error.message,"error")}
+try{await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:false})});showMessage("Employee deactivated successfully.","success");await loadEmployees()}catch(error){showMessage("Unable to deactivate employee: "+error.message,"error")}
 }
 async function activateEmployee(id){
-try{await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:true})});showMessage("Employee marked as Active successfully.","success");await loadEmployees()}catch(error){showMessage("Unable to restore employee: "+error.message,"error")}
+try{await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({active:true})});showMessage("Employee restored successfully.","success");await loadEmployees()}catch(error){showMessage("Unable to restore employee: "+error.message,"error")}
 }
 function resetForm(){
 editingId=null;document.getElementById("employeeForm").reset();document.getElementById("active").value="true";
