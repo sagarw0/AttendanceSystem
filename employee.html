@@ -149,6 +149,144 @@ button:disabled{
     font-size:13px;
     margin-top:15px;
 }
+.attendance-history-btn{
+    background:#1f4e78;
+    color:#fff;
+}
+
+.hidden{display:none!important}
+.attendance-history-modal-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:8px;background:rgba(0,0,0,.58);overflow:hidden}
+.attendance-history-modal-overlay.show{display:flex}
+.attendance-history-modal{width:min(960px,100%);height:min(94vh,760px);max-height:94vh;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;min-height:0}
+.attendance-modal-titlebar{background:#1f4e78;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex:0 0 auto;position:relative;z-index:5}
+.attendance-modal-title{font-size:23px;font-weight:700}
+.attendance-modal-subtitle{font-size:13px;margin-top:4px;opacity:.9}
+.attendance-close{width:38px!important;height:38px;padding:0!important;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:27px;line-height:38px}
+.attendance-modal-content{padding:16px 18px;min-height:0;overflow-y:auto;overflow-x:hidden;flex:1 1 auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.attendance-month-field{max-width:360px}
+.attendance-month-field select{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:15px}
+.attendance-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.attendance-summary .summary-box{background:#eef5fb;border-left:4px solid #1f4e78;border-radius:9px;padding:11px}
+.attendance-summary .summary-box small{display:block;color:#66727d;font-size:12px}
+.attendance-summary .summary-box strong{display:block;color:#1f4e78;font-size:20px;margin-top:3px}
+.attendance-detail-header{display:flex;justify-content:space-between;align-items:center;margin:8px 0 10px}
+.attendance-detail-header h3{margin:0;color:#1f4e78;font-size:18px}
+.attendance-detail-header span{font-size:12px;color:#78838d}
+.attendance-table-scroll{max-height:none;overflow-x:auto;overflow-y:visible;border:1px solid #dce3e9;border-radius:9px}
+.attendance-history-table{width:100%;min-width:690px;border-collapse:separate;border-spacing:0}
+.attendance-history-table th{position:sticky;top:0;z-index:2;background:#1f4e78;color:#fff;padding:10px;text-align:left;font-size:13px}
+.attendance-history-table td{padding:9px 10px;border-bottom:1px solid #e4e8ec;background:#fff;white-space:nowrap;font-size:13px}
+.attendance-history-table .present{color:#087443;font-weight:700}.attendance-history-table .leave{color:#d92d4d;font-weight:700}.attendance-history-table .off{color:#a56b00;font-weight:700}.attendance-history-table .notmarked{color:#8995a1}
+.attendance-history-loading,.attendance-history-empty{text-align:center;padding:22px;color:#777}
+.attendance-modal-footer{padding:12px 18px 16px;display:flex;justify-content:flex-end;flex:0 0 auto;background:#fff;position:relative;z-index:5;border-top:1px solid #e4e8ec}
+@media(max-width:600px){
+ .attendance-history-modal-overlay{
+   padding:0;
+   align-items:stretch;
+   justify-content:stretch;
+   overflow:hidden;
+ }
+ .attendance-history-modal{
+   width:100%;
+   height:100dvh;
+   max-height:100dvh;
+   min-height:0;
+   border-radius:0;
+   display:flex;
+   flex-direction:column;
+ }
+ .attendance-modal-titlebar{
+   flex:0 0 auto;
+   padding:13px 14px;
+ }
+ .attendance-modal-title{
+   font-size:20px;
+ }
+ .attendance-modal-subtitle{
+   font-size:12px;
+ }
+ .attendance-close{
+   width:36px!important;
+   height:36px;
+   line-height:36px;
+   font-size:25px;
+   flex:0 0 36px;
+ }
+ .attendance-modal-content{
+   flex:1 1 auto;
+   min-height:0;
+   overflow-y:auto;
+   overflow-x:hidden;
+   padding:12px;
+   -webkit-overflow-scrolling:touch;
+ }
+ .attendance-month-field{
+   max-width:none;
+ }
+ .attendance-month-field select{
+   padding:11px;
+   font-size:15px;
+ }
+ .attendance-summary{
+   grid-template-columns:repeat(3,1fr);
+   gap:6px;
+   margin:10px 0 12px;
+ }
+ .attendance-summary .summary-box{
+   padding:9px 4px;
+   text-align:center;
+   border-left:0;
+   border-top:3px solid #1f4e78;
+ }
+ .attendance-summary .summary-box small{
+   font-size:10px;
+ }
+ .attendance-summary .summary-box strong{
+   font-size:16px;
+ }
+ .attendance-detail-header{
+   margin:6px 0 8px;
+ }
+ .attendance-detail-header h3{
+   font-size:16px;
+ }
+ .attendance-detail-header span{
+   display:none;
+ }
+ .attendance-table-scroll{
+   width:100%;
+   max-height:none;
+   overflow-x:auto;
+   overflow-y:visible;
+   -webkit-overflow-scrolling:touch;
+   margin:0;
+ }
+ .attendance-history-table{
+   min-width:650px;
+ }
+ .attendance-history-table th,
+ .attendance-history-table td{
+   padding:8px;
+   font-size:12px;
+ }
+ .attendance-history-table th{
+   position:sticky;
+   top:0;
+   z-index:2;
+ }
+ .attendance-history-loading,
+ .attendance-history-empty{
+   margin:0;
+   padding:22px 8px;
+ }
+ .attendance-modal-footer{
+   flex:0 0 auto;
+   padding:9px 12px 12px;
+   background:#fff;
+   border-top:1px solid #e4e8ec;
+ }
+}
+
 </style>
 </head>
 
@@ -217,16 +355,61 @@ button:disabled{
         🔴 LOGOUT
     </button>
 
+    <button
+        id="viewAttendanceButton"
+        class="attendance-history-btn"
+        type="button"
+    >
+        📅 VIEW YOUR ATTENDANCE
+    </button>
+
     <div id="attendanceMessage" class="message"></div>
 
     <div class="small">
         Your attendance is recorded automatically.
+        <br>Logged out by mistake? Login again with your Employee Code.
     </div>
 
 </div>
 
+<!-- ATTENDANCE HISTORY MODAL -->
+<div class="attendance-history-modal-overlay" id="attendanceHistoryModal">
+  <div class="attendance-history-modal">
+    <div class="attendance-modal-titlebar">
+      <div>
+        <div class="attendance-modal-title">📅 Your Attendance</div>
+        <div class="attendance-modal-subtitle" id="attendanceHistoryEmployee"></div>
+      </div>
+      <button type="button" class="attendance-close" onclick="closeAttendanceHistory()">×</button>
+    </div>
+    <div class="attendance-modal-content">
+      <div class="attendance-month-field">
+        <label for="attendanceHistoryMonth">Attendance Month</label>
+        <select id="attendanceHistoryMonth" onchange="loadAttendanceHistory()"></select>
+      </div>
+      <div class="attendance-summary">
+        <div class="summary-box"><small>Present Days</small><strong id="historyPresentDays">0</strong></div>
+        <div class="summary-box"><small>Completed Hours</small><strong id="historyCompletedHours">0h 00m</strong></div>
+        <div class="summary-box"><small>Marked Days</small><strong id="historyRecordCount">0</strong></div>
+      </div>
+      <div class="attendance-detail-header">
+        <h3 id="detailHeading">Daily Attendance</h3>
+        <span>Day-wise record</span>
+      </div>
+      <div id="attendanceHistoryLoading" class="attendance-history-loading">Loading attendance...</div>
+      <div id="attendanceHistoryEmpty" class="attendance-history-empty hidden"></div>
+      <div id="attendanceHistoryTableWrap" class="attendance-table-scroll hidden">
+        <table class="attendance-history-table">
+          <thead><tr><th>Date</th><th>Day</th><th>Status</th><th>Login</th><th>Logout</th><th>Hours</th></tr></thead>
+          <tbody id="attendanceHistoryBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="attendance-modal-footer">
+      <button type="button" class="secondary" onclick="closeAttendanceHistory()">Close</button>
+    </div>
+  </div>
 </div>
-
 
 <script>
 
@@ -308,6 +491,18 @@ async function supabaseRequest(
 /* ==========================================
    TODAY'S DATE
    ========================================== */
+
+function escapeHTML(value){
+    return String(value ?? "").replace(/[&<>"']/g,function(char){
+        return {
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#39;"
+        }[char];
+    });
+}
 
 function getToday() {
 
@@ -657,48 +852,40 @@ async function createLoginAttendance() {
    UPDATE EXISTING RECORD WITH LOGIN
    ========================================== */
 
-async function updateExistingLogin() {
+async function updateExistingLogin(existingAttendance) {
 
-    const loginTime =
-        getCurrentTime();
+    /*
+     * Re-login rule:
+     * - If today's record is already open, resume it.
+     * - If today's record was logged out by mistake, reopen the SAME row.
+     * - Never create a second attendance row for the same employee/date.
+     */
+    const loginTime = getCurrentTime();
 
+    const result = await supabaseRequest(
+        "/rest/v1/attendance?id=eq." +
+        encodeURIComponent(existingAttendance.id),
+        {
+            method:"PATCH",
+            body:JSON.stringify({
+                in_time:loginTime,
+                out_time:null,
+                hours_completed:0,
+                attendance_status:"Present",
+                updated_at:new Date().toISOString()
+            })
+        }
+    );
 
-    const result =
-        await supabaseRequest(
-            "/rest/v1/attendance?id=eq." +
-            encodeURIComponent(
-                todayAttendance.id
-            ),
-            {
-                method: "PATCH",
+    todayAttendance = {
+        ...existingAttendance,
+        in_time:loginTime,
+        out_time:null,
+        hours_completed:0,
+        attendance_status:"Present"
+    };
 
-                body:
-                    JSON.stringify({
-
-                        in_time:
-                            loginTime,
-
-                        attendance_status:
-                            "Present"
-
-                    })
-            }
-        );
-
-
-    if (
-        !result ||
-        result.length === 0
-    ) {
-
-        throw new Error(
-            "Unable to save login time."
-        );
-    }
-
-
-    todayAttendance =
-        result[0];
+    return result;
 }
 
 
@@ -936,11 +1123,11 @@ function updateAttendanceScreen() {
 
 
     /*
-    Logged in but not logged out
+    Logged in but not logged out:
+    show the hours completed so far and keep updating it live.
     */
 
-    hours.textContent =
-        "In Progress";
+    updateLiveHours();
 
     setLogoutButton(
         false,
@@ -949,171 +1136,428 @@ function updateAttendanceScreen() {
 }
 
 
+
+/* ==========================================
+   LIVE HOURS + ATTENDANCE HISTORY
+   ========================================== */
+
+let attendanceHistoryRows = [];
+
+function getMonthValue(dateValue){
+    const d = dateValue ? new Date(dateValue + "T00:00:00") : new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+}
+
+function formatDateDisplay(dateValue){
+    if(!dateValue)return "--";
+    const parts = String(dateValue).split("-");
+    if(parts.length !== 3)return dateValue;
+    return parts[2] + "-" + parts[1] + "-" + parts[0];
+}
+
+function getDayName(dateValue){
+    if(!dateValue)return "--";
+    return new Date(dateValue + "T00:00:00").toLocaleDateString("en-IN",{weekday:"short"});
+}
+
+function getAttendanceDate(row){
+    return row.attendance_date || row.date || "";
+}
+
+function getAttendanceStatus(row){
+    return String(row.attendance_status || row.status || "").trim();
+}
+
+function getAttendanceHours(row){
+    const stored = Number(row.hours_completed);
+    if(Number.isFinite(stored) && stored > 0)return stored;
+
+    const total = Number(row.total_hours);
+    if(Number.isFinite(total) && total > 0)return total;
+
+    if(row.in_time && row.out_time){
+        return calculateHours(row.in_time,row.out_time);
+    }
+
+    if(row.in_time && !row.out_time){
+        return calculateHours(row.in_time,getCurrentTime());
+    }
+
+    return 0;
+}
+
+function updateLiveHours(){
+    if(!todayAttendance || !todayAttendance.in_time)return;
+
+    if(todayAttendance.out_time){
+        document.getElementById("hoursCompleted").textContent =
+            formatHours(getAttendanceHours(todayAttendance));
+        return;
+    }
+
+    const liveHours = calculateHours(todayAttendance.in_time,getCurrentTime());
+    document.getElementById("hoursCompleted").textContent =
+        formatHours(liveHours);
+}
+
+async function loadAttendanceHistory(){
+    if(!currentEmployee)return;
+
+    const month = document.getElementById("attendanceHistoryMonth").value;
+    if(!month)return;
+
+    const loading = document.getElementById("attendanceHistoryLoading");
+    const empty = document.getElementById("attendanceHistoryEmpty");
+    const wrap = document.getElementById("attendanceHistoryTableWrap");
+    const body = document.getElementById("attendanceHistoryBody");
+
+    loading.classList.remove("hidden");
+    empty.classList.add("hidden");
+    wrap.classList.add("hidden");
+    body.innerHTML = "";
+
+    const [year, monthNumber] = month.split("-").map(Number);
+    const lastDay = new Date(year,monthNumber,0).getDate();
+    const startDate = month + "-01";
+    const endDate = month + "-" + String(lastDay).padStart(2,"0");
+
+    try{
+        let rows;
+
+        try{
+            rows = await supabaseRequest(
+                "/rest/v1/attendance" +
+                "?employee_id=eq." + encodeURIComponent(currentEmployee.id) +
+                "&attendance_date=gte." + encodeURIComponent(startDate) +
+                "&attendance_date=lte." + encodeURIComponent(endDate) +
+                "&is_deleted=eq.false" +
+                "&select=*" +
+                "&order=attendance_date.asc,id.asc"
+            );
+        }catch(firstError){
+            /* Fallback for installations without is_deleted filtering. */
+            rows = await supabaseRequest(
+                "/rest/v1/attendance" +
+                "?employee_id=eq." + encodeURIComponent(currentEmployee.id) +
+                "&attendance_date=gte." + encodeURIComponent(startDate) +
+                "&attendance_date=lte." + encodeURIComponent(endDate) +
+                "&select=*" +
+                "&order=attendance_date.asc,id.asc"
+            );
+        }
+
+        attendanceHistoryRows = Array.isArray(rows) ? rows : [];
+
+        /* Keep only one record per calendar date. */
+        const byDate = new Map();
+        for(const row of attendanceHistoryRows){
+            const date = getAttendanceDate(row);
+            if(!date)continue;
+
+            if(!byDate.has(date)){
+                byDate.set(date,row);
+            }else{
+                const oldHours = getAttendanceHours(byDate.get(date));
+                const newHours = getAttendanceHours(row);
+                if(newHours > oldHours || getAttendanceStatus(row)){
+                    byDate.set(date,row);
+                }
+            }
+        }
+
+        const uniqueRows = [...byDate.values()];
+
+        const presentRows = uniqueRows.filter(row => {
+            const status = getAttendanceStatus(row).toLowerCase();
+            return status === "present" || !!row.in_time;
+        });
+
+        const leaveRows = uniqueRows.filter(row =>
+            getAttendanceStatus(row).toLowerCase() === "leave"
+        );
+
+        const totalHours = presentRows.reduce(
+            (sum,row) => sum + getAttendanceHours(row), 0
+        );
+
+        document.getElementById("historyPresentDays").textContent =
+            presentRows.length;
+        document.getElementById("historyCompletedHours").textContent =
+            formatHours(totalHours);
+        document.getElementById("historyRecordCount").textContent =
+            uniqueRows.length;
+
+        loading.classList.add("hidden");
+
+        /*
+         * Detailed day-wise view:
+         * show EVERY date from the 1st through the last day of the selected
+         * month. If there is no record, explicitly show "Not Marked".
+         */
+        let html = "";
+
+        for(let day=1; day<=lastDay; day++){
+            const date = month + "-" + String(day).padStart(2,"0");
+            const row = byDate.get(date);
+
+            if(!row){
+                html +=
+                    "<tr>" +
+                    "<td>" + escapeHTML(formatDateDisplay(date)) + "</td>" +
+                    "<td>" + escapeHTML(getDayName(date)) + "</td>" +
+                    "<td class=\"notmarked\">Not Marked</td>" +
+                    "<td>—</td>" +
+                    "<td>—</td>" +
+                    "<td>—</td>" +
+                    "</tr>";
+                continue;
+            }
+
+            const status = getAttendanceStatus(row) || "Present";
+            const lower = status.toLowerCase();
+
+            let statusClass = "present";
+            if(lower === "leave")statusClass = "leave";
+            else if(
+                lower === "weekly off" ||
+                lower === "week off" ||
+                lower === "holiday"
+            )statusClass = "off";
+            else if(lower !== "present")statusClass = "notmarked";
+
+            const rawHours =
+                row.hours_completed != null
+                    ? row.hours_completed
+                    : row.total_hours;
+
+            html +=
+                "<tr>" +
+                "<td>" + escapeHTML(formatDateDisplay(date)) + "</td>" +
+                "<td>" + escapeHTML(getDayName(date)) + "</td>" +
+                "<td class=\"" + statusClass + "\">" +
+                    escapeHTML(status) +
+                "</td>" +
+                "<td>" + escapeHTML(formatTime(row.in_time)) + "</td>" +
+                "<td>" + escapeHTML(formatTime(row.out_time)) + "</td>" +
+                "<td>" +
+                    (rawHours != null
+                        ? escapeHTML(formatHours(rawHours))
+                        : "—") +
+                "</td>" +
+                "</tr>";
+        }
+
+        body.innerHTML = html;
+        wrap.classList.remove("hidden");
+
+        if(!uniqueRows.length){
+            empty.textContent =
+                "No attendance has been marked for this month. " +
+                "All dates are shown above as Not Marked.";
+            empty.classList.remove("hidden");
+        }
+    }catch(error){
+        loading.classList.add("hidden");
+        wrap.classList.add("hidden");
+        empty.textContent =
+            "Unable to load attendance: " + error.message;
+        empty.classList.remove("hidden");
+    }
+}
+
+async function openAttendanceHistory(){
+    if(!currentEmployee)return;
+
+    document.getElementById("attendanceHistoryEmployee").textContent =
+        currentEmployee.employee_name +
+        (currentEmployee.employee_code ? " (" + currentEmployee.employee_code + ")" : "");
+
+    const select = document.getElementById("attendanceHistoryMonth");
+    select.innerHTML = "";
+
+    try{
+        /*
+         * Load all attendance records for this employee so the employee can
+         * select any month for which attendance exists.
+         */
+        let rows;
+        try{
+            rows = await supabaseRequest(
+                "/rest/v1/attendance" +
+                "?employee_id=eq." + encodeURIComponent(currentEmployee.id) +
+                "&select=attendance_date" +
+                "&order=attendance_date.desc"
+            );
+        }catch(firstError){
+            rows = await supabaseRequest(
+                "/rest/v1/attendance" +
+                "?employee_id=eq." + encodeURIComponent(currentEmployee.id) +
+                "&is_deleted=eq.false" +
+                "&select=date" +
+                "&order=date.desc"
+            );
+        }
+
+        const months = [];
+        (Array.isArray(rows) ? rows : []).forEach(row => {
+            const date = getAttendanceDate(row);
+            if(date){
+                const month = getMonthValue(date);
+                if(!months.includes(month))months.push(month);
+            }
+        });
+
+        const currentMonth = getMonthValue(getToday());
+        if(!months.includes(currentMonth))months.unshift(currentMonth);
+
+        months.sort((a,b) => b.localeCompare(a));
+
+        months.forEach(month => {
+            const option = document.createElement("option");
+            option.value = month;
+            const [y,m] = month.split("-").map(Number);
+            option.textContent = new Date(y,m-1,1).toLocaleDateString(
+                "en-IN",{month:"long",year:"numeric"}
+            );
+            select.appendChild(option);
+        });
+
+        select.value = months[0] || currentMonth;
+
+        document.getElementById("attendanceHistoryModal").classList.add("show");
+        await loadAttendanceHistory();
+    }catch(error){
+        document.getElementById("attendanceHistoryModal").classList.add("show");
+        document.getElementById("attendanceHistoryLoading").classList.add("hidden");
+        document.getElementById("attendanceHistoryEmpty").textContent =
+            "Unable to load attendance months: " + error.message;
+        document.getElementById("attendanceHistoryEmpty").classList.remove("hidden");
+    }
+}
+
+function closeAttendanceHistory(){
+    document.getElementById("attendanceHistoryModal").classList.remove("show");
+}
+
 /* ==========================================
    EMPLOYEE LOGOUT
    ========================================== */
 
-async function employeeLogout() {
+async async function employeeLogout() {
 
-    clearMessage(
-        "attendanceMessage"
-    );
-
+    clearMessage("attendanceMessage");
 
     if (!todayAttendance) {
-
-        showMessage(
-            "attendanceMessage",
-            "No login record found.",
-            "error"
-        );
-
+        showMessage("attendanceMessage","No login record found.","error");
         return;
     }
 
-
-    if (
-        todayAttendance.out_time
-    ) {
-
+    if (todayAttendance.out_time) {
         showMessage(
             "attendanceMessage",
-            "You have already logged out.",
+            "You have already logged out. You can login again if needed.",
             "info"
         );
-
         updateAttendanceScreen();
-
         return;
     }
 
-
-    if (
-        !todayAttendance.in_time
-    ) {
-
+    if (!todayAttendance.in_time) {
         showMessage(
             "attendanceMessage",
             "Login time is missing. Please contact the administrator.",
             "error"
         );
-
         return;
     }
 
-
-    const confirmed =
-        window.confirm(
-            "Are you sure you want to logout?"
-        );
-
-
-    if (!confirmed) {
-        return;
-    }
-
-
-    setLogoutButton(
-        true,
-        "Saving..."
+    const confirmed = window.confirm(
+        "Are you sure you want to logout?\n\n" +
+        "You can login again later using the same Employee Code."
     );
 
+    if (!confirmed) return;
+
+    setLogoutButton(true,"Saving...");
 
     try {
+        const logoutTime = getCurrentTime();
+        const completedHours = calculateHours(
+            todayAttendance.in_time,
+            logoutTime
+        );
 
-        const logoutTime =
-            getCurrentTime();
+        await supabaseRequest(
+            "/rest/v1/attendance?id=eq." +
+            encodeURIComponent(todayAttendance.id),
+            {
+                method:"PATCH",
+                body:JSON.stringify({
+                    out_time:logoutTime,
+                    hours_completed:Number(completedHours.toFixed(2)),
+                    attendance_status:"Present",
+                    updated_at:new Date().toISOString()
+                })
+            }
+        );
 
-
-        const completedHours =
-            calculateHours(
-                todayAttendance.in_time,
-                logoutTime
-            );
-
-
-        const result =
-            await supabaseRequest(
-                "/rest/v1/attendance?id=eq." +
-                encodeURIComponent(
-                    todayAttendance.id
-                ),
-                {
-                    method: "PATCH",
-
-                    body:
-                        JSON.stringify({
-
-                            out_time:
-                                logoutTime,
-
-                            hours_completed:
-                                Number(
-                                    completedHours.toFixed(2)
-                                ),
-
-                            attendance_status:
-                                "Present"
-
-                        })
-                }
-            );
-
-
-        if (
-            !result ||
-            result.length === 0
-        ) {
-
-            throw new Error(
-                "Logout was not saved."
-            );
-        }
-
-
-        todayAttendance =
-            result[0];
-
+        /*
+         * Keep the employee record available for re-login.
+         * We only end the current attendance session.
+         */
+        todayAttendance = {
+            ...todayAttendance,
+            out_time:logoutTime,
+            hours_completed:Number(completedHours.toFixed(2)),
+            attendance_status:"Present"
+        };
 
         updateAttendanceScreen();
 
-
         showMessage(
             "attendanceMessage",
-            "Logout recorded successfully. Hours completed: " +
-            formatHours(
-                completedHours
-            ),
+            "Attendance logged out successfully. You can login again with the same Employee Code.",
             "success"
         );
 
+        setLogoutButton(false,"🔴 LOGOUT");
 
-    }
-    catch (error) {
-
-        console.error(
-            "Employee logout error:",
-            error
-        );
-
-        setLogoutButton(
-            false,
-            "🔴 LOGOUT"
-        );
-
+    } catch(error) {
+        setLogoutButton(false,"🔴 LOGOUT");
         showMessage(
             "attendanceMessage",
-            "Unable to record logout: " +
-            error.message,
+            "Unable to logout: " + error.message,
             "error"
         );
     }
 }
 
 
+setInterval(function(){
+    if(currentEmployee && todayAttendance && !todayAttendance.out_time){
+        updateLiveHours();
+    }
+}, 30000);
+
 /* ==========================================
    ENTER KEY
    ========================================== */
+
+document.getElementById("viewAttendanceButton").addEventListener("click", function(){
+    openAttendanceHistory();
+});
+
+document.getElementById("attendanceHistoryModal").addEventListener("click", function(event){
+    if(event.target === this){
+        closeAttendanceHistory();
+    }
+});
+
+document.addEventListener("keydown", function(event){
+    if(event.key === "Escape"){
+        closeAttendanceHistory();
+    }
+});
 
 document
     .getElementById(
