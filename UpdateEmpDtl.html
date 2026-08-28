@@ -201,7 +201,7 @@ th{background:#1f4e78;color:#fff}.status-active{color:#198754;font-weight:bold}.
 <div class="salary-box"><h3>Payment</h3><p style="margin-top:-6px;color:#666">Both daily-basis and hourly-basis salary are calculated till date. Choose the amount to pay from the two calculated values above.</p>
 <div class="modal-grid"><div><label for="paymentAmount">Payment Amount *</label><input id="paymentAmount" type="number" min="0" step="0.01"></div>
 <div><label for="paymentDate">Payment Date</label><input id="paymentDate" type="date"></div></div>
-<div style="margin-top:14px"><label for="paymentRemark">Remark *</label><textarea id="paymentRemark" class="remark" placeholder="Example: August 2026 salary"></textarea></div></div>
+</div>
 <div id="payrollModalMessage" class="modal-message"></div>
 <div class="modal-actions"><button type="button" class="secondary" onclick="closePayroll()">Cancel</button><button type="button" class="primary" onclick="saveSalaryPayment()">Pay Salary</button></div>
 <div class="history"><h3>Payment History</h3><div id="paymentHistoryLoading" class="loading">Loading...</div><div id="paymentHistoryEmpty" class="empty" style="display:none">No salary payments or advances for this month.</div>
@@ -428,7 +428,6 @@ function showSalaryModalMessage(m){const b=document.getElementById("salaryModalM
 
 function currentMonthValue(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function formatHours(v){const n=Math.max(0,Math.round(Number(v||0)*60));return Math.floor(n/60)+"h "+String(n%60).padStart(2,"0")+"m"}
-function workingDaysUntilToday(y,m){const last=new Date(y,m,0).getDate(),d=new Date(),end=(d.getFullYear()===y&&d.getMonth()+1===m)?d.getDate():last;let n=0;for(let i=1;i<=end;i++){const w=new Date(y,m-1,i).getDay();if(w!==0&&w!==6)n++}return n}
 
 
 function closeDetails(){document.getElementById("detailsModal").classList.remove("show")}
@@ -450,14 +449,41 @@ const rows=(payrollPayments||[]).filter(p=>p.payment_type==="salary")
 .map(p=>[p.payment_date||"",p.salary_month||"",p.payment_basis||"",money(p.amount),p.remark||""]);
 showDetails("Previous Salary Payments",["Payment Date","Salary Month","Basis","Amount","Remark"],rows);
 }
-function openAdvanceDetails(){
-const rows=(payrollPayments||[]).filter(p=>p.payment_type==="advance")
-.map(p=>[p.payment_date||"",p.salary_month||"",money(p.amount),p.remark||""]);
-const recoveries=(payrollPayments||[]).filter(p=>p.payment_type==="advance_recovery")
-.map(p=>[p.payment_date||"",p.salary_month||"Recovery",-Number(p.amount||0),p.remark||""]);
-showDetails("Advance Details",["Date","Salary Month","Amount","Remark"],rows.concat(recoveries));
-}
+async function openAdvanceDetails(){
+const e=employees.find(x=>Number(x.id)===Number(payrollEmployeeId));
+if(!e)return;
 
+try{
+const rows=await supabaseRequest(
+"/rest/v1/salary_payments?employee_id=eq."+encodeURIComponent(e.id)+
+"&payment_type=in.(advance,advance_recovery)&select=payment_date,salary_month,payment_type,amount,remark&order=payment_date.desc"
+);
+
+const records=Array.isArray(rows)?rows:[];
+const displayRows=records.map(p=>[
+p.payment_date||"",
+p.salary_month||"",
+String(p.payment_type||"").toLowerCase()==="advance_recovery"
+? -Number(p.amount||0)
+: Number(p.amount||0),
+p.remark||""
+]);
+
+showDetails(
+"Advance Details",
+["Date","Salary Month","Amount","Remark"],
+displayRows
+);
+}catch(error){
+showDetails(
+"Advance Details",
+["Date","Salary Month","Amount","Remark"],
+[]
+);
+const msg=document.getElementById("detailsEmpty");
+if(msg)msg.textContent="Unable to load advance details: "+error.message;
+}
+}
 async function openAdvanceForEmployee(id){
 const e=employees.find(x=>Number(x.id)===Number(id));
 if(!e)return showMessage("Employee not found.","error");
@@ -548,7 +574,6 @@ document.getElementById("payrollEmployee").textContent=e.employee_name+" ("+e.em
 document.getElementById("payrollMonth").value=currentMonthValue();
 document.getElementById("payMethod").value="days";
 document.getElementById("paymentDate").value=new Date().toISOString().slice(0,10);
-document.getElementById("paymentRemark").value="";
 document.getElementById("payrollModalMessage").style.display="none";
 
 /* Open the modal immediately. Attendance/payment loading must not block the button. */
@@ -561,75 +586,121 @@ showPayrollMessage("Unable to calculate salary: "+err.message);
 function openPayroll(){openPayrollForEmployee(editingId||employees[0]?.id)}
 function closePayroll(){document.getElementById("payrollModal").classList.remove("show")}
 async function refreshPayroll(){
-const e=employees.find(x=>Number(x.id)===Number(payrollEmployeeId));if(!e)return;
-const month=document.getElementById("payrollMonth").value;if(!month)return;
+const e=employees.find(x=>Number(x.id)===Number(payrollEmployeeId));
+if(!e)return;
+
+const month=document.getElementById("payrollMonth").value;
+if(!month)return;
 
 const [y,m]=month.split("-").map(Number);
-const nextY=m===12?y+1:y,nextM=m===12?1:m+1;
-const startDate=month+"-01",endDate=nextY+"-"+String(nextM).padStart(2,"0")+"-01";
-
 const now=new Date();
-const todayISO=now.toISOString().slice(0,10);
 const currentMonth=(now.getFullYear()===y && now.getMonth()+1===m);
-const tillDate=currentMonth?todayISO:new Date(Date.UTC(y,m,0)).toISOString().slice(0,10);
+const daysInMonth=new Date(y,m,0).getDate();
+const daysTillDate=currentMonth ? now.getDate() : daysInMonth;
+const startDate=month+"-01";
+const endDate=y+"-"+String(m).padStart(2,"0")+"-"+String(daysTillDate).padStart(2,"0");
 
 try{
 payrollAttendance=await supabaseRequest(
 "/rest/v1/attendance?employee_id=eq."+encodeURIComponent(e.id)+
-"&attendance_date=gte."+startDate+"&attendance_date=lte."+tillDate+
-"&is_deleted=eq.false&select=attendance_date,status,total_hours,in_time,out_time"
+"&attendance_date=gte."+startDate+
+"&attendance_date=lte."+endDate+
+"&is_deleted=eq.false"+
+"&select=employee_id,employee_name,attendance_date,attendance_status,hours_completed,total_hours,in_time,out_time"+
+"&order=attendance_date.asc"
 );
 }catch(err){
-try{
-payrollAttendance=await supabaseRequest(
-"/rest/v1/attendance?employee_id=eq."+encodeURIComponent(e.id)+
-"&date=gte."+startDate+"&date=lte."+tillDate+
-"&is_deleted=eq.false&select=date,status,total_hours,in_time,out_time"
-);
-}catch(err2){payrollAttendance=[]}
+payrollAttendance=[];
 }
+
+/* One attendance record per employee/date. */
+const byDate=new Map();
+for(const record of (Array.isArray(payrollAttendance)?payrollAttendance:[])){
+    const date=String(record.attendance_date||"");
+    if(!date)continue;
+    const existing=byDate.get(date);
+    if(!existing){
+        byDate.set(date,record);
+    }else{
+        const existingHours=Number(existing.total_hours ?? existing.hours_completed ?? 0);
+        const newHours=Number(record.total_hours ?? record.hours_completed ?? 0);
+        const existingStatus=String(existing.attendance_status||"").trim();
+        const newStatus=String(record.attendance_status||"").trim();
+        if((newStatus && !existingStatus) || newHours>existingHours){
+            byDate.set(date,record);
+        }
+    }
+}
+
+const attendance=[...byDate.values()];
+const presentRecords=attendance.filter(a=>
+    String(a.attendance_status||"").trim().toLowerCase()==="present"
+);
+const leaveRecords=attendance.filter(a=>
+    String(a.attendance_status||"").trim().toLowerCase()==="leave"
+);
+
+/*
+Company payroll policy:
+- Salary cycle: 1st through last calendar day of the month.
+- 4 company paid leaves per month.
+- Paid leaves are fully paid and are not deducted from salary.
+- Leaves beyond the 4 paid leaves are unpaid/LOP.
+- Payable days cannot exceed calendar days elapsed in the cycle.
+*/
+const paidLeaveDays=Math.min(leaveRecords.length,4);
+const unpaidLeaveDays=Math.max(0,leaveRecords.length-paidLeaveDays);
+const presentDays=presentRecords.length;
+const payableDays=Math.min(presentDays+paidLeaveDays,daysTillDate);
+
+/*
+For hourly payroll, each paid leave represents the standard paid hours
+for that day. Actual present hours are taken from attendance.
+*/
+const standardHoursPerDay=8;
+const actualPresentHours=presentRecords.reduce(
+    (sum,a)=>sum+Math.max(0,Number(a.total_hours ?? a.hours_completed ?? 0)),0
+);
+const paidLeaveHours=paidLeaveDays*standardHoursPerDay;
+const payableHours=actualPresentHours+paidLeaveHours;
+
+const monthly=Number(e.monthly_salary||0);
+const dailyRate=daysInMonth>0 ? monthly/daysInMonth : 0;
+const hourlyRate=(daysInMonth*standardHoursPerDay)>0
+    ? monthly/(daysInMonth*standardHoursPerDay)
+    : 0;
+
+const dailyEarnedSalary=dailyRate*payableDays;
+const hourlyEarnedSalary=hourlyRate*payableHours;
+
+const basis=document.getElementById("payMethod").value;
+const selectedSalary=
+    basis==="hours" ? hourlyEarnedSalary :
+    basis==="days" ? dailyEarnedSalary :
+    monthly;
 
 try{
 payrollPayments=await supabaseRequest(
 "/rest/v1/salary_payments?employee_id=eq."+encodeURIComponent(e.id)+
-"&salary_month=eq."+month+"&select=*&order=payment_date.desc"
+"&salary_month=eq."+encodeURIComponent(month)+
+"&select=*&order=payment_date.desc"
 );
-}catch(err){payrollPayments=[]}
-
-const present=payrollAttendance.filter(a=>String(a.attendance_status||a.status||"").toLowerCase()==="present");
-const completedDays=present.length;
-const completedHours=present.reduce((s,a)=>s+Number(a.total_hours||0),0);
-
-/* Working days and hours available only through the selected till-date. */
-const lastDay=new Date(y,m,0).getDate();
-const endDay=currentMonth?new Date().getDate():lastDay;
-let workingDays=0;
-for(let d=1;d<=endDay;d++){
-const dow=new Date(y,m-1,d).getDay();
-if(dow!==0&&dow!==6)workingDays++;
+}catch(err){
+payrollPayments=[];
 }
-const workingHours=workingDays*8;
 
-const monthly=Number(e.monthly_salary||0);
-const dailyRate=workingDays>0?monthly/workingDays:0;
-const hourlyRate=workingHours>0?monthly/workingHours:0;
+const paid=payrollPayments
+    .filter(p=>String(p.payment_type||"").toLowerCase()==="salary")
+    .reduce((s,p)=>s+Number(p.amount||0),0);
 
-/* Three simple payment methods:
-   Hours: monthly salary ÷ eligible monthly hours × actual completed hours.
-   Days: monthly salary ÷ eligible monthly working days × completed days.
-   Monthly: fixed monthly salary, with no attendance proration. */
-const salaryHours=hourlyRate*completedHours;
-const salaryDays=dailyRate*completedDays;
-const salaryMonthly=monthly;
-const basis=document.getElementById("payMethod").value;
-const selectedSalary=basis==="hours"?salaryHours:basis==="days"?salaryDays:salaryMonthly;
+const advances=payrollPayments
+    .filter(p=>String(p.payment_type||"").toLowerCase()==="advance")
+    .reduce((s,p)=>s+Number(p.amount||0),0);
 
-const paid=payrollPayments.filter(p=>p.payment_type==="salary")
-.reduce((s,p)=>s+Number(p.amount||0),0);
-const advances=payrollPayments.filter(p=>p.payment_type==="advance")
-.reduce((s,p)=>s+Number(p.amount||0),0);
-const recovered=payrollPayments.filter(p=>p.payment_type==="advance_recovery")
-.reduce((s,p)=>s+Number(p.amount||0),0);
+const recovered=payrollPayments
+    .filter(p=>String(p.payment_type||"").toLowerCase()==="advance_recovery")
+    .reduce((s,p)=>s+Number(p.amount||0),0);
+
 const outstanding=Math.max(0,advances-recovered);
 const netPayable=Math.max(0,selectedSalary-paid-outstanding);
 
@@ -647,35 +718,42 @@ const rateLabel=document.getElementById("rateLabel");
 const rateValue=document.getElementById("rateValue");
 
 if(basis==="hours"){
-title.textContent="Pay by Hours";
-completedLabel.textContent="Completed Hours";
-completedValue.textContent=formatHours(completedHours)+" / "+formatHours(workingHours);
-rateLabel.textContent="Hourly Rate";
-rateValue.textContent=money(hourlyRate);
-document.getElementById("attendanceStatus").textContent=
-"Salary = hourly rate × employee's completed hours till date.";
+    title.textContent="Pay by Hours";
+    completedLabel.textContent="Payable Hours";
+    completedValue.textContent=
+        formatHours(payableHours)+" / "+formatHours(daysTillDate*standardHoursPerDay);
+    rateLabel.textContent="Hourly Rate";
+    rateValue.textContent=money(hourlyRate);
+    document.getElementById("attendanceStatus").textContent=
+        "Actual hours + paid-leave hours (maximum 4 paid leaves × 8 hours). "+
+        unpaidLeaveDays+" unpaid leave(s) excluded.";
 }else if(basis==="days"){
-title.textContent="Pay by Days";
-completedLabel.textContent="Completed Days";
-completedValue.textContent=completedDays+" / "+workingDays;
-rateLabel.textContent="Daily Rate";
-rateValue.textContent=money(dailyRate);
-document.getElementById("attendanceStatus").textContent=
-"Salary = daily rate × employee's completed working days till date.";
+    title.textContent="Pay by Days";
+    completedLabel.textContent="Payable Days";
+    completedValue.textContent=
+        payableDays+" / "+daysTillDate+
+        " (Present "+presentDays+" + Paid Leave "+paidLeaveDays+")";
+    rateLabel.textContent="Daily Rate";
+    rateValue.textContent=money(dailyRate);
+    document.getElementById("attendanceStatus").textContent=
+        "Monthly salary ÷ full calendar days in the month × payable days. "+
+        "Up to 4 company paid leaves are paid; "+unpaidLeaveDays+" additional leave(s) are unpaid.";
 }else{
-title.textContent="Fixed Monthly Salary";
-completedLabel.textContent="Attendance Till Date";
-completedValue.textContent=completedDays+" days / "+formatHours(completedHours);
-rateLabel.textContent="Fixed Monthly Amount";
-rateValue.textContent=money(monthly);
-document.getElementById("attendanceStatus").textContent=
-"Fixed monthly salary selected. Attendance is shown for reference and is not used to reduce the monthly salary.";
+    title.textContent="Fixed Monthly Salary";
+    completedLabel.textContent="Attendance Till Date";
+    completedValue.textContent=
+        presentDays+" present / "+paidLeaveDays+" paid leave / "+formatHours(actualPresentHours);
+    rateLabel.textContent="Fixed Monthly Amount";
+    rateValue.textContent=money(monthly);
+    document.getElementById("attendanceStatus").textContent=
+        "Fixed monthly salary selected. Attendance is reference only; approved paid leave does not reduce the fixed monthly salary.";
 }
 
 document.getElementById("salaryCalculatedTill").textContent=
-"Salary calculated till: "+tillDate.split("-").reverse().join("-");
+    "Salary calculated till: "+endDate.split("-").reverse().join("-")+
+    " | Paid leave balance used: "+paidLeaveDays+"/4";
 
-renderPaymentHistory()
+renderPaymentHistory();
 }
 function renderPaymentHistory(){const body=document.getElementById("paymentHistoryBody"),empty=document.getElementById("paymentHistoryEmpty"),table=document.getElementById("paymentHistoryTable");document.getElementById("paymentHistoryLoading").style.display="none";if(!payrollPayments.length){table.style.display="none";empty.style.display="block";return}empty.style.display="none";table.style.display="block";body.innerHTML=payrollPayments.map(p=>"<tr><td>"+escapeHTML(p.payment_date||"")+"</td><td>"+escapeHTML(p.payment_type||"")+"</td><td>"+escapeHTML(p.payment_basis||"")+"</td><td>"+money(p.amount)+"</td><td>"+escapeHTML(p.remark||"")+"</td></tr>").join("")}
 async function saveSalaryPayment(){
