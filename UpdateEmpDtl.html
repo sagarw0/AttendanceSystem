@@ -242,14 +242,22 @@ th{background:#1f4e78;color:#fff}.status-active{color:#198754;font-weight:bold}.
 <!-- Salary Review -->
 <div class="modal" id="salaryModal">
 <div class="modal-card">
-<h2>💰 Review Salary</h2>
+<h2>💰 Change Salary</h2>
 <p id="salaryEmployee"></p>
 <div class="modal-grid">
 <div class="preview"><span>Current Monthly Salary</span><strong id="currentMonthly">₹0.00</strong></div>
 <div class="preview"><span>Current Yearly Salary</span><strong id="currentYearly">₹0.00</strong></div>
 </div>
 <div><label for="newMonthlySalary">New Monthly Salary</label><input id="newMonthlySalary" type="number" min="0" step="0.01" oninput="salaryFromMonthly()"></div>
-<div style="margin-top:14px"><label for="newYearlySalary">New Yearly Salary</label><input id="newYearlySalary" type="number" min="0" step="0.01" oninput="salaryFromYearly()"></div>
+<div style="margin-top:14px">
+<label for="newYearlySalary">New Yearly Salary</label>
+<input id="newYearlySalary" type="number" min="0" step="0.01" oninput="salaryFromYearly()">
+</div>
+<div style="margin-top:14px">
+<label for="salaryEffectiveDate">Effective Salary Date *</label>
+<input id="salaryEffectiveDate" type="date">
+<small style="display:block;color:#666;margin-top:5px">The new salary applies from this date.</small>
+</div>
 <div style="margin-top:14px"><label for="salaryRemark">Remark *</label><textarea id="salaryRemark" class="remark" placeholder="Example: Promotion to Senior Executive with salary revision"></textarea></div>
 <div id="salaryModalMessage" class="modal-message"></div>
 <div class="modal-actions"><button type="button" class="secondary" onclick="closeSalaryReview()">Cancel</button><button type="button" class="primary" onclick="confirmSalaryChange()">Save Salary</button></div>
@@ -304,8 +312,28 @@ function fromYearly(){const y=Number(document.getElementById("yearlySalary").val
 function updateSalaryPreview(){const m=Number(document.getElementById("monthlySalary").value||0);document.getElementById("monthlyPreview").textContent=money(m);document.getElementById("yearlyPreview").textContent=money(m*12)}
 
 async function loadEmployees(){
-const data=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active,monthly_salary,salary_remark,salary_updated_at&order=employee_name");
-employees=Array.isArray(data)?data:[];renderEmployees();
+try{
+let data;
+try{
+/* Preferred query: includes salary history metadata when those columns exist. */
+data=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active,monthly_salary,salary_remark,salary_updated_at&order=employee_name");
+}catch(firstError){
+try{
+/* Compatibility query: works when salary_remark/salary_updated_at are not present. */
+data=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active,monthly_salary&order=employee_name");
+}catch(secondError){
+/* Final fallback for older employee tables without salary columns. */
+data=await supabaseRequest("/rest/v1/employees?select=id,employee_code,employee_name,mobile,department,designation,branch,active&order=employee_name");
+}
+}
+employees=Array.isArray(data)?data:[];
+renderEmployees();
+}catch(error){
+employees=[];
+renderEmployees();
+document.getElementById("loadingMessage").style.display="none";
+showMessage("Unable to load employees: "+error.message,"error");
+}
 }
 
 function updateSalaryTotals(){
@@ -375,7 +403,7 @@ document.getElementById("currentMonthly").textContent=m>0?money(m):"Not Assigned
 document.getElementById("currentYearly").textContent=m>0?money(m*12):"Not Assigned";
 document.getElementById("newMonthlySalary").value=m>0?m:"";
 document.getElementById("newYearlySalary").value=m>0?m*12:"";
-document.getElementById("salaryRemark").value="";
+document.getElementById("salaryRemark").value="";document.getElementById("salaryEffectiveDate").value=new Date().toISOString().slice(0,10);
 document.getElementById("salaryModalMessage").style.display="none";
 document.getElementById("salaryModalMessage").style.display="none";document.getElementById("salaryModal").classList.add("show");
 await loadSalaryHistory(e.id);
@@ -393,32 +421,67 @@ loading.style.display="none";
 if(!Array.isArray(rows)||!rows.length){empty.style.display="block";return}
 table.style.display="block";
 body.innerHTML=rows.map(r=>`<tr><td>${escapeHTML(r.effective_from||"")}</td><td>${money(r.old_salary)}</td><td>${money(r.new_salary)}</td><td>${escapeHTML(r.old_designation||"")}</td><td>${escapeHTML(r.new_designation||"")}</td><td>${escapeHTML(r.remark||"")}</td><td>${escapeHTML(r.changed_at||"")}</td></tr>`).join("");
-}catch(error){loading.style.display="none";empty.textContent="Unable to load salary history: "+error.message;empty.style.display="block"}
+}catch(error){loading.style.display="none";empty.textContent="Unable to load salary history. Check the salary_history RLS SELECT policy.";empty.style.display="block"}
 }
 
 async function confirmSalaryChange(){
 const e=employees.find(x=>Number(x.id)===Number(editingId));if(!e)return;
-const oldMonthly=Number(e.monthly_salary||0),newMonthly=Number(document.getElementById("newMonthlySalary").value||0),remark=document.getElementById("salaryRemark").value.trim();
+const oldMonthly=Number(e.monthly_salary||0);
+const newMonthly=Number(document.getElementById("newMonthlySalary").value||0);
+const remark=document.getElementById("salaryRemark").value.trim();
+const effectiveDate=document.getElementById("salaryEffectiveDate").value;
+
 if(newMonthly<=0)return showSalaryModalMessage("Please enter a valid salary.");
 if(newMonthly===oldMonthly){closeSalaryReview();return}
+if(!effectiveDate)return showSalaryModalMessage("Effective Salary Date is mandatory.");
 if(!remark)return showSalaryModalMessage("Remark is mandatory when changing salary.");
 
-const confirmed=window.confirm("Are you sure you want to change the salary?\\n\\nEmployee: "+e.employee_name+"\\nOld Monthly Salary: "+money(oldMonthly)+"\\nNew Monthly Salary: "+money(newMonthly)+"\\nNew Yearly Salary: "+money(newMonthly*12)+"\\nRemark: "+remark);
+const confirmed=window.confirm(
+"Are you sure you want to change the salary?\\n\\n"+
+"Employee: "+e.employee_name+"\\n"+
+"Old Monthly Salary: "+money(oldMonthly)+"\\n"+
+"New Monthly Salary: "+money(newMonthly)+"\\n"+
+"Effective From: "+effectiveDate+"\\n"+
+"New Yearly Salary: "+money(newMonthly*12)+"\\n"+
+"Remark: "+remark
+);
 if(!confirmed)return;
 
 try{
-const effective=new Date().toISOString().slice(0,10);
-await supabaseRequest("/rest/v1/salary_history",{method:"POST",body:JSON.stringify({
-employee_id:Number(e.id),old_salary:oldMonthly,new_salary:newMonthly,
-old_designation:e.designation||"",new_designation:e.designation||"",
-effective_from:effective,remark:remark,changed_at:new Date().toISOString()
-})});
-await supabaseRequest("/rest/v1/employees?id=eq."+encodeURIComponent(e.id),{method:"PATCH",body:JSON.stringify({
-monthly_salary:newMonthly,salary_remark:remark,salary_updated_at:new Date().toISOString()
-})});
-closeSalaryReview();showMessage((oldMonthly>0?"Salary changed":"Salary assigned")+" successfully and history saved.","success");await loadEmployees();
-}catch(error){showSalaryModalMessage("Unable to change salary: "+error.message)}
+await supabaseRequest("/rest/v1/salary_history",{
+method:"POST",
+body:JSON.stringify({
+employee_id:Number(e.id),
+old_salary:oldMonthly,
+new_salary:newMonthly,
+old_designation:e.designation||"",
+new_designation:e.designation||"",
+effective_from:effectiveDate,
+remark:remark,
+changed_at:new Date().toISOString()
+})
+});
+
+await supabaseRequest(
+"/rest/v1/employees?id=eq."+encodeURIComponent(e.id),
+{
+method:"PATCH",
+body:JSON.stringify({
+monthly_salary:newMonthly,
+salary_remark:remark,
+salary_updated_at:new Date().toISOString()
+})
 }
+);
+
+closeSalaryReview();
+showMessage("Salary changed successfully and history saved.","success");
+await loadEmployees();
+}catch(error){
+showSalaryModalMessage("Unable to change salary: "+error.message)
+}
+}
+
 function showSalaryModalMessage(m){const b=document.getElementById("salaryModalMessage");b.textContent=m;b.style.display="block"}
 
 
@@ -548,14 +611,18 @@ const e=employees.find(x=>Number(x.id)===Number(payrollEmployeeId));if(!e)return
 const month=document.getElementById("payrollMonth").value;if(!month)return;
 
 const [y,m]=month.split("-").map(Number);
+const lastDay=new Date(y,m,0).getDate();
 const nextY=m===12?y+1:y,nextM=m===12?1:m+1;
 const startDate=month+"-01",endDate=nextY+"-"+String(nextM).padStart(2,"0")+"-01";
 
 const now=new Date();
 const todayISO=now.toISOString().slice(0,10);
 const currentMonth=(now.getFullYear()===y && now.getMonth()+1===m);
+const tillDay=currentMonth?now.getDate():lastDay;
 const tillDate=currentMonth?todayISO:new Date(Date.UTC(y,m,0)).toISOString().slice(0,10);
 
+/* Salary cycle is always the complete calendar month: 1st through last day.
+   For the current month, only attendance through today is considered accrued. */
 try{
 payrollAttendance=await supabaseRequest(
 "/rest/v1/attendance?employee_id=eq."+encodeURIComponent(e.id)+
@@ -579,31 +646,38 @@ payrollPayments=await supabaseRequest(
 );
 }catch(err){payrollPayments=[]}
 
-const present=payrollAttendance.filter(a=>String(a.status||"").toLowerCase()==="present");
-const completedDays=present.length;
-const completedHours=present.reduce((s,a)=>s+Number(a.total_hours||0),0);
+const normalizedStatus=a=>String(a.status||"").trim().toLowerCase();
+const present=payrollAttendance.filter(a=>normalizedStatus(a)==="present");
+const paidLeave=payrollAttendance.filter(a=>{
+const s=normalizedStatus(a);
+return s==="leave"||s==="paid leave"||s==="paid_leave";
+});
+const absent=payrollAttendance.filter(a=>normalizedStatus(a)==="absent");
 
-/* Working days and hours available only through the selected till-date. */
-const lastDay=new Date(y,m,0).getDate();
-const endDay=currentMonth?new Date().getDate():lastDay;
-let workingDays=0;
-for(let d=1;d<=endDay;d++){
-const dow=new Date(y,m-1,d).getDay();
-if(dow!==0&&dow!==6)workingDays++;
-}
-const workingHours=workingDays*8;
+const presentDays=present.length;
+const leaveDays=Math.min(paidLeave.length,4);
+const unpaidLeaveDays=Math.max(0,paidLeave.length-4);
+const absentDays=absent.length;
 
+const presentHours=present.reduce((s,a)=>s+Number(a.total_hours||0),0);
+const paidLeaveHours=leaveDays*8;
+const unpaidLeaveHours=unpaidLeaveDays*8;
+
+/* Calendar-day salary: monthly salary is divided by ALL days in the month,
+   including weekends. */
 const monthly=Number(e.monthly_salary||0);
-const dailyRate=workingDays>0?monthly/workingDays:0;
-const hourlyRate=workingHours>0?monthly/workingHours:0;
+const dailyRate=lastDay>0?monthly/lastDay;
+const hourlyRate=(lastDay*8)>0?monthly/(lastDay*8);
 
-/* Three simple payment methods:
-   Hours: monthly salary ÷ eligible monthly hours × actual completed hours.
-   Days: monthly salary ÷ eligible monthly working days × completed days.
-   Monthly: fixed monthly salary, with no attendance proration. */
-const salaryHours=hourlyRate*completedHours;
-const salaryDays=dailyRate*completedDays;
+/* Paid days = Present + up to 4 paid leaves.
+   Paid hours = actual Present hours + 8 hours for each paid leave. */
+const payableDays=Math.min(lastDay,presentDays+leaveDays);
+const payableHours=Math.min(lastDay*8,presentHours+paidLeaveHours);
+
+const salaryDays=dailyRate*payableDays;
+const salaryHours=hourlyRate*payableHours;
 const salaryMonthly=monthly;
+
 const basis=document.getElementById("payMethod").value;
 const selectedSalary=basis==="hours"?salaryHours:basis==="days"?salaryDays:salaryMonthly;
 
@@ -631,32 +705,43 @@ const rateValue=document.getElementById("rateValue");
 
 if(basis==="hours"){
 title.textContent="Pay by Hours";
-completedLabel.textContent="Completed Hours";
-completedValue.textContent=formatHours(completedHours)+" / "+formatHours(workingHours);
+completedLabel.textContent="Payable Hours";
+completedValue.textContent=formatHours(payableHours)+" / "+formatHours(lastDay*8);
 rateLabel.textContent="Hourly Rate";
 rateValue.textContent=money(hourlyRate);
 document.getElementById("attendanceStatus").textContent=
-"Salary = hourly rate × employee's completed hours till date.";
+"Actual hours "+formatHours(presentHours)+
+" + paid leave hours "+formatHours(paidLeaveHours)+
+" = payable "+formatHours(payableHours)+
+". Paid leave allowed: "+leaveDays+"/4 day(s).";
 }else if(basis==="days"){
 title.textContent="Pay by Days";
-completedLabel.textContent="Completed Days";
-completedValue.textContent=completedDays+" / "+workingDays;
+completedLabel.textContent="Payable Days";
+completedValue.textContent=payableDays+" / "+lastDay;
 rateLabel.textContent="Daily Rate";
 rateValue.textContent=money(dailyRate);
 document.getElementById("attendanceStatus").textContent=
-"Salary = daily rate × employee's completed working days till date.";
+"Present "+presentDays+" day(s) + paid leave "+leaveDays+
+" day(s) = payable "+payableDays+" day(s). Paid leave allowed: 4 day(s) per month.";
 }else{
 title.textContent="Fixed Monthly Salary";
 completedLabel.textContent="Attendance Till Date";
-completedValue.textContent=completedDays+" days / "+formatHours(completedHours);
+completedValue.textContent=presentDays+" present, "+leaveDays+" paid leave";
 rateLabel.textContent="Fixed Monthly Amount";
 rateValue.textContent=money(monthly);
 document.getElementById("attendanceStatus").textContent=
-"Fixed monthly salary selected. Attendance is shown for reference and is not used to reduce the monthly salary.";
+"Fixed monthly salary selected. Attendance is shown for reference and does not reduce the monthly salary.";
+}
+
+if(unpaidLeaveDays>0||absentDays>0){
+document.getElementById("attendanceStatus").textContent +=
+" Unpaid: "+(unpaidLeaveDays+absentDays)+" day(s).";
 }
 
 document.getElementById("salaryCalculatedTill").textContent=
-"Salary calculated till: "+tillDate.split("-").reverse().join("-");
+"Salary cycle: 01-"+String(m).padStart(2,"0")+"-"+y+
+" to "+String(lastDay).padStart(2,"0")+"-"+String(m).padStart(2,"0")+"-"+y+
+" | Calculated till: "+tillDate.split("-").reverse().join("-");
 
 renderPaymentHistory()
 }
