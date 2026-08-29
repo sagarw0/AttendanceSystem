@@ -287,6 +287,13 @@ button:disabled{
  }
 }
 
+
+.login-debug-note{
+    margin-top:10px;
+    font-size:12px;
+    color:#687684;
+    text-align:center;
+}
 </style>
 </head>
 
@@ -367,7 +374,6 @@ button:disabled{
 
     <div class="small">
         Your attendance is recorded automatically.
-        <br>Logged out by mistake? Login again with your Employee Code.
     </div>
 
 </div>
@@ -736,21 +742,24 @@ async function findEmployee(employeeCode) {
             .trim()
             .toUpperCase();
 
-    const result =
-        await supabaseRequest(
-            "/rest/v1/employees" +
-            "?active=eq.true" +
-            "&select=id,employee_code,employee_name,department,designation"
-        );
+    if(!cleanCode) return [];
 
-    const employee =
-        result.find(item =>
-            String(item.employee_code || "")
-                .trim()
-                .toUpperCase() === cleanCode
-        );
+    /*
+     * Direct employee-code lookup.
+     * The previous version fetched every active employee and then searched
+     * in the browser, which could fail/appear stuck when RLS blocked the
+     * employee list.
+     */
+    const result = await supabaseRequest(
+        "/rest/v1/employees" +
+        "?employee_code=eq." +
+        encodeURIComponent(cleanCode) +
+        "&active=eq.true" +
+        "&select=id,employee_code,employee_name,department,designation,branch" +
+        "&limit=1"
+    );
 
-    return employee ? [employee] : [];
+    return Array.isArray(result) ? result : [];
 }
 
 /* ==========================================
@@ -852,40 +861,48 @@ async function createLoginAttendance() {
    UPDATE EXISTING RECORD WITH LOGIN
    ========================================== */
 
-async function updateExistingLogin(existingAttendance) {
+async function updateExistingLogin() {
 
-    /*
-     * Re-login rule:
-     * - If today's record is already open, resume it.
-     * - If today's record was logged out by mistake, reopen the SAME row.
-     * - Never create a second attendance row for the same employee/date.
-     */
-    const loginTime = getCurrentTime();
+    const loginTime =
+        getCurrentTime();
 
-    const result = await supabaseRequest(
-        "/rest/v1/attendance?id=eq." +
-        encodeURIComponent(existingAttendance.id),
-        {
-            method:"PATCH",
-            body:JSON.stringify({
-                in_time:loginTime,
-                out_time:null,
-                hours_completed:0,
-                attendance_status:"Present",
-                updated_at:new Date().toISOString()
-            })
-        }
-    );
 
-    todayAttendance = {
-        ...existingAttendance,
-        in_time:loginTime,
-        out_time:null,
-        hours_completed:0,
-        attendance_status:"Present"
-    };
+    const result =
+        await supabaseRequest(
+            "/rest/v1/attendance?id=eq." +
+            encodeURIComponent(
+                todayAttendance.id
+            ),
+            {
+                method: "PATCH",
 
-    return result;
+                body:
+                    JSON.stringify({
+
+                        in_time:
+                            loginTime,
+
+                        attendance_status:
+                            "Present"
+
+                    })
+            }
+        );
+
+
+    if (
+        !result ||
+        result.length === 0
+    ) {
+
+        throw new Error(
+            "Unable to save login time."
+        );
+    }
+
+
+    todayAttendance =
+        result[0];
 }
 
 
@@ -924,7 +941,7 @@ async function employeeLogin() {
 
     setLoginButton(
         true,
-        "Checking..."
+        "CHECKING..."
     );
 
 
@@ -990,10 +1007,11 @@ async function employeeLogin() {
         */
 
         else if (
-            !todayAttendance.in_time
+            !todayAttendance.in_time ||
+            todayAttendance.out_time
         ) {
 
-            await updateExistingLogin();
+            await updateExistingLogin(todayAttendance);
 
         }
 
@@ -1443,90 +1461,158 @@ function closeAttendanceHistory(){
    EMPLOYEE LOGOUT
    ========================================== */
 
-async async function employeeLogout() {
+async function employeeLogout() {
 
-    clearMessage("attendanceMessage");
+    clearMessage(
+        "attendanceMessage"
+    );
+
 
     if (!todayAttendance) {
-        showMessage("attendanceMessage","No login record found.","error");
-        return;
-    }
 
-    if (todayAttendance.out_time) {
         showMessage(
             "attendanceMessage",
-            "You have already logged out. You can login again if needed.",
-            "info"
+            "No login record found.",
+            "error"
         );
-        updateAttendanceScreen();
+
         return;
     }
 
-    if (!todayAttendance.in_time) {
+
+    if (
+        todayAttendance.out_time
+    ) {
+
+        showMessage(
+            "attendanceMessage",
+            "You have already logged out.",
+            "info"
+        );
+
+        updateAttendanceScreen();
+
+        return;
+    }
+
+
+    if (
+        !todayAttendance.in_time
+    ) {
+
         showMessage(
             "attendanceMessage",
             "Login time is missing. Please contact the administrator.",
             "error"
         );
+
         return;
     }
 
-    const confirmed = window.confirm(
-        "Are you sure you want to logout?\n\n" +
-        "You can login again later using the same Employee Code."
+
+    const confirmed =
+        window.confirm(
+            "Are you sure you want to logout?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    setLogoutButton(
+        true,
+        "Saving..."
     );
 
-    if (!confirmed) return;
-
-    setLogoutButton(true,"Saving...");
 
     try {
-        const logoutTime = getCurrentTime();
-        const completedHours = calculateHours(
-            todayAttendance.in_time,
-            logoutTime
-        );
 
-        await supabaseRequest(
-            "/rest/v1/attendance?id=eq." +
-            encodeURIComponent(todayAttendance.id),
-            {
-                method:"PATCH",
-                body:JSON.stringify({
-                    out_time:logoutTime,
-                    hours_completed:Number(completedHours.toFixed(2)),
-                    attendance_status:"Present",
-                    updated_at:new Date().toISOString()
-                })
-            }
-        );
+        const logoutTime =
+            getCurrentTime();
 
-        /*
-         * Keep the employee record available for re-login.
-         * We only end the current attendance session.
-         */
-        todayAttendance = {
-            ...todayAttendance,
-            out_time:logoutTime,
-            hours_completed:Number(completedHours.toFixed(2)),
-            attendance_status:"Present"
-        };
+
+        const completedHours =
+            calculateHours(
+                todayAttendance.in_time,
+                logoutTime
+            );
+
+
+        const result =
+            await supabaseRequest(
+                "/rest/v1/attendance?id=eq." +
+                encodeURIComponent(
+                    todayAttendance.id
+                ),
+                {
+                    method: "PATCH",
+
+                    body:
+                        JSON.stringify({
+
+                            out_time:
+                                logoutTime,
+
+                            hours_completed:
+                                Number(
+                                    completedHours.toFixed(2)
+                                ),
+
+                            attendance_status:
+                                "Present"
+
+                        })
+                }
+            );
+
+
+        if (
+            !result ||
+            result.length === 0
+        ) {
+
+            throw new Error(
+                "Logout was not saved."
+            );
+        }
+
+
+        todayAttendance =
+            result[0];
+
 
         updateAttendanceScreen();
 
+
         showMessage(
             "attendanceMessage",
-            "Attendance logged out successfully. You can login again with the same Employee Code.",
+            "Logout recorded successfully. Hours completed: " +
+            formatHours(
+                completedHours
+            ),
             "success"
         );
 
-        setLogoutButton(false,"🔴 LOGOUT");
 
-    } catch(error) {
-        setLogoutButton(false,"🔴 LOGOUT");
+    }
+    catch (error) {
+
+        console.error(
+            "Employee logout error:",
+            error
+        );
+
+        setLogoutButton(
+            false,
+            "🔴 LOGOUT"
+        );
+
         showMessage(
             "attendanceMessage",
-            "Unable to logout: " + error.message,
+            "Unable to record logout: " +
+            error.message,
             "error"
         );
     }
