@@ -367,6 +367,7 @@ button:disabled{
 
     <div class="small">
         Your attendance is recorded automatically.
+        <br>Previous sessions today are included in your total hours.
     </div>
 
 </div>
@@ -821,9 +822,19 @@ async function closeAttendanceAutomatically(row, reason) {
 
     const date = String(row.attendance_date || getToday());
     const logoutTime = autoLogoutTimeForDate(date);
-    const actualHours = calculateHours(row.in_time, logoutTime);
+    const previousHours = capDailyHours(
+        Number(row.hours_completed) || 0
+    );
+
+    const actualHours = calculateHours(
+        row.in_time,
+        logoutTime
+    );
+
     const completedHours = Number(
-        capDailyHours(actualHours).toFixed(2)
+        capDailyHours(
+            previousHours + actualHours
+        ).toFixed(2)
     );
 
     const result = await supabaseRequest(
@@ -1030,6 +1041,22 @@ async function updateExistingLogin() {
     const loginTime =
         getCurrentTime();
 
+    /*
+     * IMPORTANT:
+     * hours_completed already contains the employee's completed hours
+     * from an earlier session today. Keep those hours when the employee
+     * logs in again after an accidental logout.
+     */
+    const previousHours = capDailyHours(
+        Number(todayAttendance.hours_completed) || 0
+    );
+
+    if (previousHours >= MAX_DAILY_HOURS) {
+        throw new Error(
+            "You have already completed 8 hours for today."
+        );
+    }
+
     const result =
         await supabaseRequest(
             "/rest/v1/attendance?id=eq." +
@@ -1039,7 +1066,7 @@ async function updateExistingLogin() {
                 body:JSON.stringify({
                     in_time:loginTime,
                     out_time:null,
-                    hours_completed:0,
+                    hours_completed:Number(previousHours.toFixed(2)),
                     attendance_status:"Present"
                 })
             }
@@ -1309,15 +1336,25 @@ function updateLiveHours(){
         return;
     }
 
-    const liveHours = capDailyHours(
-        calculateHours(
-            todayAttendance.in_time,
-            getCurrentTime()
-        )
+    /*
+     * hours_completed stores hours already completed in earlier sessions
+     * today. Add the currently running session to that value.
+     */
+    const previousHours = capDailyHours(
+        Number(todayAttendance.hours_completed) || 0
+    );
+
+    const currentSessionHours = calculateHours(
+        todayAttendance.in_time,
+        getCurrentTime()
+    );
+
+    const totalHours = capDailyHours(
+        previousHours + currentSessionHours
     );
 
     document.getElementById("hoursCompleted").textContent =
-        formatHours(liveHours);
+        formatHours(totalHours);
 }
 
 async function loadAttendanceHistory(){
@@ -1635,12 +1672,19 @@ async function employeeLogout() {
             getCurrentTime();
 
 
+        const previousHours = capDailyHours(
+            Number(todayAttendance.hours_completed) || 0
+        );
+
+        const currentSessionHours =
+            calculateHours(
+                todayAttendance.in_time,
+                logoutTime
+            );
+
         const completedHours =
             capDailyHours(
-                calculateHours(
-                    todayAttendance.in_time,
-                    logoutTime
-                )
+                previousHours + currentSessionHours
             );
 
 
