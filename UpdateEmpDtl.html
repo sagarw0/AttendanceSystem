@@ -757,48 +757,57 @@ renderPaymentHistory();
 }
 function renderPaymentHistory(){const body=document.getElementById("paymentHistoryBody"),empty=document.getElementById("paymentHistoryEmpty"),table=document.getElementById("paymentHistoryTable");document.getElementById("paymentHistoryLoading").style.display="none";if(!payrollPayments.length){table.style.display="none";empty.style.display="block";return}empty.style.display="none";table.style.display="block";body.innerHTML=payrollPayments.map(p=>"<tr><td>"+escapeHTML(p.payment_date||"")+"</td><td>"+escapeHTML(p.payment_type||"")+"</td><td>"+escapeHTML(p.payment_basis||"")+"</td><td>"+money(p.amount)+"</td><td>"+escapeHTML(p.remark||"")+"</td></tr>").join("")}
 async function saveSalaryPayment(){
-const e=employees.find(x=>Number(x.id)===Number(payrollEmployeeId));
-const month=document.getElementById("payrollMonth").value;
-const basis=document.getElementById("payMethod").value;
-const amount=Number(document.getElementById("paymentAmount").value||0);
-const remark=document.getElementById("paymentRemark").value.trim();
-const paymentDate=document.getElementById("paymentDate").value;
+ const button=document.querySelector('#payrollModal .modal-actions button.primary');
+ const e=employees.find(x=>Number(x.id)===Number(payrollEmployeeId));
+ const month=document.getElementById("payrollMonth").value;
+ const basis=document.getElementById("payMethod").value;
+ const amount=Number(document.getElementById("paymentAmount").value||0);
+ const paymentDate=document.getElementById("paymentDate").value;
 
-if(!e)return showPayrollMessage("Employee not found.");
-if(!month)return showPayrollMessage("Please select salary month.");
-if(amount<=0)return showPayrollMessage("Please enter a valid salary payment amount.");
-if(!paymentDate)return showPayrollMessage("Please select payment date.");
-if(!remark)return showPayrollMessage("Payment remark is mandatory.");
+ if(!e)return showPayrollMessage("Employee not found.");
+ if(!month)return showPayrollMessage("Please select salary month.");
+ if(amount<=0)return showPayrollMessage("Please enter a valid salary payment amount.");
+ if(!paymentDate)return showPayrollMessage("Please select payment date.");
 
-const confirmed=confirm(
-"Are you sure you want to record this salary payment?\\n\\n"+
-"Employee: "+e.employee_name+"\\n"+
-"Salary Month: "+month+"\\n"+
-"Basis: "+basis+"\\n"+
-"Amount: "+money(amount)+"\\n"+
-"Payment Date: "+paymentDate+"\\n"+
-"Remark: "+remark
-);
-if(!confirmed)return;
+ const confirmed=confirm(
+ "Are you sure you want to record this salary payment?\\n\\n"+
+ "Employee: "+e.employee_name+"\\n"+
+ "Salary Month: "+month+"\\n"+
+ "Basis: "+basis+"\\n"+
+ "Amount: "+money(amount)+"\\n"+
+ "Payment Date: "+paymentDate
+ );
+ if(!confirmed)return;
 
-try{
-await supabaseRequest("/rest/v1/salary_payments",{
-method:"POST",
-body:JSON.stringify({
-employee_id:Number(e.id),
-salary_month:month,
-payment_type:"salary",
-payment_basis:basis,
-amount:amount,
-payment_date:paymentDate,
-remark:remark
-})
-});
-await refreshPayroll();
-showMessage("Salary payment saved successfully.","success");
-}catch(err){
-showPayrollMessage("Unable to pay salary: "+err.message);
-}
+ if(button){
+   button.disabled=true;
+   button.textContent="Saving...";
+ }
+
+ try{
+   await supabaseRequest("/rest/v1/salary_payments",{
+     method:"POST",
+     body:JSON.stringify({
+       employee_id:Number(e.id),
+       salary_month:month,
+       payment_type:"salary",
+       payment_basis:basis,
+       amount:amount,
+       payment_date:paymentDate,
+       remark:""
+     })
+   });
+
+   await refreshPayroll();
+   showMessage("Salary payment saved successfully.","success");
+ }catch(err){
+   showPayrollMessage("Unable to pay salary: "+err.message);
+ }finally{
+   if(button){
+     button.disabled=false;
+     button.textContent="Pay Salary";
+   }
+ }
 }
 
 function showPayrollMessage(m){const b=document.getElementById("payrollModalMessage");b.textContent=m;b.style.display="block"}
