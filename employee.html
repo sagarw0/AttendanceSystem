@@ -287,21 +287,6 @@ button:disabled{
  }
 }
 
-
-.login-debug-note{
-    margin-top:10px;
-    font-size:12px;
-    color:#687684;
-    text-align:center;
-}
-
-.relogin-btn{
-    background:#1f4e78;
-    color:#fff;
-    width:100%;
-    margin-top:10px;
-}
-.relogin-btn:hover{background:#173b5c}
 </style>
 </head>
 
@@ -365,18 +350,9 @@ button:disabled{
         id="logoutButton"
         class="logout-btn"
         type="button"
-        
+        onclick="employeeLogout()"
     >
         🔴 LOGOUT
-    </button>
-
-    <button
-        id="reloginButton"
-        class="relogin-btn hidden"
-        type="button"
-        
-    >
-        🔄 RE-LOGIN
     </button>
 
     <button
@@ -453,6 +429,7 @@ const SUPABASE_KEY =
 
 let currentEmployee = null;
 let todayAttendance = null;
+const MAX_DAILY_HOURS = 8;
 
 
 /* ==========================================
@@ -759,24 +736,21 @@ async function findEmployee(employeeCode) {
             .trim()
             .toUpperCase();
 
-    if(!cleanCode) return [];
+    const result =
+        await supabaseRequest(
+            "/rest/v1/employees" +
+            "?active=eq.true" +
+            "&select=id,employee_code,employee_name,department,designation"
+        );
 
-    /*
-     * Direct employee-code lookup.
-     * The previous version fetched every active employee and then searched
-     * in the browser, which could fail/appear stuck when RLS blocked the
-     * employee list.
-     */
-    const result = await supabaseRequest(
-        "/rest/v1/employees" +
-        "?employee_code=eq." +
-        encodeURIComponent(cleanCode) +
-        "&active=eq.true" +
-        "&select=id,employee_code,employee_name,department,designation,branch" +
-        "&limit=1"
-    );
+    const employee =
+        result.find(item =>
+            String(item.employee_code || "")
+                .trim()
+                .toUpperCase() === cleanCode
+        );
 
-    return Array.isArray(result) ? result : [];
+    return employee ? [employee] : [];
 }
 
 /* ==========================================
@@ -785,51 +759,210 @@ async function findEmployee(employeeCode) {
 
 async function loadTodayAttendance() {
 
-    const today = getToday();
+    const today =
+        getToday();
 
-    const result = await supabaseRequest(
-        "/rest/v1/attendance" +
-        "?employee_id=eq." +
-        encodeURIComponent(currentEmployee.id) +
-        "&attendance_date=eq." +
-        encodeURIComponent(today) +
-        "&select=*" +
-        "&order=id.desc" +
-        "&limit=1"
-    );
+    const result =
+        await supabaseRequest(
+            "/rest/v1/attendance" +
+            "?employee_id=eq." +
+            encodeURIComponent(
+                currentEmployee.id
+            ) +
+            "&attendance_date=eq." +
+            encodeURIComponent(
+                today
+            ) +
+            "&select=*" +
+            "&order=id.desc" +
+            "&limit=1"
+        );
 
     todayAttendance =
         result.length > 0
             ? result[0]
             : null;
 
-    /*
-     * Safety check for an open attendance record from an earlier day.
-     * This normally occurs when the employee forgot to logout.
-     */
-    if(todayAttendance &&
-       todayAttendance.in_time &&
-       !todayAttendance.out_time &&
-       String(todayAttendance.attendance_date) !== today){
-
-        await autoCloseForgottenAttendance();
-
-        /*
-         * The old record has now been closed. There is no current-day
-         * attendance record, so login will create today's record below.
-         */
-        todayAttendance = null;
-
-        return null;
-    }
-
     return todayAttendance;
 }
 
 
 /* ==========================================
+   AUTOMATIC DAY-END ATTENDANCE CONTROL
+   ========================================== */
+
+/*
+ * Attendance rule:
+ * - Maximum credited working time for one attendance day = 8 hours.
+ * - If the employee does not logout, the record is automatically closed
+ *   at 11:59:59 PM for that same calendar day.
+ * - The employee is then returned to the login screen for the new day.
+ * - If the browser/app was closed before midnight, the next login also
+ *   finalizes any previous open attendance record.
+ *
+ * No updated_at column is used because the attendance table does not have it.
+ */
+
+function capDailyHours(hours) {
+    return Math.min(
+        MAX_DAILY_HOURS,
+        Math.max(0, Number(hours) || 0)
+    );
+}
+
+function autoLogoutTimeForDate(dateString) {
+    return "23:59:59";
+}
+
+async function closeAttendanceAutomatically(row, reason) {
+    if (!row || !row.id || !row.in_time || row.out_time) {
+        return row;
+    }
+
+    const date = String(row.attendance_date || getToday());
+    const logoutTime = autoLogoutTimeForDate(date);
+    const actualHours = calculateHours(row.in_time, logoutTime);
+    const completedHours = Number(
+        capDailyHours(actualHours).toFixed(2)
+    );
+
+    const result = await supabaseRequest(
+        "/rest/v1/attendance?id=eq." +
+        encodeURIComponent(row.id),
+        {
+            method:"PATCH",
+            body:JSON.stringify({
+                out_time:logoutTime,
+                hours_completed:completedHours,
+                attendance_status:"Present"
+            })
+        }
+    );
+
+    return Array.isArray(result) && result.length
+        ? result[0]
+        : {
+            ...row,
+            out_time:logoutTime,
+            hours_completed:completedHours,
+            attendance_status:"Present"
+        };
+}
+
+/*
+ * Called immediately after an employee is found.
+ * It closes forgotten attendance records from earlier calendar days.
+ */
+async function finalizePreviousOpenAttendance() {
+    if (!currentEmployee) return;
+
+    const today = getToday();
+
+    const rows = await supabaseRequest(
+        "/rest/v1/attendance" +
+        "?employee_id=eq." +
+        encodeURIComponent(currentEmployee.id) +
+        "&attendance_date=lt." +
+        encodeURIComponent(today) +
+        "&out_time=is.null" +
+        "&select=*" +
+        "&order=attendance_date.asc,id.asc"
+    );
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+        return;
+    }
+
+    for (const row of rows) {
+        try {
+            await closeAttendanceAutomatically(
+                row,
+                "Previous day automatic logout"
+            );
+        } catch (error) {
+            console.error(
+                "Unable to auto-close previous attendance:",
+                row,
+                error
+            );
+        }
+    }
+}
+
+/*
+ * Called while the attendance screen is open.
+ * At midnight, close the old day and return the employee to login.
+ */
+async function checkForDayEndAutoLogout() {
+    if (!currentEmployee || !todayAttendance || !todayAttendance.in_time) {
+        return;
+    }
+
+    const attendanceDate =
+        String(todayAttendance.attendance_date || "");
+
+    const today = getToday();
+
+    if (
+        todayAttendance.out_time ||
+        !attendanceDate ||
+        attendanceDate === today
+    ) {
+        return;
+    }
+
+    try {
+        todayAttendance =
+            await closeAttendanceAutomatically(
+                todayAttendance,
+                "Automatic day-end logout"
+            );
+
+        /*
+         * End the app session. The employee must login again for the new day.
+         */
+        currentEmployee = null;
+        todayAttendance = null;
+
+        const modal =
+            document.getElementById("attendanceHistoryModal");
+
+        if (modal) {
+            modal.classList.remove("show");
+        }
+
+        document.getElementById("attendanceCard")
+            .classList.add("hidden");
+
+        document.getElementById("loginCard")
+            .classList.remove("hidden");
+
+        const input =
+            document.getElementById("employeeCode");
+
+        if (input) {
+            input.value = "";
+            input.focus();
+        }
+
+        showMessage(
+            "loginMessage",
+            "Previous day's attendance was closed automatically. Please login for the new day.",
+            "info"
+        );
+    } catch (error) {
+        console.error(
+            "Automatic day-end logout failed:",
+            error
+        );
+    }
+}
+
+/* ==========================================
    CREATE NEW LOGIN RECORD
    ========================================== */
+
+
 
 async function createLoginAttendance() {
 
@@ -892,47 +1025,33 @@ async function createLoginAttendance() {
    UPDATE EXISTING RECORD WITH LOGIN
    ========================================== */
 
-async function updateExistingLogin(existingAttendance) {
+async function updateExistingLogin() {
 
-    if(!existingAttendance){
-        throw new Error("Attendance record not found.");
-    }
+    const loginTime =
+        getCurrentTime();
 
-    const loginTime = getCurrentTime();
+    const result =
+        await supabaseRequest(
+            "/rest/v1/attendance?id=eq." +
+            encodeURIComponent(todayAttendance.id),
+            {
+                method:"PATCH",
+                body:JSON.stringify({
+                    in_time:loginTime,
+                    out_time:null,
+                    hours_completed:0,
+                    attendance_status:"Present"
+                })
+            }
+        );
 
-    /*
-     * Important:
-     * hours_completed contains the total completed hours from previous
-     * sessions on the same day. Re-login starts a new session and preserves
-     * those hours instead of resetting them to zero.
-     */
-    const accumulated = Math.max(
-        0,
-        Number(existingAttendance.hours_completed || 0)
-    );
-
-    const result = await supabaseRequest(
-        "/rest/v1/attendance?id=eq." +
-        encodeURIComponent(existingAttendance.id),
-        {
-            method:"PATCH",
-            body:JSON.stringify({
-                in_time:loginTime,
-                out_time:null,
-                hours_completed:Number(accumulated.toFixed(2)),
-                attendance_status:"Present",
-                updated_at:new Date().toISOString()
-            })
-        }
-    );
-
-    if(!result || result.length === 0){
-        throw new Error("Unable to save re-login time.");
+    if (!result || result.length === 0) {
+        throw new Error(
+            "Unable to save login time."
+        );
     }
 
     todayAttendance = result[0];
-
-    return todayAttendance;
 }
 
 
@@ -942,152 +1061,99 @@ async function updateExistingLogin(existingAttendance) {
 
 async function employeeLogin() {
 
-    clearMessage(
-        "loginMessage"
-    );
+    clearMessage("loginMessage");
 
     const input =
-        document.getElementById(
-            "employeeCode"
-        );
+        document.getElementById("employeeCode");
 
     const code =
         input.value.trim();
 
-
     if (!code) {
-
         showMessage(
             "loginMessage",
             "Please enter your employee code.",
             "error"
         );
-
         input.focus();
-
         return;
     }
 
-
-    setLoginButton(
-        true,
-        "CHECKING..."
-    );
-
+    setLoginButton(true,"Checking...");
 
     try {
 
-        /*
-        1. Find employee
-        */
-
         const result =
-            await findEmployee(
-                code
-            );
+            await findEmployee(code);
 
-
-        if (
-            !result ||
-            result.length === 0
-        ) {
-
-            setLoginButton(
-                false,
-                "LOGIN"
-            );
-
+        if (!result || result.length === 0) {
+            setLoginButton(false,"LOGIN");
             showMessage(
                 "loginMessage",
                 "Employee code not found.",
                 "error"
             );
-
             return;
         }
 
-
-        currentEmployee =
-            result[0];
-
+        currentEmployee = result[0];
 
         /*
-        2. Find today's attendance
-        */
+         * First close any forgotten attendance from previous days.
+         */
+        await finalizePreviousOpenAttendance();
 
+        /*
+         * Then load only today's record.
+         */
         await loadTodayAttendance();
 
-
         /*
-        3. No record:
-           create today's login.
-        */
-
+         * No record today -> create today's login.
+         */
         if (!todayAttendance) {
-
             await createLoginAttendance();
-
         }
 
-
         /*
-        4. Record exists but
-           IN TIME is empty:
-           update it with current time.
-        */
-
-        else if (
-            !todayAttendance.in_time ||
-            todayAttendance.out_time
-        ) {
-
-            await updateExistingLogin(todayAttendance);
-
+         * Record exists without login -> start it.
+         */
+        else if (!todayAttendance.in_time) {
+            await updateExistingLogin();
         }
 
-
         /*
-        5. Show employee screen.
-        */
+         * Record exists with logout -> employee may have logged out by mistake.
+         * Reopen the SAME row; never create a duplicate for today.
+         */
+        else if (todayAttendance.out_time) {
+            await updateExistingLogin();
+        }
 
-        document.getElementById(
-            "loginCard"
-        ).classList.add(
-            "hidden"
-        );
+        document.getElementById("loginCard")
+            .classList.add("hidden");
 
-        document.getElementById(
-            "attendanceCard"
-        ).classList.remove(
-            "hidden"
-        );
+        document.getElementById("attendanceCard")
+            .classList.remove("hidden");
 
-        document.getElementById(
-            "employeeName"
-        ).textContent =
+        document.getElementById("employeeName")
+            .textContent =
             currentEmployee.employee_name;
-
 
         updateAttendanceScreen();
 
-
-    }
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Employee login error:",
             error
         );
 
-        setLoginButton(
-            false,
-            "LOGIN"
-        );
+        setLoginButton(false,"LOGIN");
 
         showMessage(
             "loginMessage",
-            "Unable to login: " +
-            error.message,
+            "Unable to login: " + error.message,
             "error"
         );
     }
@@ -1166,8 +1232,6 @@ function updateAttendanceScreen() {
             "✓ LOGOUT COMPLETED"
         );
 
-        document.getElementById("reloginButton").classList.remove("hidden");
-
         return;
     }
 
@@ -1183,9 +1247,6 @@ function updateAttendanceScreen() {
         false,
         "🔴 LOGOUT"
     );
-    if(todayAttendance && !todayAttendance.out_time){
-        document.getElementById("reloginButton").classList.add("hidden");
-    }
 }
 
 
@@ -1239,107 +1300,25 @@ function getAttendanceHours(row){
     return 0;
 }
 
-function getAccumulatedHours(){
-    return Math.max(0, Number(todayAttendance?.hours_completed || 0));
-}
-
 function updateLiveHours(){
     if(!todayAttendance || !todayAttendance.in_time)return;
 
-    const accumulated = getAccumulatedHours();
-
     if(todayAttendance.out_time){
         document.getElementById("hoursCompleted").textContent =
-            formatHours(accumulated);
+            formatHours(getAttendanceHours(todayAttendance));
         return;
     }
 
-    const currentSession = calculateHours(
-        todayAttendance.in_time,
-        getCurrentTime()
+    const liveHours = capDailyHours(
+        calculateHours(
+            todayAttendance.in_time,
+            getCurrentTime()
+        )
     );
 
     document.getElementById("hoursCompleted").textContent =
-        formatHours(accumulated + currentSession);
+        formatHours(liveHours);
 }
-
-async function autoCloseForgottenAttendance(){
-    if(!todayAttendance || !todayAttendance.in_time || todayAttendance.out_time){
-        return false;
-    }
-
-    const today = getToday();
-    const attendanceDate = String(todayAttendance.attendance_date || "");
-
-    if(!attendanceDate || attendanceDate === today){
-        return false;
-    }
-
-    /*
-     * Previous day's open attendance:
-     * automatically close it at 8 paid hours.
-     *
-     * If the employee had already logged out/re-logged in, preserve the
-     * accumulated completed hours and add only the remaining hours needed
-     * to reach the 8-hour daily maximum.
-     */
-    const accumulated = getAccumulatedHours();
-    const remaining = Math.max(0, 8 - accumulated);
-    const finalHours = Math.min(8, accumulated + remaining);
-
-    /*
-     * Store the automatic logout at the original login time + the remaining
-     * hours. This makes the record auditable while enforcing the 8-hour
-     * forgotten-logout rule.
-     */
-    const start = new Date("2000-01-01T" + todayAttendance.in_time);
-    start.setMinutes(start.getMinutes() + Math.round(remaining * 60));
-
-    const autoLogoutTime =
-        String(start.getHours()).padStart(2,"0") + ":" +
-        String(start.getMinutes()).padStart(2,"0") + ":00";
-
-    await supabaseRequest(
-        "/rest/v1/attendance?id=eq." +
-        encodeURIComponent(todayAttendance.id),
-        {
-            method:"PATCH",
-            body:JSON.stringify({
-                out_time:autoLogoutTime,
-                hours_completed:Number(finalHours.toFixed(2)),
-                attendance_status:"Present",
-                updated_at:new Date().toISOString()
-            })
-        }
-    );
-
-    todayAttendance = {
-        ...todayAttendance,
-        out_time:autoLogoutTime,
-        hours_completed:Number(finalHours.toFixed(2)),
-        attendance_status:"Present"
-    };
-
-    return true;
-}
-
-async function checkForgottenLogout(){
-    if(!todayAttendance)return;
-
-    const wasClosed = await autoCloseForgottenAttendance();
-
-    if(wasClosed){
-        updateAttendanceScreen();
-
-        showMessage(
-            "attendanceMessage",
-            "Previous day's attendance was automatically completed at 8 hours because logout was missed.",
-            "info"
-        );
-    }
-}
-
-
 
 async function loadAttendanceHistory(){
     if(!currentEmployee)return;
@@ -1584,142 +1563,160 @@ function closeAttendanceHistory(){
    EMPLOYEE LOGOUT
    ========================================== */
 
-async function employeeRelogin(){
+async function employeeLogout() {
 
-    clearMessage("attendanceMessage");
-
-    if(!currentEmployee || !todayAttendance){
-        showMessage(
-            "attendanceMessage",
-            "Please login with your Employee Code first.",
-            "error"
-        );
-        return;
-    }
-
-    if(!todayAttendance.out_time){
-        showMessage(
-            "attendanceMessage",
-            "You are already logged in.",
-            "info"
-        );
-        document.getElementById("reloginButton").classList.add("hidden");
-        updateAttendanceScreen();
-        return;
-    }
-
-    const confirmed = window.confirm(
-        "Re-login for today?\n\n" +
-        "Your previous completed hours will be preserved and " +
-        "the new session will continue counting from the new login time."
+    clearMessage(
+        "attendanceMessage"
     );
 
-    if(!confirmed)return;
 
-    const button = document.getElementById("reloginButton");
-    button.disabled = true;
-    button.textContent = "RE-LOGIN...";
-
-    try{
-        await updateExistingLogin(todayAttendance);
-
-        document.getElementById("reloginButton").classList.add("hidden");
-
-        updateAttendanceScreen();
+    if (!todayAttendance) {
 
         showMessage(
             "attendanceMessage",
-            "Re-login successful. Previous hours are preserved and new hours are now being counted.",
-            "success"
-        );
-
-        setLogoutButton(false,"🔴 LOGOUT");
-
-    }catch(error){
-        showMessage(
-            "attendanceMessage",
-            "Unable to re-login: " + error.message,
+            "No login record found.",
             "error"
         );
-        button.disabled = false;
-        button.textContent = "🔄 RE-LOGIN";
-    }
-}
 
-async function employeeLogout(){
-
-    const button=document.getElementById("logoutButton");
-
-    clearMessage("attendanceMessage");
-
-    if(!todayAttendance){
-        showMessage("attendanceMessage","No attendance record is loaded. Please login again.","error");
         return;
     }
 
-    if(todayAttendance.out_time){
-        document.getElementById("reloginButton").classList.remove("hidden");
-        showMessage("attendanceMessage","You are already logged out. Use RE-LOGIN if this was a mistake.","info");
-        return;
-    }
 
-    if(!todayAttendance.in_time){
-        showMessage("attendanceMessage","Login time is missing. Please login again.","error");
-        return;
-    }
+    if (
+        todayAttendance.out_time
+    ) {
 
-    if(!window.confirm("Are you sure you want to logout?\n\nIf you logout by mistake, you can use RE-LOGIN.")){
-        return;
-    }
-
-    if(button){
-        button.disabled=true;
-        button.textContent="SAVING...";
-    }
-
-    try{
-        const logoutTime=getCurrentTime();
-        const previousHours=Math.max(0,Number(todayAttendance.hours_completed||0));
-        const currentSessionHours=calculateHours(todayAttendance.in_time,logoutTime);
-        const totalHours=previousHours+currentSessionHours;
-
-        const result=await supabaseRequest(
-            "/rest/v1/attendance?id=eq."+encodeURIComponent(todayAttendance.id),
-            {
-                method:"PATCH",
-                body:JSON.stringify({
-                    out_time:logoutTime,
-                    hours_completed:Number(totalHours.toFixed(2)),
-                    attendance_status:"Present",
-                    updated_at:new Date().toISOString()
-                })
-            }
+        showMessage(
+            "attendanceMessage",
+            "You have already logged out.",
+            "info"
         );
-
-        if(!result || !result.length){
-            throw new Error("Supabase did not update today's attendance record. Check UPDATE permission on attendance table.");
-        }
-
-        todayAttendance=result[0];
 
         updateAttendanceScreen();
 
-        document.getElementById("reloginButton").classList.remove("hidden");
+        return;
+    }
+
+
+    if (
+        !todayAttendance.in_time
+    ) {
 
         showMessage(
             "attendanceMessage",
-            "Logout successful. If this was a mistake, tap RE-LOGIN.",
+            "Login time is missing. Please contact the administrator.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            "Are you sure you want to logout?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    setLogoutButton(
+        true,
+        "Saving..."
+    );
+
+
+    try {
+
+        const logoutTime =
+            getCurrentTime();
+
+
+        const completedHours =
+            capDailyHours(
+                calculateHours(
+                    todayAttendance.in_time,
+                    logoutTime
+                )
+            );
+
+
+        const result =
+            await supabaseRequest(
+                "/rest/v1/attendance?id=eq." +
+                encodeURIComponent(
+                    todayAttendance.id
+                ),
+                {
+                    method: "PATCH",
+
+                    body:
+                        JSON.stringify({
+
+                            out_time:
+                                logoutTime,
+
+                            hours_completed:
+                                Number(
+                                    completedHours.toFixed(2)
+                                ),
+
+                            attendance_status:
+                                "Present"
+
+                        })
+                }
+            );
+
+
+        if (
+            !result ||
+            result.length === 0
+        ) {
+
+            throw new Error(
+                "Logout was not saved."
+            );
+        }
+
+
+        todayAttendance =
+            result[0];
+
+
+        updateAttendanceScreen();
+
+
+        showMessage(
+            "attendanceMessage",
+            "Logout recorded successfully. Hours completed: " +
+            formatHours(
+                completedHours
+            ),
             "success"
         );
 
-    }catch(error){
-        if(button){
-            button.disabled=false;
-            button.textContent="🔴 LOGOUT";
-        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "Employee logout error:",
+            error
+        );
+
+        setLogoutButton(
+            false,
+            "🔴 LOGOUT"
+        );
+
         showMessage(
             "attendanceMessage",
-            "Logout failed: "+error.message,
+            "Unable to record logout: " +
+            error.message,
             "error"
         );
     }
@@ -1728,24 +1725,20 @@ async function employeeLogout(){
 
 setInterval(async function(){
     if(currentEmployee && todayAttendance && !todayAttendance.out_time){
-        if(String(todayAttendance.attendance_date) !== getToday()){
-            try{
-                await checkForgottenLogout();
-            }catch(error){
-                console.error("Automatic forgotten-logout handling failed:",error);
-            }
-        }else{
-            updateLiveHours();
-        }
+        updateLiveHours();
+        await checkForDayEndAutoLogout();
     }
 }, 30000);
 
-/* ==========================================
-   ATTENDANCE BUTTON EVENTS
-   ========================================== */
-
-document.getElementById("logoutButton").addEventListener("click", employeeLogout);
-document.getElementById("reloginButton").addEventListener("click", employeeRelogin);
+/*
+ * Also check once immediately when the page becomes active again.
+ * This covers phones waking from sleep around/after midnight.
+ */
+document.addEventListener("visibilitychange", function(){
+    if(!document.hidden){
+        checkForDayEndAutoLogout();
+    }
+});
 
 /* ==========================================
    ENTER KEY
