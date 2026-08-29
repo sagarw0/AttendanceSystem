@@ -365,7 +365,7 @@ button:disabled{
         id="logoutButton"
         class="logout-btn"
         type="button"
-        onclick="employeeLogout()"
+        
     >
         🔴 LOGOUT
     </button>
@@ -374,7 +374,7 @@ button:disabled{
         id="reloginButton"
         class="relogin-btn hidden"
         type="button"
-        onclick="employeeRelogin()"
+        
     >
         🔄 RE-LOGIN
     </button>
@@ -1166,6 +1166,8 @@ function updateAttendanceScreen() {
             "✓ LOGOUT COMPLETED"
         );
 
+        document.getElementById("reloginButton").classList.remove("hidden");
+
         return;
     }
 
@@ -1582,8 +1584,7 @@ function closeAttendanceHistory(){
    EMPLOYEE LOGOUT
    ========================================== */
 
-async async 
-async async function employeeRelogin(){
+async function employeeRelogin(){
 
     clearMessage("attendanceMessage");
 
@@ -1645,67 +1646,45 @@ async async function employeeRelogin(){
     }
 }
 
-async function employeeLogout() {
+async function employeeLogout(){
+
+    const button=document.getElementById("logoutButton");
 
     clearMessage("attendanceMessage");
 
     if(!todayAttendance){
-        showMessage("attendanceMessage","No login record found.","error");
+        showMessage("attendanceMessage","No attendance record is loaded. Please login again.","error");
         return;
     }
 
     if(todayAttendance.out_time){
-        showMessage(
-            "attendanceMessage",
-            "You are already logged out. Use RE-LOGIN if you logged out by mistake.",
-            "info"
-        );
         document.getElementById("reloginButton").classList.remove("hidden");
+        showMessage("attendanceMessage","You are already logged out. Use RE-LOGIN if this was a mistake.","info");
         return;
     }
 
     if(!todayAttendance.in_time){
-        showMessage(
-            "attendanceMessage",
-            "Login time is missing. Please contact the administrator.",
-            "error"
-        );
+        showMessage("attendanceMessage","Login time is missing. Please login again.","error");
         return;
     }
 
-    const confirmed = window.confirm(
-        "Are you sure you want to logout?\n\n" +
-        "If you logout by mistake, you can use RE-LOGIN."
-    );
+    if(!window.confirm("Are you sure you want to logout?\n\nIf you logout by mistake, you can use RE-LOGIN.")){
+        return;
+    }
 
-    if(!confirmed)return;
-
-    setLogoutButton(true,"Saving...");
+    if(button){
+        button.disabled=true;
+        button.textContent="SAVING...";
+    }
 
     try{
-        const logoutTime = getCurrentTime();
+        const logoutTime=getCurrentTime();
+        const previousHours=Math.max(0,Number(todayAttendance.hours_completed||0));
+        const currentSessionHours=calculateHours(todayAttendance.in_time,logoutTime);
+        const totalHours=previousHours+currentSessionHours;
 
-        const previousHours = Math.max(
-            0,
-            Number(todayAttendance.hours_completed || 0)
-        );
-
-        const currentSessionHours = calculateHours(
-            todayAttendance.in_time,
-            logoutTime
-        );
-
-        /*
-         * Same-day logout after 8 hours:
-         * actual hours are counted. There is NO 8-hour cap when the employee
-         * intentionally logs out on the same day.
-         */
-        const totalHours =
-            previousHours + currentSessionHours;
-
-        await supabaseRequest(
-            "/rest/v1/attendance?id=eq." +
-            encodeURIComponent(todayAttendance.id),
+        const result=await supabaseRequest(
+            "/rest/v1/attendance?id=eq."+encodeURIComponent(todayAttendance.id),
             {
                 method:"PATCH",
                 body:JSON.stringify({
@@ -1717,12 +1696,11 @@ async function employeeLogout() {
             }
         );
 
-        todayAttendance = {
-            ...todayAttendance,
-            out_time:logoutTime,
-            hours_completed:Number(totalHours.toFixed(2)),
-            attendance_status:"Present"
-        };
+        if(!result || !result.length){
+            throw new Error("Supabase did not update today's attendance record. Check UPDATE permission on attendance table.");
+        }
+
+        todayAttendance=result[0];
 
         updateAttendanceScreen();
 
@@ -1730,17 +1708,18 @@ async function employeeLogout() {
 
         showMessage(
             "attendanceMessage",
-            "Logged out successfully. If this was a mistake, tap RE-LOGIN.",
+            "Logout successful. If this was a mistake, tap RE-LOGIN.",
             "success"
         );
 
-        setLogoutButton(false,"🔴 LOGOUT");
-
     }catch(error){
-        setLogoutButton(false,"🔴 LOGOUT");
+        if(button){
+            button.disabled=false;
+            button.textContent="🔴 LOGOUT";
+        }
         showMessage(
             "attendanceMessage",
-            "Unable to logout: " + error.message,
+            "Logout failed: "+error.message,
             "error"
         );
     }
@@ -1760,6 +1739,13 @@ setInterval(async function(){
         }
     }
 }, 30000);
+
+/* ==========================================
+   ATTENDANCE BUTTON EVENTS
+   ========================================== */
+
+document.getElementById("logoutButton").addEventListener("click", employeeLogout);
+document.getElementById("reloginButton").addEventListener("click", employeeRelogin);
 
 /* ==========================================
    ENTER KEY
